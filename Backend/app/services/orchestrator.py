@@ -1,7 +1,7 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from sqlalchemy.orm import Session
 
 from app.models.user import User, UserProfile
@@ -17,10 +17,65 @@ from app.services.rag_service import rag_service
 from app.services.risk_engine import risk_engine
 from app.services.explainability import explainability_engine
 from app.services.genai_service import genai_service
+from app.services.llm_gateway import llm_service
+from app.prompts.templates import ORCHESTRATOR_SYSTEM_PROMPT, ORCHESTRATOR_USER_TEMPLATE, wrap_untrusted
 
 executor = ThreadPoolExecutor(max_workers=4)
 
+ALLOWED_AGENTS = {"text_agent", "url_agent", "sender_agent"}
+
 class AIOrchestrator:
+    def route_agents(self,
+                     db: Session,
+                     cleaned_text: str,
+                     urls: List[str],
+                     sender: Optional[str],
+                     channel: str,
+                     subject: Optional[str]) -> List[str]:
+        """
+        LLM-assisted Agent Dispatch:
+        Analyzes the payload and determines which agents are required.
+        Strictly validated against allow-list: ['text_agent', 'url_agent', 'sender_agent'].
+        Falls back safely to heuristic routing if LLM is unavailable.
+        """
+        try:
+            prompt = ORCHESTRATOR_USER_TEMPLATE.format(
+                channel=channel,
+                urls=", ".join(urls) if urls else "None",
+                sender=sender or "None",
+                subject=subject or "None",
+                untrusted_content=wrap_untrusted(cleaned_text[:1000], "INBOUND PAYLOAD")
+            )
+            llm_res = llm_service.generate_structured(
+                db=db,
+                prompt=prompt,
+                system_prompt=ORCHESTRATOR_SYSTEM_PROMPT
+            )
+            if llm_res and isinstance(llm_res, dict):
+                raw_agents = llm_res.get("agents", [])
+                if isinstance(raw_agents, list):
+                    validated = [a for a in raw_agents if a in ALLOWED_AGENTS]
+                    if validated:
+                        # Safety check: if URLs exist, always ensure url_agent is active
+                        if urls and "url_agent" not in validated:
+                            validated.append("url_agent")
+                        # Safety check: if sender exists, always ensure sender_agent is active
+                        if sender and "sender_agent" not in validated:
+                            validated.append("sender_agent")
+                        if "text_agent" not in validated:
+                            validated.insert(0, "text_agent")
+                        return validated
+        except Exception as e:
+            print(f"AI Orchestrator LLM routing warning (falling back to rule routing): {e}")
+
+        # Heuristic Fallback Routing
+        selected = ["text_agent"]
+        if urls and len(urls) > 0:
+            selected.append("url_agent")
+        if sender or channel == "email":
+            selected.append("sender_agent")
+        return selected
+
     def execute_pipeline(self,
                          db: Session,
                          user: User,
@@ -31,12 +86,13 @@ class AIOrchestrator:
         """
         End-to-End Multi-Agent Threat Pipeline:
         1. Preprocess & auto-extract signals from unified single input.
-        2. Execute Text, URL, and Sender agents in parallel.
-        3. RAG incident vector retrieval.
-        4. Bayesian Risk Fusion.
-        5. Explainability Attribution.
-        6. Personalized GenAI Guidance.
-        7. Persist to Database.
+        2. LLM Dynamic Agent Routing (restricted to allow-list).
+        3. Execute Text Agent (LLM + ML), URL Agent (XGBoost), and Sender Agent (Random Forest).
+        4. RAG incident vector retrieval.
+        5. Bayesian Risk Fusion.
+        6. Explainability Attribution.
+        7. Personalized GenAI Guidance.
+        8. Persist to Database.
         """
         # 1. Preprocessing
         prep = preprocess_single_input(
@@ -52,15 +108,39 @@ class AIOrchestrator:
         channel = prep["channel"]
         subject = prep["subject"]
 
-        # 2. Parallel Agent Execution
-        # Run text, url, and sender in parallel threads
-        f_text = executor.submit(text_agent.analyze, cleaned_text)
-        f_url = executor.submit(url_agent.analyze, urls)
-        f_sender = executor.submit(sender_agent.analyze, sender, raw_input)
+        # 2. Dynamic LLM Agent Routing
+        selected_agents = self.route_agents(
+            db=db,
+            cleaned_text=cleaned_text,
+            urls=urls,
+            sender=sender,
+            channel=channel,
+            subject=subject
+        )
 
-        res_text = f_text.result()
-        res_url = f_url.result()
-        res_sender = f_sender.result()
+        # 3. Parallel Agent Execution
+        futures = {}
+        if "text_agent" in selected_agents:
+            futures["text"] = executor.submit(text_agent.analyze, cleaned_text, db)
+        if "url_agent" in selected_agents:
+            futures["url"] = executor.submit(url_agent.analyze, urls)
+        if "sender_agent" in selected_agents:
+            # Preserves Random Forest Classifier
+            futures["sender"] = executor.submit(sender_agent.analyze, sender, raw_input)
+
+        # Resolve or fill default inactive states
+        res_text = futures["text"].result() if "text" in futures else {
+            "agent_type": "text", "risk_score": 0.0, "model_probability": 0.0,
+            "indicators": [], "signals": [], "summary": "Text Agent bypassed.", "model_name": text_agent.algorithm
+        }
+        res_url = futures["url"].result() if "url" in futures else {
+            "agent_type": "url", "risk_score": 0.0, "model_probability": 0.0,
+            "indicators": [], "summary": "URL Agent bypassed (no embedded links detected).", "model_name": url_agent.algorithm
+        }
+        res_sender = futures["sender"].result() if "sender" in futures else {
+            "agent_type": "sender", "risk_score": 0.0, "model_probability": 0.0,
+            "indicators": [], "summary": "Sender Agent bypassed (no sender header present).", "model_name": sender_agent.algorithm
+        }
 
         # 3. Phishing / Incident RAG Retrieval
         res_rag = rag_service.retrieve_similar_incident(cleaned_text, urls, db)

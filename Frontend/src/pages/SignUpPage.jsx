@@ -7,10 +7,13 @@ export default function SignUpPage({ onNavigate }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const role = 'Unspecified';
+  const [role, setRole] = useState('Student');
+  const [customRole, setCustomRole] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const ROLES = ['Student', 'Employee', 'Developer', 'IT Professional', 'Business Owner', 'Teacher / Educator', 'Other'];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,13 +28,15 @@ export default function SignUpPage({ onNavigate }) {
       return;
     }
     if (!agreeTerms) {
-      setError('Please acknowledge the capstone terms and privacy notice');
+      setError('Please acknowledge the terms and privacy notice');
       return;
     }
 
+    const finalRole = role === 'Other' ? (customRole.trim() || 'Other') : role;
+
     setLoading(true);
     try {
-      await register(email, password, role);
+      await register(email, password, finalRole);
       // Route immediately to dynamic conversational profiling wizard!
       onNavigate('onboarding');
     } catch (err) {
@@ -161,6 +166,43 @@ export default function SignUpPage({ onNavigate }) {
               </div>
             </div>
 
+            {/* What best describes your role? (Section 10/12) */}
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+                What best describes your role?
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {ROLES.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+                      role === r
+                        ? 'bg-blue-600 text-white shadow-sm font-semibold'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+              {role === 'Other' && (
+                <div className="pt-1">
+                  <label className="block text-[11px] font-medium text-slate-600 mb-1">
+                    Please specify your role
+                  </label>
+                  <input
+                    type="text"
+                    value={customRole}
+                    onChange={(e) => setCustomRole(e.target.value)}
+                    placeholder="e.g. Freelancer, Consultant, Researcher"
+                    required={role === 'Other'}
+                    className="block w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition"
+                  />
+                </div>
+              )}
+            </div>
 
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700" htmlFor="reg-password">

@@ -83,6 +83,7 @@ export const api = {
   },
   analytics: {
     get: () => request('/analytics'),
+    getAiSummary: () => request('/analytics/ai-summary'),
   },
   meta: {
     getAttackTypes: () => request('/attack-types'),

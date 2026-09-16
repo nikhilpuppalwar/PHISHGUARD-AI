@@ -2,7 +2,7 @@ import os
 import re
 import pickle
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -23,6 +23,10 @@ CREDENTIAL_PATTERNS = [
 SOCIAL_ENGINEERING_PATTERNS = [
     r"\b(congratulations|selected|exclusive|special\s+offer|lottery|winner|inheritance|compensation|funds|guaranteed)\b"
 ]
+
+from sqlalchemy.orm import Session
+from app.services.llm_gateway import llm_service
+from app.prompts.templates import TEXT_ANALYSIS_SYSTEM_PROMPT, TEXT_ANALYSIS_USER_TEMPLATE, wrap_untrusted
 
 class TextAgent:
     def __init__(self):
@@ -77,14 +81,20 @@ class TextAgent:
         except Exception:
             pass
 
-    def analyze(self, text: str) -> Dict[str, Any]:
-        """Analyze suspicious text and return probability, indicators, and agent risk score."""
+    def analyze(self, text: str, db: Optional[Session] = None) -> Dict[str, Any]:
+        """
+        Analyze suspicious text using a hybrid pipeline:
+        1. NLP Machine Learning (TF-IDF + Logistic Regression)
+        2. Lexical indicator pattern extraction
+        3. Real LLM Semantic & Social Engineering Analysis (via active gateway provider)
+        """
         if not text or len(text.strip()) == 0:
             return {
                 "agent_type": "text",
                 "risk_score": 0.0,
                 "model_probability": 0.0,
                 "indicators": [],
+                "signals": [],
                 "summary": "No textual content provided.",
                 "model_name": self.algorithm
             }
@@ -106,9 +116,71 @@ class TextAgent:
         if any(re.search(p, lowered, re.IGNORECASE) for p in SOCIAL_ENGINEERING_PATTERNS):
             indicators.append("Coercive psychological manipulation (unsolicited prize/offer)")
 
-        # Combine ML probability with detected indicator boost
-        heuristic_boost = len(indicators) * 0.12
-        combined_score = min(1.0, max(0.0, (prob_phish * 0.70) + heuristic_boost))
+        # 3. Real LLM Semantic Analysis if DB session is available
+        llm_signals = []
+        llm_confidence = None
+        llm_classification = None
+        llm_attack_type = None
+        used_llm = False
+
+        if db:
+            try:
+                prompt = TEXT_ANALYSIS_USER_TEMPLATE.format(
+                    untrusted_text=wrap_untrusted(cleaned[:2500], "INBOUND EMAIL OR MESSAGE TEXT")
+                )
+                llm_res = llm_service.generate_structured(
+                    db=db,
+                    prompt=prompt,
+                    system_prompt=TEXT_ANALYSIS_SYSTEM_PROMPT
+                )
+                if llm_res and isinstance(llm_res, dict):
+                    # Schema Validation (Section 4 & Section 19)
+                    llm_cls = str(llm_res.get("classification", "")).lower()
+                    if llm_cls in ["phishing", "suspicious", "legitimate"]:
+                        llm_classification = llm_cls
+                    
+                    conf = llm_res.get("confidence")
+                    if isinstance(conf, (int, float)) and 0.0 <= float(conf) <= 1.0:
+                        llm_confidence = float(conf)
+                    
+                    llm_attack_type = llm_res.get("attack_type")
+                    raw_signals = llm_res.get("signals")
+                    if isinstance(raw_signals, list):
+                        for sig in raw_signals:
+                            if isinstance(sig, dict) and sig.get("description"):
+                                sig_type = str(sig.get("type", "indicator")).replace("_", " ").title()
+                                sig_desc = str(sig["description"]).strip()
+                                llm_signals.append({
+                                    "type": sig.get("type", "indicator"),
+                                    "severity": sig.get("severity", "medium"),
+                                    "description": sig_desc
+                                })
+                                # Merge into indicators list without exact duplicate strings
+                                candidate = f"{sig_type}: {sig_desc}"
+                                if not any(sig_desc.lower() in ind.lower() for ind in indicators):
+                                    indicators.append(candidate)
+                        used_llm = True
+            except Exception as e:
+                print(f"TextAgent LLM inference error (falling back to ML/heuristics): {e}")
+
+        # Compute combined risk score
+        if used_llm and llm_confidence is not None:
+            # Calibrate LLM confidence with Logistic Regression probability
+            if llm_classification == "phishing":
+                eff_prob = max(prob_phish, llm_confidence)
+            elif llm_classification == "legitimate":
+                eff_prob = min(prob_phish, 1.0 - llm_confidence)
+            else:
+                eff_prob = (llm_confidence * 0.6) + (prob_phish * 0.4)
+            
+            heuristic_boost = min(0.30, len(indicators) * 0.08)
+            combined_score = min(1.0, max(0.0, (eff_prob * 0.75) + heuristic_boost))
+            active_model = f"LLM ({llm_service.get_active_provider_summary(db)['provider'].title()}) + {self.algorithm}"
+        else:
+            heuristic_boost = len(indicators) * 0.12
+            combined_score = min(1.0, max(0.0, (prob_phish * 0.70) + heuristic_boost))
+            active_model = self.algorithm
+
         risk_score = round(combined_score * 100, 1)
 
         summary_parts = []
@@ -122,8 +194,13 @@ class TextAgent:
             "risk_score": risk_score,
             "model_probability": round(prob_phish, 4),
             "indicators": indicators,
+            "signals": llm_signals,
+            "classification": llm_classification or ("phishing" if risk_score >= 70 else "legitimate"),
+            "llm_confidence": llm_confidence,
+            "attack_type": llm_attack_type,
             "summary": " ".join(summary_parts),
-            "model_name": self.algorithm
+            "model_name": active_model
         }
 
 text_agent = TextAgent()
+

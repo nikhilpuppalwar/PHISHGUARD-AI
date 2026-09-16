@@ -1,5 +1,6 @@
 import time
 import json
+import re
 import urllib.request
 import urllib.error
 from typing import Dict, Any, List, Optional
@@ -300,10 +301,135 @@ class LLMGateway:
                     data = json.loads(response.read().decode("utf-8"))
                     return data["message"]["content"].strip()
 
+            elif provider == "claude":
+                endpoint = "https://api.anthropic.com/v1/messages"
+                payload = {
+                    "model": model_name or "claude-3-5-haiku-20241022",
+                    "max_tokens": 800,
+                    "messages": [{"role": "user", "content": "\n".join([f"{m['role'].upper()}: {m['content']}" for m in messages])}]
+                }
+                if system_prompt:
+                    payload["system"] = system_prompt
+                headers = {
+                    "Content-Type": "application/json",
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01"
+                }
+                req = urllib.request.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+                with urllib.request.urlopen(req, timeout=15) as response:
+                    data = json.loads(response.read().decode("utf-8"))
+                    return data["content"][0]["text"].strip()
+
+            elif provider == "huggingface":
+                m_target = model_name or "meta-llama/Llama-3.2-3B-Instruct"
+                endpoint = f"https://api-inference.huggingface.co/models/{m_target}"
+                full_prompt = f"{system_prompt}\n\n" if system_prompt else ""
+                full_prompt += "\n".join([f"{m['role'].upper()}: {m['content']}" for m in messages])
+                payload = {"inputs": full_prompt, "parameters": {"max_new_tokens": 400}}
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}"
+                }
+                req = urllib.request.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+                with urllib.request.urlopen(req, timeout=15) as response:
+                    data = json.loads(response.read().decode("utf-8"))
+                    if isinstance(data, list) and len(data) > 0:
+                        return str(data[0].get("generated_text", "")).strip()
+                    return str(data).strip()
+
         except Exception as e:
             print(f"LLM Gateway Error calling {provider}: {e}")
             return None
 
         return None
 
+    def generate(self, db: Session, prompt: str, system_prompt: str = "", max_tokens: int = 800, temperature: float = 0.3) -> Optional[str]:
+        """
+        Standard text generation interface using the active primary provider.
+        Automatically falls back across available credentials if the primary fails.
+        """
+        messages = [{"role": "user", "content": prompt}]
+        res = self.generate_chat(db, messages, system_prompt=system_prompt)
+        if res:
+            return res
+
+        # Attempt fallback to any other saved active credentials
+        try:
+            other_creds = db.query(LLMCredential).filter(LLMCredential.is_active == False, LLMCredential.api_key.isnot(None)).all()
+            for alt in other_creds:
+                print(f"Primary LLM failed. Attempting fallback provider: {alt.provider} ({alt.model_name})")
+                try:
+                    # Temporary mock credential call
+                    if alt.provider == "gemini":
+                        import google.generativeai as genai
+                        genai.configure(api_key=alt.api_key)
+                        m = genai.GenerativeModel(alt.model_name or "gemini-1.5-flash", system_instruction=system_prompt if system_prompt else None)
+                        resp = m.generate_content(prompt)
+                        if resp and resp.text:
+                            return resp.text.strip()
+                except Exception as fb_err:
+                    print(f"Fallback provider {alt.provider} also failed: {fb_err}")
+                    continue
+        except Exception:
+            pass
+
+        return None
+
+    def generate_structured(self, db: Session, prompt: str, system_prompt: str = "", schema_hint: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """
+        Generate structured JSON from the active LLM with robust extraction and repair.
+        Guarantees that raw LLM output is parsed, sanitized, and safely usable by application logic.
+        """
+        sys = system_prompt or ""
+        if schema_hint:
+            sys += f"\n\nYou MUST respond strictly in valid JSON format conforming to:\n{schema_hint}"
+        else:
+            sys += "\n\nYou MUST format your entire response as a valid JSON object. Do not include markdown code fence formatting or commentary outside the JSON."
+
+        raw = self.generate(db, prompt, system_prompt=sys)
+        if not raw:
+            return None
+
+        # Clean and extract JSON substring
+        cleaned = raw.strip()
+        # Remove ```json ... ``` code blocks if present
+        if cleaned.startswith("```"):
+            cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+            cleaned = re.sub(r"\s*```$", "", cleaned)
+
+        # Regex search for the outermost {...} block
+        match = re.search(r"(\{.*\})", cleaned, re.DOTALL)
+        if match:
+            json_str = match.group(1)
+            try:
+                parsed = json.loads(json_str)
+                if isinstance(parsed, dict):
+                    return parsed
+            except json.JSONDecodeError:
+                # Attempt minor syntax repair (trailing commas, unescaped newlines)
+                try:
+                    repaired = re.sub(r",\s*([\]}])", r"\1", json_str)
+                    return json.loads(repaired)
+                except Exception:
+                    pass
+
+        return None
+
+    def get_active_provider_summary(self, db: Session) -> Dict[str, Any]:
+        cred = self.get_active_credential(db)
+        if cred:
+            return {
+                "provider": cred.provider,
+                "model": cred.model_name,
+                "is_configured": bool(cred.api_key or cred.provider == "ollama")
+            }
+        return {
+            "provider": "offline_deterministic",
+            "model": "rule_based_calibrated",
+            "is_configured": False
+        }
+
+LLMService = LLMGateway
 llm_gateway = LLMGateway()
+llm_service = llm_gateway
+

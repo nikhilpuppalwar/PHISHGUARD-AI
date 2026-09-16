@@ -52,6 +52,13 @@ ATTACK_TYPE_MAP = [
     }
 ]
 
+from app.services.llm_gateway import llm_service
+from app.prompts.templates import (
+    EXPLANATION_SYSTEM_PROMPT, EXPLANATION_USER_TEMPLATE,
+    RECOMMENDATIONS_SYSTEM_PROMPT, RECOMMENDATIONS_USER_TEMPLATE,
+    wrap_untrusted
+)
+
 class GenAIService:
     def classify_attack_type(self, raw_text: str, indicators: List[str]) -> Dict[str, str]:
         """Determine most likely attack category based on text and detected indicators."""
@@ -80,64 +87,126 @@ class GenAIService:
         """
         score = risk_assessment.get("overall_score", 0.0)
         severity = risk_assessment.get("severity", "Low Risk")
+        confidence = risk_assessment.get("confidence", 0.85)
+
         indicators = []
         for a in ["url", "text", "sender"]:
             indicators.extend(agent_details.get(a, {}).get("indicators", []))
 
         attack_info = self.classify_attack_type(raw_text, indicators)
 
-        # Profile Memory Matching (Section 16)
+        # Profile Memory Matching (Section 16 & Section 9)
         matched_services = []
-        if user_profile and user_profile.get("common_services"):
-            for s in user_profile["common_services"]:
+        user_services = user_profile.get("common_services", []) if user_profile else []
+        if user_services:
+            for s in user_services:
                 if s.lower() in raw_text.lower():
                     matched_services.append(s)
 
         profile_context_note = ""
         if matched_services:
-            profile_context_note = f" This threat specifically mimics your active platform ({', '.join(matched_services)}), increasing potential deception risk."
+            profile_context_note = f" This message may be particularly deceptive because it attempts to imitate {', '.join(matched_services)}, which is listed in your profile services."
 
-        # Check if active LLM in database can generate rich explanation
+        # RAG Context representation
+        rag_context_str = "No direct historical match."
+        if similar_incident:
+            rag_context_str = (
+                f"Matched Historical Case: '{similar_incident.get('title')}' "
+                f"({similar_incident.get('attack_type')}, similarity: {round(similar_incident.get('similarity', 0.8) * 100)}%). "
+                f"Pattern: {similar_incident.get('content_summary')}. "
+                f"Indicators: {'; '.join(similar_incident.get('indicators', []))}"
+            )
+
+        # Multi-Agent Evidence breakdown
+        text_ev = f"Score: {agent_details.get('text', {}).get('risk_score', 0)}/100, Flags: {'; '.join(agent_details.get('text', {}).get('indicators', []))}"
+        url_ev = f"Score: {agent_details.get('url', {}).get('risk_score', 0)}/100, Flags: {'; '.join(agent_details.get('url', {}).get('indicators', []))}"
+        sender_ev = f"Score: {agent_details.get('sender', {}).get('risk_score', 0)}/100 (Random Forest), Flags: {'; '.join(agent_details.get('sender', {}).get('indicators', []))}"
+
+        # 1. Check if active LLM in database can generate grounded explanation and actions
         if db:
             try:
-                active_cred = llm_gateway.get_active_credential(db)
-                if active_cred:
-                    system_prompt = (
-                        f"You are PhishGuard AI's senior cybersecurity triage analyst. "
-                        f"Analyze the user's input with Risk Score: {score}/100 ({severity}), Attack Type: {attack_info['name']}. "
-                        f"The recipient is a {user_role} with {security_awareness} security awareness."
-                        f"{f' They regularly use: {matched_services}.' if matched_services else ''} "
-                        f"Provide your assessment formatted strictly as JSON with two keys: "
-                        f"'explanation' (a 2-3 sentence grounded threat explanation personalized to this user) and "
-                        f"'action_plan' (an array of 3 bulleted concrete action steps for this user role)."
+                active_prov = llm_service.get_active_provider_summary(db)
+                if active_prov["is_configured"]:
+                    # Grounded Explanation Call
+                    expl_prompt = EXPLANATION_USER_TEMPLATE.format(
+                        risk_score=score,
+                        severity=severity,
+                        confidence=confidence,
+                        attack_type=attack_info["name"],
+                        text_evidence=text_ev,
+                        url_evidence=url_ev,
+                        sender_evidence=sender_ev,
+                        rag_context=rag_context_str,
+                        user_role=user_role,
+                        security_awareness=security_awareness,
+                        common_services=", ".join(user_services) if user_services else "None specified",
+                        technical_experience=user_profile.get("technical_experience", "Intermediate") if user_profile else "Intermediate",
+                        untrusted_content=wrap_untrusted(raw_text[:1200], "INBOUND THREAT PAYLOAD")
                     )
-                    prompt_content = f"Suspicious Message Text:\n{raw_text[:1200]}\n\nDetected Indicators: {', '.join(indicators)}"
-                    llm_msgs = [{"role": "user", "content": prompt_content}]
-                    raw_llm = llm_gateway.generate_chat(db, llm_msgs, system_prompt=system_prompt)
-                    if raw_llm:
-                        import re
-                        json_match = re.search(r'\{.*\}', raw_llm, re.DOTALL)
-                        if json_match:
-                            parsed = json.loads(json_match.group(0))
-                            if parsed.get("explanation") and parsed.get("action_plan"):
-                                return {
-                                    "attack_type": attack_info["name"],
-                                    "attack_type_description": attack_info["description"],
-                                    "explanation": parsed["explanation"],
-                                    "action_plan": parsed["action_plan"],
-                                    "llm_provider": active_cred.provider,
-                                    "llm_model": active_cred.model_name
-                                }
-            except Exception as e:
-                print(f"GenAI LLM generation error, falling back to rule engine: {e}")
 
-        # Build personalized explanation
+                    expl_json = llm_service.generate_structured(
+                        db=db,
+                        prompt=expl_prompt,
+                        system_prompt=EXPLANATION_SYSTEM_PROMPT
+                    )
+
+                    # Recommendations Call
+                    rec_prompt = RECOMMENDATIONS_USER_TEMPLATE.format(
+                        attack_type=attack_info["name"],
+                        severity=severity,
+                        risk_score=score,
+                        user_role=user_role,
+                        security_awareness=security_awareness,
+                        indicators="; ".join(indicators[:4])
+                    )
+
+                    rec_json = llm_service.generate_structured(
+                        db=db,
+                        prompt=rec_prompt,
+                        system_prompt=RECOMMENDATIONS_SYSTEM_PROMPT
+                    )
+
+                    # Assemble grounded response
+                    if expl_json and expl_json.get("summary"):
+                        final_explanation = expl_json["summary"]
+                        if expl_json.get("personalized_insight") and "none" not in expl_json["personalized_insight"].lower():
+                            final_explanation += f" {expl_json['personalized_insight']}"
+
+                        # Assemble action plan
+                        actions = []
+                        if rec_json and isinstance(rec_json, dict):
+                            imm = rec_json.get("immediate_actions", [])
+                            fol = rec_json.get("if_already_interacted", [])
+                            if isinstance(imm, list):
+                                actions.extend(imm[:3])
+                            if isinstance(fol, list):
+                                actions.extend(fol[:2])
+
+                        if not actions:
+                            actions = [
+                                "Do not click any embedded links or provide credentials.",
+                                "Verify communication through an official verified channel.",
+                                "Report the message to your organization's IT/security desk."
+                            ]
+
+                        return {
+                            "attack_type": attack_info["name"],
+                            "attack_type_description": attack_info["description"],
+                            "explanation": final_explanation.strip(),
+                            "action_plan": actions,
+                            "llm_provider": active_prov["provider"],
+                            "llm_model": active_prov["model"]
+                        }
+            except Exception as e:
+                print(f"GenAIService LLM generation error (falling back to calibrated rules): {e}")
+
+        # Deterministic Calibrated Fallback (Resilient 100% offline guarantee)
         if score >= 75.0:
             explanation = (
                 f"PhishGuard AI has classified this inbound payload as a high-confidence threat ({severity}, {score}/100) "
                 f"exhibiting characteristics of an **{attack_info['name']}**.{profile_context_note} "
-                f"The Text Agent identified coercive pressure and upfront payment incentives, while the URL Agent flagged obfuscated redirects. "
-                f"Furthermore, the Sender Agent detected domain mismatch and missing cryptographic authentication headers."
+                f"The Text Agent identified coercive pressure, while the URL Agent flagged link anomalies. "
+                f"Furthermore, the Sender Agent (Random Forest) detected domain mismatch and missing cryptographic authentication headers."
             )
         elif score >= 40.0:
             explanation = (
@@ -149,7 +218,6 @@ class GenAIService:
                 f"This communication exhibits legitimate structural characteristics ({severity}, {score}/100). "
                 f"Standard sender headers and benign linguistic patterns were verified with no malicious link behavior detected."
             )
-
 
         # Build personalized action plan adapted to role and awareness
         action_plan = []
@@ -187,5 +255,5 @@ class GenAIService:
             "llm_model": "Context-Grounded-Pipeline-v2"
         }
 
-
 genai_service = GenAIService()
+

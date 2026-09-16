@@ -101,6 +101,29 @@ class RAGService:
                     "indicators": inc["indicators"],
                 }
 
+        # Also query database incidents if session provided
+        if db_session:
+            try:
+                db_incidents = db_session.query(Incident).all()
+                for dbi in db_incidents:
+                    kws = dbi.similarity_keywords or []
+                    if not kws and dbi.content_summary:
+                        kws = re.findall(r"\w+", dbi.content_summary.lower())[:8]
+                    sim = self._calculate_keyword_similarity(combined_query, kws)
+                    if sim > highest_sim:
+                        highest_sim = sim
+                        atk_name = dbi.attack_type.name if dbi.attack_type else "Phishing"
+                        best_match = {
+                            "title": dbi.title or "Historical Security Incident",
+                            "attack_type": atk_name,
+                            "similarity": sim,
+                            "content_summary": dbi.content_summary,
+                            "indicators": dbi.indicators or [],
+                            "source": "database_incident"
+                        }
+            except Exception as e:
+                print(f"RAG database retrieval warning: {e}")
+
         # If similarity is meaningful (> 0.40), return it
         if best_match and highest_sim >= 0.45:
             return best_match
@@ -112,7 +135,8 @@ class RAGService:
                 "attack_type": "Generic Phishing",
                 "similarity": 0.62,
                 "content_summary": "Historical incident involving unverified payment requests and social-engineering language.",
-                "indicators": ["Suspicious communication with urgent call to action"]
+                "indicators": ["Suspicious communication with urgent call to action"],
+                "source": "baseline_vector_bank"
             }
 
         return None

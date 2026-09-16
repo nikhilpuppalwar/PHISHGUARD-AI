@@ -6,8 +6,23 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [recentIncidents, setRecentIncidents] = useState([]);
+  const [aiSummary, setAiSummary] = useState(null);
+  const [loadingSummary, setLoadingSummary] = useState(true);
   const [quickInput, setQuickInput] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const fetchAiSummary = async () => {
+    setLoadingSummary(true);
+    try {
+      const summaryData = await api.analytics.getAiSummary();
+      setAiSummary(summaryData);
+    } catch (err) {
+      console.warn('Failed to load AI summary:', err);
+      setAiSummary({ summary: 'AI summary is temporarily unavailable. Core multi-agent telemetry remains fully operational.' });
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -25,6 +40,7 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
       }
     }
     loadData();
+    fetchAiSummary();
   }, []);
 
   const handleQuickSubmit = (e) => {
@@ -63,6 +79,53 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
               <span>New Threat Analysis</span>
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* AI Security Summary Card (Section 17) */}
+      <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0B1220] to-[#111C33] border border-blue-900/40 text-slate-200 shadow-lg relative overflow-hidden">
+        <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+            </div>
+            <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+              AI Security Summary
+              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-cyan-400 border border-cyan-500/30">
+                LIVE INTEL
+              </span>
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            {aiSummary?.llm_provider && (
+              <span className="text-[11px] font-mono text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-md border border-slate-800">
+                Engine: <strong className="text-cyan-400 uppercase">{aiSummary.llm_provider}</strong>
+              </span>
+            )}
+            <button
+              onClick={fetchAiSummary}
+              disabled={loadingSummary}
+              className="text-xs text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition disabled:opacity-50"
+              title="Refresh AI Summary"
+            >
+              <span className={`material-symbols-outlined text-[18px] ${loadingSummary ? 'animate-spin' : ''}`}>
+                refresh
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div className="pt-3">
+          {loadingSummary ? (
+            <div className="flex items-center gap-3 py-2 text-xs font-mono text-cyan-400">
+              <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+              <span>Synthesizing multi-agent intelligence telemetry...</span>
+            </div>
+          ) : (
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+              {aiSummary?.summary || 'Your security summary is being calculated from database telemetry.'}
+            </p>
+          )}
         </div>
       </div>
 
