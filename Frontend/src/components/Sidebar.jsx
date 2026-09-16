@@ -17,24 +17,24 @@ export default function Sidebar({ currentScreen, onNavigate }) {
     <aside className="w-64 bg-[#0B1220] text-slate-200 min-h-[calc(100vh-5rem)] border-r border-slate-800 flex flex-col justify-between p-4 shrink-0 select-none">
       <div className="space-y-6">
         {/* User context badge */}
-        <div className="p-3 rounded-xl bg-[#14233D] border border-cyan-500/20 glow-cyan-subtle">
+        <div className="p-3.5 rounded-xl bg-[#14233D] border border-cyan-500/20 glow-cyan-subtle">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center font-bold text-white shadow-md">
-              {user?.profile?.preferred_name ? user.profile.preferred_name[0].toUpperCase() : 'U'}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-400 flex items-center justify-center font-bold text-white shadow-md">
+              {user?.profile?.preferred_name ? user.profile.preferred_name[0].toUpperCase() : (user?.email ? user.email[0].toUpperCase() : 'U')}
             </div>
             <div className="overflow-hidden">
               <div className="text-sm font-semibold text-white truncate">
-                {user?.profile?.preferred_name || 'Alex Rivera'}
+                {user?.profile?.preferred_name || (user?.email ? user.email.split('@')[0] : 'Security Researcher')}
               </div>
               <div className="flex items-center gap-1.5 text-xs text-cyan-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span>Role: {user?.profile?.role || 'Student'}</span>
+                <span>Role: {user?.profile?.role || 'Capstone Analyst'}</span>
               </div>
             </div>
           </div>
           <div className="mt-2.5 pt-2 border-t border-slate-700/60 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-            <span>TIER:</span>
-            <span className="text-emerald-400 font-semibold">{user?.profile?.security_awareness || 'Beginner'}</span>
+            <span>AWARENESS TIER:</span>
+            <span className="text-emerald-400 font-semibold">{user?.profile?.security_awareness || 'Active'}</span>
           </div>
         </div>
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import aiVisualization from '../assets/ai_visualization.png';
 
-export default function LoginPage({ onNavigate }) {
+export default function LoginPage({ onNavigate, redirectMessage, targetScreen }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('alex.rivera@university.edu');
   const [password, setPassword] = useState('Password123!');
@@ -20,7 +20,7 @@ export default function LoginPage({ onNavigate }) {
       if (!res.has_profile) {
         onNavigate('onboarding');
       } else {
-        onNavigate('dashboard');
+        onNavigate(targetScreen || 'dashboard');
       }
     } catch (err) {
       setError(err.message || 'Login failed. Please check credentials.');
@@ -58,61 +58,56 @@ export default function LoginPage({ onNavigate }) {
           <div className="space-y-3 pt-2">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              Multi-Agent Ensemble Architecture
+              Capstone Defense Intelligence
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-snug">
-              Personalized Multi-Agent Phishing Detection & Explainable Threat Triage
+              Sign In to Your Security Workspace
             </h1>
             <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
-              Real-time inference pipeline that extracts lexical features, domain credibility, and sender intent using collaborative AI agents.
+              Log in to review multi-agent analysis results, manage your personal security profile, and inspect threat forensic indicators.
             </p>
           </div>
 
-          {/* AI Graph image */}
-          <div className="relative rounded-xl overflow-hidden border border-cyan-500/25 glow-cyan-subtle bg-[#0B1220]">
+          {/* Visualization preview */}
+          <div className="relative rounded-xl overflow-hidden border border-slate-700 glow-blue-subtle bg-[#0B1220]">
             <img 
               src={aiVisualization} 
-              alt="Cybersecurity abstract AI visualization" 
+              alt="Cybersecurity AI pipeline visualization" 
               className="w-full h-48 sm:h-56 object-cover object-center opacity-90 transition duration-500 hover:scale-[1.01]" 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220] via-transparent to-transparent opacity-80 pointer-events-none" />
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-mono text-cyan-300 bg-[#0B1220]/75 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-cyan-500/30">
-              <span>ACTIVE MODEL: XGBoost + LR + Random Forest</span>
-              <span className="text-emerald-400">STATUS: READY</span>
+            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-mono text-cyan-300 bg-[#0B1220]/75 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-slate-700">
+              <span>STATUS: Multi-Agent Engine Active</span>
+              <span className="text-emerald-400">PIPELINE: ONLINE</span>
             </div>
           </div>
 
-          {/* Quick specs pill row */}
-          <div className="grid grid-cols-2 gap-3 text-xs font-mono">
-            <div className="p-3 rounded-lg bg-[#14233D]/60 border border-slate-700/60">
-              <span className="text-slate-400 block text-[10px]">TRAINING CORPUS</span>
-              <span className="text-white font-semibold">10 CSV Datasets (~1.02 GB)</span>
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
+            <div className="p-3 rounded-lg bg-[#14233D]/60 border border-slate-800">
+              <span className="text-slate-400 block text-[10px] uppercase">Agents Active</span>
+              <span className="text-cyan-400 font-bold">Text, URL, Sender</span>
             </div>
-            <div className="p-3 rounded-lg bg-[#14233D]/60 border border-slate-700/60">
-              <span className="text-slate-400 block text-[10px]">VECTOR RETRIEVAL</span>
-              <span className="text-cyan-400 font-semibold">Top-K ChromaDB Anchors</span>
+            <div className="p-3 rounded-lg bg-[#14233D]/60 border border-slate-800">
+              <span className="text-slate-400 block text-[10px] uppercase">Model Base</span>
+              <span className="text-emerald-400 font-bold">Random Forest + XGBoost</span>
             </div>
           </div>
         </div>
 
         <div className="relative z-10 pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono">
-          <span>Applied AI in Cybersecurity</span>
+          <span>Student Security Suite</span>
           <span>CS-CAPSTONE-2025</span>
         </div>
       </aside>
 
-      {/* Right Auth Panel */}
+      {/* Right Login Form */}
       <main className="w-full lg:w-[52%] xl:w-[50%] bg-white flex items-center justify-center p-6 sm:p-12 lg:p-16">
-        <div className="w-full max-w-md space-y-7 py-4">
+        <div className="w-full max-w-md space-y-6 py-4">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
-                SECURE WORKSPACE ACCESS
-              </span>
-              <span className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" /> System Online
-              </span>
-            </div>
+            <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
+              AUTHENTICATION
+            </span>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
               Welcome Back
             </h2>
@@ -120,6 +115,13 @@ export default function LoginPage({ onNavigate }) {
               Sign in to your PhishGuard AI account to analyze suspicious emails, links, and messages.
             </p>
           </div>
+
+          {redirectMessage && (
+            <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-800 flex items-start gap-2.5 font-medium shadow-xs">
+              <span className="material-symbols-outlined text-[18px] text-blue-600 shrink-0 mt-0.5">lock</span>
+              <span className="leading-snug">{redirectMessage}</span>
+            </div>
+          )}
 
           {error && (
             <div className="p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2 font-medium">

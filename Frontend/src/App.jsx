@@ -88,6 +88,21 @@ function AppContent() {
     );
   }
 
+  // Workspace Authentication Guard: Protected routes require active login
+  const PROTECTED_SCREENS = ['dashboard', 'submit', 'result', 'incidents', 'analytics', 'profile', 'glossary'];
+  if (!user && PROTECTED_SCREENS.includes(currentScreen)) {
+    const customMessage = currentScreen === 'glossary'
+      ? "Authentication required: Please sign in to explore the Threat Intelligence & Attack Type Glossary reference."
+      : "Authentication required: Please sign in to access PhishGuard workspaces and multi-agent detection tools.";
+    return (
+      <LoginPage 
+        onNavigate={navigate} 
+        targetScreen={currentScreen}
+        redirectMessage={customMessage} 
+      />
+    );
+  }
+
   // Authenticated Workspace Layout (Navbar + Sidebar + Content)
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
