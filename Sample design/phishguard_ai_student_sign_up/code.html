@@ -1,0 +1,340 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Sign Up - PhishGuard AI Capstone Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "navy-dark": "#0B1220",
+            "navy-card": "#131E32",
+            "navy-card-border": "#1E2C44",
+            "electric-blue": "#2563EB",
+            "cyan-glow": "#06B6D4",
+            "purple-agent": "#8B5CF6",
+            "page-bg": "#F8FAFC",
+            "text-primary": "#0F172A",
+            "text-secondary": "#475569",
+            "border-subtle": "#E2E8F0"
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+      }
+    }
+  </style>
+</head>
+<body class="bg-page-bg text-text-primary min-h-screen antialiased flex">
+<div class="w-full min-h-screen flex flex-col lg:flex-row">
+<!-- LEFT SIDE: Visual Showcase Panel (#0B1220 Deep Navy) -->
+<div class="lg:w-1/2 w-full bg-navy-dark text-white p-8 lg:p-14 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-navy-card-border">
+<!-- Ambient Glow Decorators -->
+<div class="absolute -top-32 -left-32 w-96 h-96 bg-electric-blue/15 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-0 right-0 w-96 h-96 bg-cyan-glow/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Top Brand Header -->
+<div class="relative z-10">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img alt="PhishGuard AI Logo" class="h-10 w-10 object-contain rounded-xl shadow-md border border-cyan-glow/30" src="https://lh3.googleusercontent.com/aida/AEtjO1X7dMUc9E6fHpmcu9e8MMrwGui9BSpkc3PosbjgaLP2Chqew6PF55yeXsa9n21wJMFhNFA1E_VhzEGryGEU6PXn_3ajAjudbbpPKnfD7ah09YUconhzL9nzAIKbEDPzMg_RJkLBID9uxO4StO5WvsSvQxU9b355E1yIcQ17aVp-C_8ztm3A9hyYev-HU3m_qlgVq3WH-PL_FET58nvXaNbCdX6BHb95QQSO8FpQLXfl13eSVUzQV_7fQGSn">
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xl font-bold tracking-tight text-white">PhishGuard AI</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-glow/15 text-cyan-glow border border-cyan-glow/30">
+                  Student / Capstone Project
+                </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Center Showcase & AI Detector Preview Card -->
+<div class="my-10 lg:my-0 relative z-10 flex flex-col gap-6">
+<div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-electric-blue/20 text-blue-300 border border-electric-blue/30 mb-3">
+<span class="material-symbols-outlined text-[15px] text-cyan-glow">psychology</span>
+            Multi-Agent Ensemble Architecture
+          </span>
+<h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-tight">
+            Personalized Multi-Agent Phishing Detection &amp; Explainable Threat Triage
+          </h2>
+<p class="text-slate-400 text-sm sm:text-base mt-2 leading-relaxed">
+            Real-time inference pipeline that extracts lexical features, domain credibility, and sender intent using collaborative AI agents.
+          </p>
+</div>
+<!-- Interactive-looking Detector UI Preview Card -->
+<div class="rounded-2xl overflow-hidden border border-navy-card-border shadow-2xl relative group"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5vDSMcudLBl5NpJ9MKCXPX-m6pF7dGkiubIWLcdxx2y86pgpd1Vqvera1YRqBpmygkOtaVbl4qOcNVdIuQStKhL8btSHLBoq9hWQcdtgBhbh9pEkRIV9RPPVYp3fsUjtDotr2DEZD_H6l8HyxPSWAu3TPVXdAFZafGTT3iFD1Yrj-qy91bETXua49xvyOu73vF6WsQXlJKTNqOt4R67g8ph6UYHeDgeZyWGtcmYn2nA7uXxDxxsdQNg" alt="Cybersecurity abstract AI visualization with deep navy background, glowing electric blue and cyan nodes, shield outlines, and network defense illustration" class="w-full h-44 object-cover object-center transform group-hover:scale-105 transition-all duration-500"><div class="absolute inset-0 bg-gradient-to-t from-navy-dark via-transparent to-transparent opacity-80 pointer-events-none"></div><div class="absolute bottom-2.5 left-3.5 right-3.5 flex items-center justify-between text-xs"><span class="inline-flex items-center gap-1 text-[11px] font-mono text-cyan-glow bg-navy-dark/80 backdrop-blur-md px-2 py-0.5 rounded border border-cyan-glow/30"><span class="w-1.5 h-1.5 rounded-full bg-cyan-glow animate-pulse"></span>Neural Threat Map</span><span class="text-[11px] text-slate-300 font-mono">v2.4 Active Defense</span></div></div><div class="bg-navy-card/90 backdrop-blur-md rounded-2xl border border-navy-card-border p-5 shadow-2xl space-y-4">
+<!-- Mock Scan Header -->
+<div class="flex items-center justify-between pb-3 border-b border-navy-card-border">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+<span class="text-xs font-mono text-slate-300 tracking-wide">LIVE INFERENCE ENGINE v2.4</span>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Low Latency · 128ms
+            </span>
+</div>
+<!-- Multi-Agent Triad Pills -->
+<div>
+<div class="text-xs text-slate-400 font-medium mb-2 uppercase tracking-wider flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-cyan-glow">network_check</span>
+              Active Diagnostic Agents
+            </div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+<!-- Agent 1 -->
+<div class="bg-navy-dark/70 rounded-xl p-2.5 border border-navy-card-border hover:border-cyan-glow/40 transition-colors">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-bold text-white">Text Agent</span>
+<span class="text-[10px] text-cyan-glow font-mono">TF-IDF</span>
+</div>
+<div class="text-[11px] text-slate-400">Lexical intent &amp; urgency triggers</div>
+</div>
+<!-- Agent 2 -->
+<div class="bg-navy-dark/70 rounded-xl p-2.5 border border-navy-card-border hover:border-electric-blue/40 transition-colors">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-bold text-white">URL Agent</span>
+<span class="text-[10px] text-blue-400 font-mono">XGBoost</span>
+</div>
+<div class="text-[11px] text-slate-400">Typosquat &amp; entropy scoring</div>
+</div>
+<!-- Agent 3 -->
+<div class="bg-navy-dark/70 rounded-xl p-2.5 border border-navy-card-border hover:border-purple-agent/40 transition-colors">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-bold text-white">Sender Agent</span>
+<span class="text-[10px] text-purple-300 font-mono">Random Forest</span>
+</div>
+<div class="text-[11px] text-slate-400">DKIM / SPF &amp; domain trust</div>
+</div>
+</div>
+</div>
+<!-- Threat Verification Highlight Bar -->
+<div class="flex items-center justify-between bg-navy-dark/90 rounded-xl px-3.5 py-2.5 border border-slate-800">
+<div class="flex items-center gap-2.5">
+<div class="w-7 h-7 rounded-lg bg-electric-blue/20 flex items-center justify-center text-electric-blue">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div>
+<p class="text-xs font-semibold text-white">Zero-Execution Safe Sandboxing</p>
+<p class="text-[11px] text-slate-400">No malicious payload execution on your client</p>
+</div>
+</div>
+<span class="text-xs font-mono font-semibold text-cyan-glow bg-cyan-glow/10 px-2 py-0.5 rounded border border-cyan-glow/20">99.4% Precision</span>
+</div>
+</div>
+<!-- Student/Academic Project Callout -->
+<div class="flex items-start gap-3 bg-navy-card/50 rounded-xl p-3.5 border border-slate-800 text-xs text-slate-300">
+<span class="material-symbols-outlined text-cyan-glow text-[20px] flex-shrink-0 mt-0.5">school</span>
+<p class="leading-relaxed">
+<strong class="text-white font-medium">Applied AI in Cybersecurity Capstone:</strong> Adapts specialized phishing intelligence for university staff, student portals, research grant spoofing, and credential defense.
+          </p>
+</div>
+</div>
+<!-- Left Panel Footer -->
+<div class="relative z-10 pt-4 flex items-center justify-between text-xs text-slate-400 border-t border-navy-card-border/60">
+<a class="flex items-center gap-1.5 text-slate-300 hover:text-white font-medium transition-colors" data-path="landing" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+<span class="">Back to Home</span>
+</a>
+<span class="text-slate-500 font-mono">CS-CAPSTONE-2025</span>
+</div>
+</div>
+<!-- RIGHT SIDE: Registration Form (#F8FAFC) -->
+<div class="lg:w-1/2 w-full bg-page-bg p-6 sm:p-10 lg:p-14 flex flex-col justify-center">
+<div class="max-w-xl w-full mx-auto">
+<!-- Form Header -->
+<div class="mb-6">
+<h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+            Create your Account
+          </h1>
+<p class="text-sm text-text-secondary mt-1.5">
+            Join PhishGuard AI to analyze suspicious emails, links, and messages.
+          </p>
+</div>
+<!-- Registration Form -->
+<form class="space-y-4" id="capstoneSignupForm" onsubmit="event.preventDefault();">
+<!-- 1. Two-Column Grid: First Name & Last Name -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+<div>
+<label class="block text-xs font-semibold text-text-primary mb-1" for="firstName">
+                First Name
+              </label>
+<input class="w-full h-10 px-3 py-2 text-sm bg-white border border-border-subtle rounded-lg text-text-primary placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:border-transparent transition-all shadow-sm" id="firstName" name="firstName" placeholder="Alex" required="" type="text">
+</div>
+<div>
+<label class="block text-xs font-semibold text-text-primary mb-1" for="lastName">
+                Last Name
+              </label>
+<input class="w-full h-10 px-3 py-2 text-sm bg-white border border-border-subtle rounded-lg text-text-primary placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:border-transparent transition-all shadow-sm" id="lastName" name="lastName" placeholder="Rivera" required="" type="text">
+</div>
+</div>
+<!-- 2. Role Selector (Dropdown / Segmented) -->
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="text-xs font-semibold text-text-primary" for="userRole">
+                Select Your Role
+              </label>
+<span class="text-[11px] text-electric-blue font-medium flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">tune</span>
+                Customizes Detection Model
+              </span>
+</div>
+<div class="relative">
+<select class="w-full h-10 px-3 py-2 text-sm bg-white border border-border-subtle rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-electric-blue focus:border-transparent transition-all shadow-sm appearance-none pr-9 cursor-pointer" id="userRole" name="userRole" required="">
+<option selected="" value="student_researcher">Student / Researcher</option>
+<option value="faculty_staff">Faculty / Academic Staff</option>
+<option value="it_security">IT / Security Student</option>
+<option value="general_user">General User</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-[18px] text-text-secondary pointer-events-none">
+                expand_more
+              </span>
+</div>
+</div>
+<!-- 3. College or Personal Email -->
+<div>
+<label class="block text-xs font-semibold text-text-primary mb-1" for="userEmail">
+              College or Personal Email
+            </label>
+<div class="relative">
+<input class="w-full h-10 pl-3 pr-10 py-2 text-sm bg-white border border-border-subtle rounded-lg text-text-primary placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:border-transparent transition-all shadow-sm" id="userEmail" name="userEmail" placeholder="alex.rivera@university.edu" required="" type="email">
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-[18px] text-text-secondary">
+                mail
+              </span>
+</div>
+</div>
+<!-- 4. Two-Column Grid: Password & Confirm Password -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+<div>
+<label class="block text-xs font-semibold text-text-primary mb-1" for="password">
+                Password
+              </label>
+<div class="relative">
+<input class="w-full h-10 pl-3 pr-10 py-2 text-sm bg-white border border-border-subtle rounded-lg text-text-primary placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:border-transparent transition-all shadow-sm" id="password" name="password" placeholder="••••••••••••" required="" type="password">
+<button aria-label="Toggle password visibility" class="absolute right-2.5 top-2.5 text-text-secondary hover:text-text-primary transition-colors focus:outline-none" id="togglePassword" type="button">
+<span class="material-symbols-outlined text-[18px]" id="togglePasswordIcon">visibility</span>
+</button>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-text-primary mb-1" for="confirmPassword">
+                Confirm Password
+              </label>
+<div class="relative">
+<input class="w-full h-10 pl-3 pr-10 py-2 text-sm bg-white border border-border-subtle rounded-lg text-text-primary placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-electric-blue focus:border-transparent transition-all shadow-sm" id="confirmPassword" name="confirmPassword" placeholder="••••••••••••" required="" type="password">
+<button aria-label="Toggle confirm password visibility" class="absolute right-2.5 top-2.5 text-text-secondary hover:text-text-primary transition-colors focus:outline-none" id="toggleConfirmPassword" type="button">
+<span class="material-symbols-outlined text-[18px]" id="toggleConfirmIcon">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 5. Password Hint -->
+<div class="flex items-center gap-1.5 text-xs text-text-secondary">
+<span class="material-symbols-outlined text-[15px] text-slate-400">info</span>
+<span class="">Minimum 8 characters with at least one number or symbol.</span>
+</div>
+<!-- 6. Simple Checkbox Agreement -->
+<div class="pt-1">
+<label class="flex items-center gap-2.5 cursor-pointer">
+<input class="w-4 h-4 rounded text-electric-blue border-border-subtle focus:ring-electric-blue focus:ring-offset-0 cursor-pointer" id="terms" required="" type="checkbox">
+<span class="text-xs text-text-secondary">
+                I agree to the <a class="text-electric-blue hover:underline font-medium" data-path="terms" href="#">Terms of Service</a> and <a class="text-electric-blue hover:underline font-medium" data-path="privacy" href="#">Privacy Policy</a>.
+              </span>
+</label>
+</div>
+<!-- 7. Primary CTA Button -->
+<div class="pt-2">
+<button class="w-full h-11 px-4 rounded-lg bg-electric-blue hover:bg-blue-700 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-electric-blue/40" id="submitBtn" type="submit">
+<span class="">Create Account</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- 8. Simple Separator -->
+
+<!-- 9. Quick Auth Buttons: Google and Microsoft -->
+
+<!-- 10. Bottom Link -->
+<div class="text-center pt-3">
+<span class="text-xs text-text-secondary">Already have an account? </span>
+<a class="text-xs text-electric-blue hover:underline font-semibold" data-path="enterprise-login" href="#">
+              Sign in
+            </a>
+</div>
+</form>
+</div>
+</div>
+</div>
+<script>
+    // Toggle Password Visibility
+    const pwdInput = document.getElementById('password');
+    const togglePwd = document.getElementById('togglePassword');
+    const togglePwdIcon = document.getElementById('togglePasswordIcon');
+
+    if (togglePwd && pwdInput) {
+      togglePwd.addEventListener('click', () => {
+        const isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        togglePwdIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+      });
+    }
+
+    // Toggle Confirm Password Visibility
+    const confirmInput = document.getElementById('confirmPassword');
+    const toggleConfirm = document.getElementById('toggleConfirmPassword');
+    const toggleConfirmIcon = document.getElementById('toggleConfirmIcon');
+
+    if (toggleConfirm && confirmInput) {
+      toggleConfirm.addEventListener('click', () => {
+        const isPassword = confirmInput.type === 'password';
+        confirmInput.type = isPassword ? 'text' : 'password';
+        toggleConfirmIcon.textContent = isPassword ? 'visibility_off' : 'visibility';
+      });
+    }
+
+    // Interactive Submit Feedback
+    const form = document.getElementById('capstoneSignupForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (form && submitBtn) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Basic match check
+        if (pwdInput.value !== confirmInput.value) {
+          alert('Passwords do not match. Please verify.');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+          <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+          <span>Creating Capstone Profile...</span>
+        `;
+
+        setTimeout(() => {
+          submitBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+            <span>Account Created! Welcome aboard.</span>
+          `;
+          submitBtn.classList.remove('bg-electric-blue', 'hover:bg-blue-700');
+          submitBtn.classList.add('bg-emerald-600');
+        }, 900);
+      });
+    }
+  </script>
+
+
+</body></html>

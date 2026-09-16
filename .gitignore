@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+Frontend/node_modules/
+Frontend/dist/
+
+# Python
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Large Dataset files (>100MB strictly rejected by GitHub)
+*.csv
+dataset/*.csv
+dataset/**/*.csv
+dataset/processed/
+!dataset/DATASET_INFO.md
+
+# Environment and Secrets
+.env
+.env.local
+*.local
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

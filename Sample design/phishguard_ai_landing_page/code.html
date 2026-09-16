@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-low": "#eff4ff", "sidebar-active-icon": "#60A5FA", "agent-text": "#3B82F6", "on-error-container": "#93000a", "surface-bright": "#f8f9ff", "primary-fixed-dim": "#b4c5ff", "on-surface-variant": "#434655", "primary-fixed": "#dbe1ff", "secondary-fixed-dim": "#c0c6da", "on-tertiary": "#ffffff", "on-tertiary-fixed": "#001f26", "outline-variant": "#c3c6d7", "risk-low": "#10B981", "primary-container": "#2563eb", "page-bg": "#F8FAFC", "secondary-container": "#d9dff4", "background": "#f8f9ff", "surface-container-highest": "#d3e4fe", "outline": "#737686", "tertiary-container": "#00788c", "text-primary": "#0F172A", "on-surface": "#0b1c30", "surface-container": "#e5eeff", "on-tertiary-container": "#d7f6ff", "on-background": "#0b1c30", "surface-variant": "#d3e4fe", "risk-high": "#EF4444", "inverse-surface": "#213145", "inverse-on-surface": "#eaf1ff", "on-primary": "#ffffff", "error-container": "#ffdad6", "on-primary-container": "#eeefff", "on-secondary-container": "#5c6274", "tertiary-fixed": "#acedff", "on-primary-fixed": "#00174b", "tertiary": "#005e6e", "risk-critical": "#B91C1C", "surface-tint": "#0053db", "inverse-primary": "#b4c5ff", "on-secondary-fixed": "#151b2a", "surface-white": "#FFFFFF", "error": "#ba1a1a", "on-error": "#ffffff", "on-primary-fixed-variant": "#003ea8", "secondary": "#585e6f", "on-tertiary-fixed-variant": "#004e5c", "secondary-fixed": "#dce2f6", "agent-rag": "#8B5CF6", "on-secondary-fixed-variant": "#404757", "surface-container-high": "#dce9ff", "tertiary-fixed-dim": "#4cd7f6", "surface-container-lowest": "#ffffff", "on-secondary": "#ffffff", "agent-sender": "#6366F1", "border-subtle": "#E2E8F0", "sidebar-inactive": "#94A3B8", "surface": "#f8f9ff", "surface-dim": "#cbdbf5", "risk-medium": "#F59E0B", "primary": "#004ac6" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xl": "2rem", "space-sm": "0.5rem", "space-md": "1rem", "space-xs": "0.25rem", "margin": "2rem", "space-lg": "1.5rem", "gutter": "1.5rem" }, "fontFamily": { "headline-sm": ["Inter"], "headline-md": ["Inter"], "headline-lg": ["Inter"], "label-sm": ["Inter"], "body-sm": ["Inter"], "display-score": ["Inter"], "code-sm": ["Inter"], "headline-lg-mobile": ["Inter"], "body-md": ["Inter"], "display-score-mobile": ["Inter"], "body-lg": ["Inter"], "label-md": ["Inter"] }, "fontSize": { "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "display-score": ["56px", { "lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "code-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "display-score-mobile": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "16px", "fontWeight": "500" }] } } } };</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-white/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-md"><img alt="PhishGuard AI Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X7dMUc9E6fHpmcu9e8MMrwGui9BSpkc3PosbjgaLP2Chqew6PF55yeXsa9n21wJMFhNFA1E_VhzEGryGEU6PXn_3ajAjudbbpPKnfD7ah09YUconhzL9nzAIKbEDPzMg_RJkLBID9uxO4StO5WvsSvQxU9b355E1yIcQ17aVp-C_8ztm3A9hyYev-HU3m_qlgVq3WH-PL_FET58nvXaNbCdX6BHb95QQSO8FpQLXfl13eSVUzQV_7fQGSn"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-bold">PhishGuard AI</span></div><nav class="hidden lg:flex items-center gap-space-md" data-active-classes="bg-surface-container text-on-surface font-semibold rounded-lg"><a class="px-3 py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="features" href="#">Features</a><a class="px-3 py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="multi-agent-pipeline" href="#">Multi-Agent Pipeline</a><a class="px-3 py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="how-it-works" href="#">How It Works</a><a class="px-3 py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="architecture" href="#">Architecture</a><a class="px-3 py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="enterprise" href="#">Enterprise</a></nav><div class="flex items-center gap-space-md"><a class="hidden sm:inline-flex px-4 py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="login" href="#">Sign In</a><a class="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm" data-path="analyze-threat" href="#">Analyze Threat</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-surface min-h-[calc(100vh-20rem)]"><div class="flex flex-col w-full">
+<!-- Top Ambient Pattern Anchor -->
+<div class="relative w-full overflow-hidden bg-page-bg">
+<!-- Subtle gradient wash contained within bounds -->
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[1100px] h-[480px] bg-gradient-to-b from-primary-fixed/30 via-surface-container-low/40 to-transparent blur-3xl pointer-events-none"></div>
+<!-- 1. HERO SECTION -->
+<section class="relative max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-16">
+<div class="flex flex-col items-center text-center space-y-6 max-w-4xl mx-auto">
+<!-- Top Pill Badge -->
+<div class="inline-flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-white shadow-sm border-subtle">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-primary tracking-wide uppercase">Enterprise Multi-Agent Cybersecurity</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">GenAI Explainable Risk Analysis</span>
+</div>
+<!-- Headline -->
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight md:text-[46px] md:leading-[52px]">
+          Beyond Binary Detection: <br class="hidden sm:inline"/>
+<span class="text-primary">Explainable, Personalized</span> Phishing Risk Analysis
+        </h1>
+<!-- Subheadline -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl leading-relaxed">
+          PhishGuard AI coordinates specialized Text, URL, and Sender ML agents with vector RAG context to assess threat severity, expose attack mechanics, and deliver personalized action plans.
+        </p>
+<!-- CTA Cluster -->
+<div class="flex flex-col sm:flex-row items-center gap-space-md pt-2">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-space-sm px-6 py-3 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-all shadow-md shadow-primary/20" href="#threat-inspector">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+<span>Test Suspicious Input</span>
+</a>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-space-sm px-6 py-3 rounded-lg bg-surface-white text-text-primary font-label-md text-label-md hover:bg-surface-container-low transition-colors shadow-sm" href="#pipeline-architecture">
+<span class="material-symbols-outlined text-[18px]">account_tree</span>
+<span>Explore Interactive Architecture</span>
+</a>
+</div>
+<!-- Trust Indicator Bar -->
+<div class="pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 w-full max-w-4xl text-left">
+<div class="flex items-start gap-space-sm p-3 rounded-lg bg-surface-white shadow-sm">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">query_stats</span>
+<div>
+<div class="font-label-md text-label-md text-text-primary font-bold">99.4% Multi-Source</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Validated ML benchmark</div>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-3 rounded-lg bg-surface-white shadow-sm">
+<span class="material-symbols-outlined text-risk-low text-[20px] mt-0.5">shield</span>
+<div>
+<div class="font-label-md text-label-md text-text-primary font-bold">Zero Live Execution</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Static heuristic parsing</div>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-3 rounded-lg bg-surface-white shadow-sm">
+<span class="material-symbols-outlined text-agent-sender text-[20px] mt-0.5">attribution</span>
+<div>
+<div class="font-label-md text-label-md text-text-primary font-bold">SHAP Attribution</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Traceable feature weights</div>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-3 rounded-lg bg-surface-white shadow-sm">
+<span class="material-symbols-outlined text-agent-rag text-[20px] mt-0.5">database</span>
+<div>
+<div class="font-label-md text-label-md text-text-primary font-bold">Vector RAG Context</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">ChromaDB live anchors</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. LIVE INTERACTIVE THREAT INSPECTOR PREVIEW -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-8" id="threat-inspector">
+<div class="bg-surface-white rounded-xl shadow-lg overflow-hidden">
+<!-- Window Title Bar -->
+<div class="bg-surface-container-low px-6 py-3 flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="flex gap-1.5">
+<span class="w-3 h-3 rounded-full bg-risk-high/80"></span>
+<span class="w-3 h-3 rounded-full bg-risk-medium/80"></span>
+<span class="w-3 h-3 rounded-full bg-risk-low/80"></span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant ml-2">PhishGuard Autonomous Triage Inspector • v3.4.1</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="inline-flex items-center gap-1 font-code-sm text-code-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-risk-low"></span> Multi-Agent Pipeline Active
+            </span>
+<span class="font-code-sm text-code-sm px-2 py-0.5 rounded bg-surface-white text-primary">Session: #INC-2025-0841</span>
+</div>
+</div>
+<!-- Inspector Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+<!-- Left Column: Input Payload & Extracted Metadata -->
+<div class="lg:col-span-5 p-6 space-y-5 bg-surface-bright/50">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant tracking-wider uppercase">Extracted Inbound Payload</span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container text-primary font-semibold">
+<span class="material-symbols-outlined text-[14px]">mail</span> E-Mail / SMS Ingestion
+              </span>
+</div>
+<!-- Email Mock Body Box -->
+<div class="p-4 rounded-lg bg-surface-white shadow-sm space-y-3">
+<div class="space-y-1.5">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant w-14">From:</span>
+<span class="font-code-sm text-code-sm text-risk-critical font-medium bg-error-container/40 px-2 py-0.5 rounded">hr-verify@quick-career.org</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant w-14">Channel:</span>
+<span class="font-code-sm text-code-sm text-text-primary">Inbound Email / External Gateway</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant w-14">Embedded:</span>
+<span class="font-code-sm text-code-sm text-primary underline truncate">http://bit.ly/internship-fee-2024</span>
+</div>
+</div>
+<div class="pt-2">
+<p class="font-body-sm text-body-sm text-text-primary leading-relaxed bg-surface-container-low/60 p-3 rounded font-mono">
+                  “Congratulations! You have been selected for the Summer Analyst internship program. Pay <span class="bg-risk-high/20 text-risk-critical font-bold px-1 rounded">₹2,000 within 2 hours</span> using the secure portal link below to reserve your slot and generate the candidate pass: <span class="text-primary font-semibold">bit.ly/internship-fee-2024</span>. Failure to process immediately releases the allocation.”
+                </p>
+</div>
+</div>
+<!-- Pre-triage Metadata Attributes -->
+<div class="p-4 rounded-lg bg-surface-white shadow-sm space-y-2.5">
+<span class="font-label-md text-label-md text-text-primary font-bold">Static Heuristic Signatures</span>
+<div class="grid grid-cols-2 gap-2 font-code-sm text-code-sm">
+<div class="p-2 rounded bg-surface-container-low">
+<span class="text-on-surface-variant block text-[11px]">DKIM / SPF</span>
+<span class="text-risk-critical font-semibold">SPF Softfail / No DMARC</span>
+</div>
+<div class="p-2 rounded bg-surface-container-low">
+<span class="text-on-surface-variant block text-[11px]">Domain Age</span>
+<span class="text-risk-medium font-semibold">4 Days Old</span>
+</div>
+<div class="p-2 rounded bg-surface-container-low">
+<span class="text-on-surface-variant block text-[11px]">Payment Type</span>
+<span class="text-risk-critical font-semibold">Advance Upfront Fee</span>
+</div>
+<div class="p-2 rounded bg-surface-container-low">
+<span class="text-on-surface-variant block text-[11px]">Target Persona</span>
+<span class="text-primary font-semibold">University Student</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Real-time Multi-Agent Diagnostic Engine -->
+<div class="lg:col-span-7 p-6 space-y-6">
+<!-- Header Risk Banner & Metric -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-surface-container-low">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full font-label-sm text-label-sm bg-risk-high/15 text-risk-critical font-bold">
+                    HIGH RISK ATTACK CONFIRMED
+                  </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Confidence: 97.8%</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-text-primary">Internship Scam (Credential & Advance-Fee Phishing)</h2>
+</div>
+<!-- Composite Score Gauge Box -->
+<div class="flex items-center gap-3 bg-surface-white px-4 py-2.5 rounded-lg shadow-sm">
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">Threat Score</div>
+<div class="font-display-score-mobile text-display-score-mobile text-risk-critical font-black">91<span class="text-headline-sm text-on-surface-variant font-normal">/100</span></div>
+</div>
+<div class="w-12 h-12 flex items-center justify-center rounded-full bg-risk-high/10 text-risk-high">
+<span class="material-symbols-outlined text-[28px]">warning</span>
+</div>
+</div>
+</div>
+<!-- Multi-Agent Contribution Breakdown Visualization -->
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-text-primary font-bold">Multi-Agent Signal Contribution Bar</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Composite Formula: Weighted Bayesian Fusion</span>
+</div>
+<!-- Proportional Stacked Bar -->
+<div class="w-full h-3 rounded-full bg-surface-container overflow-hidden flex shadow-inner">
+<div class="bg-[#06B6D4] h-full" style="width: 41%" title="URL Intelligence: 41%"></div>
+<div class="bg-[#3B82F6] h-full" style="width: 32%" title="Text Semantic Agent: 32%"></div>
+<div class="bg-[#6366F1] h-full" style="width: 18%" title="Sender Reputation Agent: 18%"></div>
+<div class="bg-[#8B5CF6] h-full" style="width: 9%" title="Phishing RAG Vector Retrieval: 9%"></div>
+</div>
+<!-- Legend Cluster -->
+<div class="flex flex-wrap items-center gap-y-1 gap-x-4 font-code-sm text-code-sm">
+<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#06B6D4]"></span>URL Agent: 41%</span>
+<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#3B82F6]"></span>Text Agent: 32%</span>
+<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#6366F1]"></span>Sender Agent: 18%</span>
+<span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#8B5CF6]"></span>RAG Vector Context: 9%</span>
+</div>
+</div>
+<!-- Detailed Agent Breakdown Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<!-- URL Agent -->
+<div class="p-3.5 rounded-lg bg-surface-container-low/70 space-y-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#06B6D4]"></span>
+<span class="font-label-md text-label-md text-text-primary font-semibold">URL Agent (XGBoost)</span>
+</div>
+<span class="font-code-sm text-code-sm text-risk-critical font-bold">+0.41 Delta</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+                  Shortened URL masking suspicious redirect destination. DOM mismatch & untrusted SSL certificate hierarchy.
+                </p>
+</div>
+<!-- Text Agent -->
+<div class="p-3.5 rounded-lg bg-surface-container-low/70 space-y-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#3B82F6]"></span>
+<span class="font-label-md text-label-md text-text-primary font-semibold">Text Agent (TF-IDF + LR)</span>
+</div>
+<span class="font-code-sm text-code-sm text-risk-critical font-bold">+0.32 Delta</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+                  High synthetic urgency (“within 2 hours”), immediate advance-fee demand (₹2,000), coercive psychological pressure.
+                </p>
+</div>
+<!-- Sender Agent -->
+<div class="p-3.5 rounded-lg bg-surface-container-low/70 space-y-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#6366F1]"></span>
+<span class="font-label-md text-label-md text-text-primary font-semibold">Sender Agent (Random Forest)</span>
+</div>
+<span class="font-code-sm text-code-sm text-risk-critical font-bold">+0.18 Delta</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+                  Unauthenticated sender domain. Domain newly registered (< 5 days) without verifiable PTR or valid corporate DMARC policy.
+                </p>
+</div>
+<!-- RAG Memory Agent -->
+<div class="p-3.5 rounded-lg bg-surface-container-low/70 space-y-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#8B5CF6]"></span>
+<span class="font-label-md text-label-md text-text-primary font-semibold">Phishing RAG (ChromaDB)</span>
+</div>
+<span class="font-code-sm text-code-sm text-agent-rag font-bold">+0.09 Delta</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+<strong class="text-text-primary">91% semantic match</strong> to confirmed Q3 campus recruitment scam vectors in enterprise incident vector memory.
+                </p>
+</div>
+</div>
+<!-- Personalized Action Plan Snippet -->
+<div class="p-4 rounded-lg bg-surface-white shadow-sm space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-risk-critical text-[18px]">verified</span>
+<span class="font-label-md text-label-md text-text-primary font-bold">Personalized User Guidance (Role: Student / Early Career)</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">Automated Response Tier 1</span>
+</div>
+<ul class="font-body-sm text-body-sm text-text-primary space-y-1.5 pl-5 list-decimal">
+<li><strong>Do NOT transfer money:</strong> Legitimate internships never demand registration fees or upfront deposits.</li>
+<li><strong>Cross-Verify through Authorized Channels:</strong> Contact the university career services or visit the employer's official careers portal directly.</li>
+<li><strong>Trigger Organization Block:</strong> Incident SOC-2025 automatically published to network gateway and tenant email quarantine.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. SYSTEM ARCHITECTURE / MULTI-AGENT ENGINE PIPELINE -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-16" id="pipeline-architecture">
+<div class="text-center max-w-3xl mx-auto mb-12 space-y-3">
+<span class="font-label-sm text-label-sm text-primary tracking-wider uppercase">Deterministic Intelligence Pipeline</span>
+<h2 class="font-headline-lg text-headline-lg text-text-primary">The 8-Stage Multi-Agent Analysis Engine</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Moving past single-point classifier failures through coordinated autonomous agents that validate context, verify infrastructure, and synthesize explainable evidence.
+        </p>
+</div>
+<!-- 8-Stage Sequential Flow Banner -->
+<div class="mb-12 bg-surface-white rounded-xl p-4 shadow-sm overflow-x-auto">
+<div class="flex items-center justify-between min-w-[760px] gap-2">
+<div class="flex flex-col items-center text-center px-2 py-1">
+<span class="w-7 h-7 rounded-full bg-primary text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">1</span>
+<span class="font-label-sm text-label-sm text-text-primary mt-2">Understand</span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">User Context</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center px-2 py-1">
+<span class="w-7 h-7 rounded-full bg-primary text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">2</span>
+<span class="font-label-sm text-label-sm text-text-primary mt-2">Analyze</span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">Heuristics</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center px-2 py-1">
+<span class="w-7 h-7 rounded-full bg-primary text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">3</span>
+<span class="font-label-sm text-label-sm text-text-primary mt-2">Retrieve</span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">RAG Vectors</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center px-2 py-1">
+<span class="w-7 h-7 rounded-full bg-primary text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">4</span>
+<span class="font-label-sm text-label-sm text-text-primary mt-2">Assess</span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">ML Fusion</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center px-2 py-1">
+<span class="w-7 h-7 rounded-full bg-agent-rag text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">5</span>
+<span class="font-label-sm text-label-sm text-text-primary mt-2">Explain</span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">SHAP Mechanics</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center px-2 py-1">
+<span class="w-7 h-7 rounded-full bg-agent-rag text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">6</span>
+<span class="font-label-sm text-label-sm text-text-primary mt-2">Personalize</span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">Role Framing</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center px-2 py-1">
+<span class="w-7 h-7 rounded-full bg-risk-low text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">7</span>
+<span class="font-label-sm text-label-sm text-text-primary mt-2">Guide</span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">Action Plan</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center px-2 py-1">
+<span class="w-7 h-7 rounded-full bg-text-primary text-on-primary font-code-sm text-code-sm flex items-center justify-center font-bold">8</span>
+<span class="font-label-sm text-label-sm text-text-primary mt-2">Learn</span>
+<span class="font-code-sm text-[10px] text-on-surface-variant">Vector Feedback</span>
+</div>
+</div>
+</div>
+<!-- Agent Cards Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Orchestrator -->
+<div class="p-6 rounded-xl bg-surface-white shadow-sm flex flex-col justify-between space-y-4">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">hub</span>
+</span>
+<span class="font-code-sm text-code-sm px-2.5 py-1 rounded bg-surface-container text-primary font-bold">LangGraph Core</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-2">AI Orchestrator</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Coordinates DAG execution state across specialized agents. Aggregates multi-agent score vectors using an adaptive weighted Bayesian consensus engine.
+            </p>
+</div>
+<div class="pt-4 flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>Latency SLA: < 380ms</span>
+<span class="text-risk-low font-bold">Deterministic DAG</span>
+</div>
+</div>
+<!-- URL Agent -->
+<div class="p-6 rounded-xl bg-surface-white shadow-sm flex flex-col justify-between space-y-4">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="w-10 h-10 rounded-lg bg-[#06B6D4]/15 flex items-center justify-center text-[#00788c]">
+<span class="material-symbols-outlined">link</span>
+</span>
+<span class="font-code-sm text-code-sm px-2.5 py-1 rounded bg-[#06B6D4]/15 text-[#00788c] font-bold">235k PhiUSIIL Model</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-2">URL Intelligence Agent</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              XGBoost classifier trained on 235k PhiUSIIL dataset instances. Inspects redirect hops, lexical entropy, top-level domains, and homoglyph mutations.
+            </p>
+</div>
+<div class="pt-4 flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>Static Heuristic Tree</span>
+<span class="text-[#00788c] font-bold">Zero Live Fetching</span>
+</div>
+</div>
+<!-- Text Agent -->
+<div class="p-6 rounded-xl bg-surface-white shadow-sm flex flex-col justify-between space-y-4">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="w-10 h-10 rounded-lg bg-agent-text/10 flex items-center justify-center text-agent-text">
+<span class="material-symbols-outlined">description</span>
+</span>
+<span class="font-code-sm text-code-sm px-2.5 py-1 rounded bg-agent-text/10 text-agent-text font-bold">TF-IDF + Logistic Reg</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-2">Text Semantic Agent</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Extracts behavioral triggers, deceptive compliance pressure, synthetic urgency, and extortion patterns through high-dimensional n-gram NLP representations.
+            </p>
+</div>
+<div class="pt-4 flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>Intent Detection</span>
+<span class="text-agent-text font-bold">Semantic Lexicons</span>
+</div>
+</div>
+<!-- Sender Reputation -->
+<div class="p-6 rounded-xl bg-surface-white shadow-sm flex flex-col justify-between space-y-4">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="w-10 h-10 rounded-lg bg-agent-sender/10 flex items-center justify-center text-agent-sender">
+<span class="material-symbols-outlined">mark_email_unread</span>
+</span>
+<span class="font-code-sm text-code-sm px-2.5 py-1 rounded bg-agent-sender/10 text-agent-sender font-bold">Random Forest Model</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-2">Sender Reputation Agent</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Performs deep header forensics including DKIM/SPF alignment verification, WHOIS age calculation, ASN anomaly detection, and display-name spoofing analysis.
+            </p>
+</div>
+<div class="pt-4 flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>Authentication Check</span>
+<span class="text-agent-sender font-bold">DMARC/SPF Verify</span>
+</div>
+</div>
+<!-- Phishing & User Context RAG -->
+<div class="p-6 rounded-xl bg-surface-white shadow-sm flex flex-col justify-between space-y-4">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="w-10 h-10 rounded-lg bg-agent-rag/10 flex items-center justify-center text-agent-rag">
+<span class="material-symbols-outlined">schema</span>
+</span>
+<span class="font-code-sm text-code-sm px-2.5 py-1 rounded bg-agent-rag/10 text-agent-rag font-bold">ChromaDB + MiniLM</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-2">Vector RAG Context Agent</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Retrieves live threat campaign similarities from dense vector space. Matches organizational attack patterns, previous tenant incidents, and user role risk profiles.
+            </p>
+</div>
+<div class="pt-4 flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>Embeddings: all-MiniLM-L6-v2</span>
+<span class="text-agent-rag font-bold">Chroma Vector DB</span>
+</div>
+</div>
+<!-- Explainable AI Engine -->
+<div class="p-6 rounded-xl bg-surface-white shadow-sm flex flex-col justify-between space-y-4">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="w-10 h-10 rounded-lg bg-risk-low/10 flex items-center justify-center text-risk-low">
+<span class="material-symbols-outlined">auto_awesome</span>
+</span>
+<span class="font-code-sm text-code-sm px-2.5 py-1 rounded bg-risk-low/10 text-risk-low font-bold">SHAP • GenAI Synthesis</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-primary mb-2">Explainable AI Engine</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Transforms disparate agent signals into coherent human explanations. Generates localized explanations and role-calibrated remediation playbooks for end users.
+            </p>
+</div>
+<div class="pt-4 flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm">
+<span>Provider Agnostic</span>
+<span class="text-risk-low font-bold">Zero Hallucination</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. CORE DIFFERENTIATORS GRID (WHY PHISHGUARD AI) -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-16">
+<div class="bg-surface-white rounded-xl shadow-sm p-8 lg:p-12">
+<div class="max-w-2xl mb-12">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-semibold">Engineered for Operations Centers</span>
+<h2 class="font-headline-lg text-headline-lg text-text-primary mt-1">Why SecOps Leaders Deploy PhishGuard AI</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+<!-- Diff 1 -->
+<div class="flex gap-space-md items-start">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-primary">
+<span class="material-symbols-outlined text-[26px]">visibility</span>
+</div>
+<div class="space-y-1.5">
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Explainable over Decorative AI</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                No opaque black boxes. Every classification exposes mathematical feature attribution (SHAP-style weights), specific indicator flags, and verified provenance for immediate audit and analyst trust.
+              </p>
+</div>
+</div>
+<!-- Diff 2 -->
+<div class="flex gap-space-md items-start">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-agent-sender">
+<span class="material-symbols-outlined text-[26px]">manage_accounts</span>
+</div>
+<div class="space-y-1.5">
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Context-Aware Personalization</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Risk communication adapts to whether the recipient is a University Student, Accounts Payable Specialist, or C-Level Executive, providing actionable steps that match user authority and capabilities.
+              </p>
+</div>
+</div>
+<!-- Diff 3 -->
+<div class="flex gap-space-md items-start">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-[#00788c]">
+<span class="material-symbols-outlined text-[26px]">cable</span>
+</div>
+<div class="space-y-1.5">
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Concurrent Multi-Signal Fusion</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Attackers circumvent text filters by shifting payloads to images or redirection chains. PhishGuard evaluates textual intent, network infrastructure, and cryptographic headers in lockstep.
+              </p>
+</div>
+</div>
+<!-- Diff 4 -->
+<div class="flex gap-space-md items-start">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-agent-rag">
+<span class="material-symbols-outlined text-[26px]">history_edu</span>
+</div>
+<div class="space-y-1.5">
+<h3 class="font-headline-sm text-headline-sm text-text-primary">Continual Vector Incident Memory</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Every verified threat or false-positive analyst feedback directly refines ChromaDB vector anchors. The system dynamically immunizes against active regional phishing clusters without retraining core models.
+              </p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. ATTACK TYPE INTELLIGENCE GALLERY PREVIEW -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-16">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+<div>
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-semibold">Threat Vector Taxonomy</span>
+<h2 class="font-headline-lg text-headline-lg text-text-primary mt-1">Autonomous Attack Classification</h2>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+          Continuously updated against live MITRE ATT&CK frameworks
+        </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+<!-- Attack 1 -->
+<div class="bg-surface-white p-5 rounded-xl shadow-sm space-y-3 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-risk-critical text-[22px]">school</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-risk-high/10 text-risk-critical font-bold">Critical</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mt-3">Internship & Job Scams</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+              Exploits early-career personnel with fraudulent stipend offers, advance placement fees, and fake verification portals.
+            </p>
+</div>
+<div class="font-code-sm text-[11px] text-text-primary bg-surface-container-low p-2 rounded">
+            Key Agent: <strong>Text + RAG</strong>
+</div>
+</div>
+<!-- Attack 2 -->
+<div class="bg-surface-white p-5 rounded-xl shadow-sm space-y-3 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-risk-high text-[22px]">key</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-risk-high/10 text-risk-high font-bold">High</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mt-3">Credential Harvesting</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+              Impersonates Microsoft 365, Okta, and Google Workspace authentication dialogs via reverse-proxy landing pages.
+            </p>
+</div>
+<div class="font-code-sm text-[11px] text-text-primary bg-surface-container-low p-2 rounded">
+            Key Agent: <strong>URL XGBoost</strong>
+</div>
+</div>
+<!-- Attack 3 -->
+<div class="bg-surface-white p-5 rounded-xl shadow-sm space-y-3 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-risk-high text-[22px]">receipt_long</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-risk-high/10 text-risk-high font-bold">High</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mt-3">Invoice & Wire Fraud</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+              Supplier bank account alterations, urgent routing overrides, and spoofed PDF account reconciliations.
+            </p>
+</div>
+<div class="font-code-sm text-[11px] text-text-primary bg-surface-container-low p-2 rounded">
+            Key Agent: <strong>Sender + Text</strong>
+</div>
+</div>
+<!-- Attack 4 -->
+<div class="bg-surface-white p-5 rounded-xl shadow-sm space-y-3 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-risk-critical text-[22px]">badge</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-risk-high/10 text-risk-critical font-bold">Critical</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mt-3">CEO / Executive BEC</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+              Executive impersonation targeting executive assistants and finance leads with confidential off-channel wire instructions.
+            </p>
+</div>
+<div class="font-code-sm text-[11px] text-text-primary bg-surface-container-low p-2 rounded">
+            Key Agent: <strong>Sender RFC Forensics</strong>
+</div>
+</div>
+<!-- Attack 5 -->
+<div class="bg-surface-white p-5 rounded-xl shadow-sm space-y-3 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-risk-medium text-[22px]">sms</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-risk-medium/10 text-risk-medium font-bold">Medium</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-primary mt-3">Urgent SMS (Smishing)</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+              Short message coercion claiming courier package delivery failures, unpaid utility bills, or 2FA lockouts.
+            </p>
+</div>
+<div class="font-code-sm text-[11px] text-text-primary bg-surface-container-low p-2 rounded">
+            Key Agent: <strong>URL + Text RegEx</strong>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. ENTERPRISE SECURITY & ARCHITECTURE STANDARDS -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-16">
+<div class="p-8 lg:p-10 rounded-2xl bg-surface-container-low shadow-sm">
+<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-8 pb-8">
+<div class="max-w-2xl space-y-2">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-bold">SOC-Grade Architecture</span>
+<h3 class="font-headline-lg text-headline-lg text-text-primary">Enterprise Trust & Zero-Trust Guarantees</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Designed for strict corporate compliance postures. All evaluations occur in deterministic ephemeral sandboxes with zero plaintext persistence.
+            </p>
+</div>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-white font-code-sm text-code-sm text-text-primary shadow-sm">
+<span class="w-2 h-2 rounded-full bg-risk-low"></span> SOC 2 Type II
+            </span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-white font-code-sm text-code-sm text-text-primary shadow-sm">
+<span class="w-2 h-2 rounded-full bg-risk-low"></span> ISO 27001
+            </span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-white p-6 rounded-xl shadow-sm space-y-2.5">
+<div class="flex items-center gap-2 text-primary font-bold">
+<span class="material-symbols-outlined">security</span>
+<span class="font-headline-sm text-headline-sm">Untrusted Sandbox Guarantee</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Inbound URLs and attachments are parsed synthetically through isolated headless parsers. Raw payloads are never fetched or rendered on live end-user environments.
+            </p>
+</div>
+<div class="bg-surface-white p-6 rounded-xl shadow-sm space-y-2.5">
+<div class="flex items-center gap-2 text-agent-sender font-bold">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-headline-sm text-headline-sm">Zero Plaintext Storage</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Sensitive email bodies, PII, and credentials are obfuscated via salted SHA-256 tokens before vector embedding. Ephemeral tensors expire immediately post-synthesis.
+            </p>
+</div>
+<div class="bg-surface-white p-6 rounded-xl shadow-sm space-y-2.5">
+<div class="flex items-center gap-2 text-agent-rag font-bold">
+<span class="material-symbols-outlined">swap_horiz</span>
+<span class="font-headline-sm text-headline-sm">Provider-Agnostic GenAI</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Configurable model synthesis layer supports Claude 3.5 Sonnet, Gemini 1.5 Pro, OpenAI GPT-4o, or air-gapped on-premise Ollama instances with zero egress risk.
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. FINAL CALL TO ACTION BANNER -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-16">
+<div class="relative rounded-2xl bg-text-primary text-surface-white p-8 lg:p-14 overflow-hidden shadow-2xl">
+<!-- Structural Background Gradient Accents -->
+<div class="absolute -right-20 -bottom-20 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -left-20 -top-20 w-80 h-80 bg-agent-rag/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+<div class="lg:col-span-7 space-y-4">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-white/10 text-primary-fixed text-label-sm font-label-sm">
+<span class="w-2 h-2 rounded-full bg-risk-low"></span> Production-Ready Gateway API Available
+            </div>
+<h2 class="font-headline-lg text-headline-lg text-surface-white sm:text-[34px]">
+              Upgrade Your Organization's Phishing Defense
+            </h2>
+<p class="font-body-md text-body-md text-surface-container-high leading-relaxed max-w-xl">
+              Equip your SOC and distributed teams with deterministic, explainable multi-agent telemetry. Connect existing Microsoft 365 or Google Workspace in under 15 minutes.
+            </p>
+</div>
+<div class="lg:col-span-5 bg-surface-white/5 p-6 rounded-xl backdrop-blur-md space-y-4">
+<span class="font-label-md text-label-md text-surface-white block font-semibold">Test Inbound Threat or Request Enterprise Sandbox</span>
+<div class="space-y-3">
+<div class="relative">
+<input class="w-full h-10 px-3 bg-surface-white text-text-primary rounded-lg font-code-sm text-code-sm outline-none focus:ring-2 focus:ring-primary shadow-sm" id="sample-url-input" placeholder="Paste URL, raw message text, or sender email" type="text" value="http://login.service-update-portal.org/auth"/>
+</div>
+<button class="w-full h-10 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-all flex items-center justify-center gap-2 shadow-md" id="btn-analyze-action" onclick="simulateAnalysis()">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span id="btn-text">Execute Multi-Agent Inspection</span>
+</button>
+</div>
+<div class="flex items-center justify-between text-surface-container-high font-code-sm text-[11px] pt-1">
+<span>Zero-Retention Gateway API</span>
+<span>REST / Webhook / Splunk App</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<script>
+  function simulateAnalysis() {
+    const btn = document.getElementById('btn-analyze-action');
+    const btnText = document.getElementById('btn-text');
+    const input = document.getElementById('sample-url-input');
+
+    if (!input.value.trim()) return;
+
+    btn.disabled = true;
+    btnText.innerText = 'Orchestrating ML Agents...';
+    btn.classList.add('opacity-90');
+
+    setTimeout(() => {
+      btnText.innerText = 'Synthesizing Risk Context...';
+    }, 600);
+
+    setTimeout(() => {
+      btnText.innerText = 'Threat Flagged (Score: 94/100)';
+      btn.classList.remove('bg-primary');
+      btn.classList.add('bg-risk-high');
+      
+      const inspector = document.getElementById('threat-inspector');
+      if (inspector) {
+        inspector.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      setTimeout(() => {
+        btnText.innerText = 'Execute Multi-Agent Inspection';
+        btn.classList.remove('bg-risk-high');
+        btn.classList.add('bg-primary');
+        btn.disabled = false;
+      }, 3500);
+    }, 1400);
+  }
+</script></main><footer class="w-full bg-surface-container-low"><div class="max-w-7xl mx-auto px-6 lg:px-12 py-space-xl"><div class="grid grid-cols-1 md:grid-cols-4 gap-space-lg mb-space-xl"><div class="md:col-span-1 flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[24px]">verified_user</span><span class="font-headline-sm text-headline-sm text-on-surface">PhishGuard AI</span></div><p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Deterministic, multi-agent AI verification defense for enterprise SOC workflows and cloud mail security.</p></div><div class="flex flex-col gap-space-xs"><h4 class="font-label-md text-label-md text-on-surface uppercase tracking-wider mb-space-xs">Platform</h4><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="features" href="#">Autonomous Detection</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="multi-agent-pipeline" href="#">Agent Telemetry</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="architecture" href="#">RAG Vector Anchors</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="enterprise" href="#">API Integration</a></div><div class="flex flex-col gap-space-xs"><h4 class="font-label-md text-label-md text-on-surface uppercase tracking-wider mb-space-xs">Security & Trust</h4><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">SOC 2 Type II Cert</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Zero Data Retention</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">ISO 27001 Aligned</a><a class="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Vulnerability Disclosure</a></div><div class="flex flex-col gap-space-xs"><h4 class="font-label-md text-label-md text-on-surface uppercase tracking-wider mb-space-xs">Compliance</h4><p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">Engineered for HIPAA, GDPR, and FedRAMP readiness with provable model execution trees.</p><div class="flex items-center gap-space-xs mt-space-sm"><span class="w-2 h-2 rounded-full bg-risk-low"></span><span class="font-label-sm text-label-sm text-on-surface-variant">All Agent Engines Operational</span></div></div></div><div class="pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-md"><p class="font-body-sm text-body-sm text-on-surface-variant">© 2025 PhishGuard AI Systems Inc. All enterprise rights reserved.</p><div class="flex items-center gap-space-lg"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Privacy Policy</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Terms of Service</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Trust Center</a></div></div></div></footer></body></html>
