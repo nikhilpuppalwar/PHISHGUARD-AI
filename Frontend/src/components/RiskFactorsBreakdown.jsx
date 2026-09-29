@@ -1,13 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 /**
- * RiskFactorsBreakdown Component
- * Displays the structured breakdown of risk factors synthesized from
- * Text, URL, Sender agents, External Intelligence (Google Safe Browsing, VirusTotal),
- * and Incident RAG.
+ * RiskFactorsBreakdown Component (Spec §14, §18)
+ * "TOP RISK FACTORS"
+ * Renders a compact, scannable list of primary contributory risk factors.
+ * Features:
+ * - Clean compact rows with severity tags (HIGH, MEDIUM, LOW)
+ * - Shows top 4 factors initially with "View All Factors" toggle
+ * - Avoids repetitive 85% boilerplate or oversized redundant cards
  */
-export default function RiskFactorsBreakdown({ riskFactors = [], majorIndicators = [] }) {
-  // Normalize factors list: support either direct risk_factors objects or fallback string indicators
+export default function RiskFactorsBreakdown({
+  riskFactors = [],
+  majorIndicators = []
+}) {
+  const [showAll, setShowAll] = useState(false);
+
+  // Normalize factors list
   let items = [];
   if (Array.isArray(riskFactors) && riskFactors.length > 0) {
     items = riskFactors.map((rf, idx) => {
@@ -15,154 +23,113 @@ export default function RiskFactorsBreakdown({ riskFactors = [], majorIndicators
         return {
           id: `rf-${idx}`,
           factor: rf,
-          agent: 'heuristic',
-          weight: 0.75,
+          level: 'MEDIUM',
+          agent: 'Detection Engine'
         };
       }
+      const weight = typeof rf.weight === 'number' ? rf.weight : 0.7;
+      let level = 'LOW';
+      if (weight >= 0.8 || (rf.severity && rf.severity.toUpperCase() === 'HIGH')) {
+        level = 'HIGH';
+      } else if (weight >= 0.5 || (rf.severity && rf.severity.toUpperCase() === 'MEDIUM')) {
+        level = 'MEDIUM';
+      }
+
       return {
         id: `rf-${idx}`,
-        factor: rf.factor || rf.indicator || 'Suspicious characteristic detected',
-        agent: rf.agent || 'detection',
-        weight: typeof rf.weight === 'number' ? rf.weight : 0.8,
+        factor: rf.factor || rf.indicator || 'Risk indicator flagged',
+        level,
+        agent: rf.agent || 'Analysis Engine',
+        weight
       };
     });
   } else if (Array.isArray(majorIndicators) && majorIndicators.length > 0) {
     items = majorIndicators.map((ind, idx) => ({
       id: `ind-${idx}`,
       factor: ind,
-      agent: 'multi-agent',
-      weight: 0.85,
+      level: 'HIGH',
+      agent: 'Indicator Engine'
     }));
   }
 
-  const getAgentBadge = (agent) => {
-    const a = (agent || '').toLowerCase();
-    if (a.includes('url')) {
-      return {
-        label: 'URL Agent',
-        color: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-        icon: 'link',
-      };
-    }
-    if (a.includes('text')) {
-      return {
-        label: 'Text Agent',
-        color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        icon: 'match_case',
-      };
-    }
-    if (a.includes('sender')) {
-      return {
-        label: 'Sender Agent',
-        color: 'bg-amber-50 text-amber-700 border-amber-200',
-        icon: 'alternate_email',
-      };
-    }
-    if (a.includes('google') || a.includes('safe_browsing')) {
-      return {
-        label: 'Safe Browsing',
-        color: 'bg-rose-50 text-rose-700 border-rose-200',
-        icon: 'security',
-      };
-    }
-    if (a.includes('virustotal')) {
-      return {
-        label: 'VirusTotal',
-        color: 'bg-purple-50 text-purple-700 border-purple-200',
-        icon: 'radar',
-      };
-    }
-    return {
-      label: agent.toUpperCase(),
-      color: 'bg-slate-100 text-slate-700 border-slate-200',
-      icon: 'flag',
-    };
-  };
+  const displayedItems = showAll ? items : items.slice(0, 4);
 
-  const getWeightImpact = (weight) => {
-    if (weight >= 0.9) {
-      return { label: 'Critical Impact', badge: 'bg-rose-100 text-rose-800 border-rose-200' };
+  const getLevelBadge = (level) => {
+    switch (level) {
+      case 'HIGH':
+        return 'bg-rose-50 text-rose-700 border-rose-200';
+      case 'MEDIUM':
+        return 'bg-amber-50 text-amber-800 border-amber-200';
+      default:
+        return 'bg-blue-50 text-blue-700 border-blue-200';
     }
-    if (weight >= 0.75) {
-      return { label: 'High Impact', badge: 'bg-amber-100 text-amber-800 border-amber-200' };
-    }
-    return { label: 'Moderate Impact', badge: 'bg-blue-100 text-blue-800 border-blue-200' };
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col h-full">
       {/* Header */}
-      <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-3">
+      <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200/60 flex items-center justify-center text-rose-600">
             <span className="material-symbols-outlined text-[19px]">warning</span>
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
-              Risk Factor Breakdown
+            <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              TOP RISK FACTORS
             </h3>
             <p className="text-xs text-slate-500">
-              Contributory risk factors and weighted signals isolated across the detection pipeline.
+              Observable signals contributing to the overall threat assessment.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-            {items.length} Factors Identified
-          </span>
-        </div>
+
+        <span className="text-xs font-mono font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+          {items.length} Identified
+        </span>
       </div>
 
-      {/* Content */}
-      <div className="p-6">
+      {/* Body: Compact Rows */}
+      <div className="p-6 flex-1 flex flex-col justify-between">
         {items.length === 0 ? (
-          <div className="p-4 rounded-lg bg-emerald-50/70 border border-emerald-200 flex items-center gap-3 text-sm text-emerald-900">
-            <span className="material-symbols-outlined text-emerald-600 text-[20px]">verified</span>
-            <span>No critical risk factors were triggered across the analytical layers. The message exhibits nominal baseline patterns.</span>
+          <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 text-xs sm:text-sm text-emerald-900 flex items-center gap-2.5">
+            <span className="material-symbols-outlined text-emerald-600 text-[18px]">verified</span>
+            <span>No elevated risk factors detected across analytical models.</span>
           </div>
         ) : (
-          <div className="space-y-3">
-            {items.map((item) => {
-              const badge = getAgentBadge(item.agent);
-              const impact = getWeightImpact(item.weight);
-              const weightPct = Math.round(item.weight * 100);
-
-              return (
-                <div
-                  key={item.id}
-                  className="p-3.5 rounded-lg border border-slate-200/90 bg-slate-50/40 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-[20px] text-rose-500 mt-0.5 shrink-0">
-                      report_problem
-                    </span>
-                    <div className="space-y-1.5">
-                      <div className="text-sm font-semibold text-slate-900 leading-snug">
-                        {item.factor}
-                      </div>
-                      <div className="flex items-center gap-2.5 flex-wrap text-xs">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-medium border ${badge.color}`}>
-                          <span className="material-symbols-outlined text-[13px]">{badge.icon}</span>
-                          <span>{badge.label}</span>
-                        </span>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-slate-600 font-medium">Weight: <strong className="font-mono text-slate-800">{item.weight.toFixed(2)}</strong></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
-                    <div className="text-right hidden sm:block">
-                      <div className="text-xs font-mono text-slate-500">Signal Contribution</div>
-                      <div className="text-sm font-mono font-bold text-slate-900">{weightPct}%</div>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded text-xs font-mono font-semibold border ${impact.badge}`}>
-                      {impact.label}
-                    </span>
-                  </div>
+          <div className="space-y-2.5">
+            {displayedItems.map((item) => (
+              <div
+                key={item.id}
+                className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-slate-50 transition flex items-center justify-between gap-3"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="material-symbols-outlined text-[18px] text-slate-400 shrink-0">
+                    arrow_right
+                  </span>
+                  <span className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
+                    {item.factor}
+                  </span>
                 </div>
-              );
-            })}
+                <span className={`px-2.5 py-0.5 rounded text-xs font-mono font-bold border shrink-0 ${getLevelBadge(item.level)}`}>
+                  {item.level}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* View All Toggle */}
+        {items.length > 4 && (
+          <div className="pt-3 border-t border-slate-100 mt-3 text-center">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition inline-flex items-center gap-1"
+            >
+              <span>{showAll ? 'Show Top Factors Only' : `View All Factors (${items.length})`}</span>
+              <span className="material-symbols-outlined text-[15px]">
+                {showAll ? 'expand_less' : 'expand_more'}
+              </span>
+            </button>
           </div>
         )}
       </div>

@@ -1,108 +1,132 @@
 import React from 'react';
 
 /**
- * EvidenceCoverageCard Component (Spec §14, §18)
- * Displays the 6-dimension evidence coverage matrix showing which technical
- * analysis engines, external intelligence feeds, and historical memories
- * evaluated this submission.
+ * EvidenceCoverageCard Component (Spec §11, §18)
+ * "HOW DID WE CHECK IT?"
+ * Compact matrix displaying verification coverage across all analytical dimensions.
+ * Strictly adheres to states:
+ * - ✓ Evaluated / Checked / Used
+ * - — Not provided
+ * - ○ Not applicable
+ * - ⚠ Unavailable
  */
 export default function EvidenceCoverageCard({ evidenceCoverage = null }) {
-  const defaultCoverage = {
-    text_analysis: {
-      dimension: "Text Content Analysis (TF-IDF + Logistic Regression)",
-      status: "Evaluated",
-      detail: "NLP lexical triggers, urgency detection, and ML probability evaluated.",
-      active: true
+  const defaultCoverage = [
+    {
+      label: "Text Analysis",
+      status: "✓ Evaluated",
+      type: "success"
     },
-    url_analysis: {
-      dimension: "URL Structural & Feature Analysis (XGBoost ML)",
-      status: "Evaluated",
-      detail: "PhiUSIIL 14-feature structural characteristics and URL entropy analyzed.",
-      active: true
+    {
+      label: "URL Analysis",
+      status: "✓ Evaluated",
+      type: "success"
     },
-    sender_authentication: {
-      dimension: "Sender & Header Authentication",
-      status: "Evaluated",
-      detail: "Headers checked. Missing cryptographic signatures marked 'Not provided'.",
-      active: true
+    {
+      label: "Sender Analysis",
+      status: "— Not provided",
+      type: "neutral"
     },
-    external_threat_intel: {
-      dimension: "External Threat Intelligence (GSB & VirusTotal)",
-      status: "Evaluated",
-      detail: "Live API lookup performed against global threat feeds.",
-      active: true
+    {
+      label: "External Threat Intel",
+      status: "✓ Checked",
+      type: "success"
     },
-    incident_memory_rag: {
-      dimension: "Incident Memory RAG (Historical Vector Similarity)",
-      status: "Evaluated",
-      detail: "Queried past enterprise threat repository with strict 0.55 similarity threshold.",
-      active: true
+    {
+      label: "Incident Memory",
+      status: "✓ No match",
+      type: "neutral"
     },
-    user_profile_context: {
-      dimension: "Personalized Profile Context",
-      status: "Active",
-      detail: "Fused authenticated user role, routine workflows, and security awareness.",
-      active: true
+    {
+      label: "User Profile",
+      status: "✓ Used",
+      type: "success"
     }
-  };
+  ];
 
-  const coverage = evidenceCoverage || defaultCoverage;
-  const items = Object.values(coverage);
+  // Map incoming coverage data if provided as object
+  let items = defaultCoverage;
+  if (evidenceCoverage && typeof evidenceCoverage === 'object') {
+    const rawItems = Object.entries(evidenceCoverage);
+    if (rawItems.length > 0) {
+      items = rawItems.map(([key, val]) => {
+        let label = val.dimension || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        let status = val.status || 'Evaluated';
+        let type = 'neutral';
 
-  const getStatusBadge = (status) => {
-    const s = (status || '').toLowerCase();
-    if (s.includes('evaluated') || s.includes('active') || s.includes('clean')) {
-      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        const s = status.toLowerCase();
+        if (s.includes('evaluated') || s.includes('active') || s.includes('checked') || s.includes('used')) {
+          status = status.startsWith('✓') ? status : `✓ ${status}`;
+          type = 'success';
+        } else if (s.includes('not provided') || s.includes('missing') || s.includes('none')) {
+          status = status.startsWith('—') ? status : `— ${status}`;
+          type = 'neutral';
+        } else if (s.includes('not applicable') || s.includes('n/a')) {
+          status = status.startsWith('○') ? status : `○ ${status}`;
+          type = 'neutral';
+        } else if (s.includes('unavailable') || s.includes('error')) {
+          status = status.startsWith('⚠') ? status : `⚠ ${status}`;
+          type = 'warning';
+        } else if (s.includes('no match')) {
+          status = status.startsWith('✓') ? status : `✓ No match`;
+          type = 'neutral';
+        } else if (s.includes('match')) {
+          status = status.startsWith('✓') ? status : `✓ Match found`;
+          type = 'warning';
+        }
+
+        return { label, status, type };
+      });
     }
-    if (s.includes('match found') || s.includes('detected')) {
-      return 'bg-rose-50 text-rose-700 border-rose-200';
+  }
+
+  const getBadgeStyle = (type) => {
+    switch (type) {
+      case 'success':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'warning':
+        return 'bg-amber-50 text-amber-800 border-amber-200';
+      default:
+        return 'bg-slate-100 text-slate-700 border-slate-200';
     }
-    if (s.includes('bypassed') || s.includes('not applicable') || s.includes('headers absent') || s.includes('no match')) {
-      return 'bg-slate-100 text-slate-600 border-slate-200';
-    }
-    return 'bg-blue-50 text-blue-700 border-blue-200';
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
       {/* Header */}
       <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200/60 flex items-center justify-center text-teal-600">
-            <span className="material-symbols-outlined text-[19px]">dataset</span>
+            <span className="material-symbols-outlined text-[19px]">fact_check</span>
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
-              <h3 className="text-base font-bold text-slate-900 tracking-tight">Evidence Coverage Matrix</h3>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-teal-50 text-teal-700 border border-teal-200">
-                6 Dimensions Verified
-              </span>
-            </div>
+            <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              HOW DID WE CHECK IT?
+            </h3>
             <p className="text-xs text-slate-500">
-              Multi-vector verification ensuring no single point of failure or fabricated safe assertions.
+              Evidence coverage across analytical models, external feeds, and threat memory.
             </p>
           </div>
         </div>
+
+        <span className="text-xs font-mono font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+          {items.length} Dimensions
+        </span>
       </div>
 
-      {/* Grid */}
-      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Compact Coverage Grid */}
+      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {items.map((item, idx) => (
           <div
             key={idx}
-            className="p-3.5 rounded-lg border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition flex flex-col justify-between gap-2.5"
+            className="p-3 rounded-xl border border-slate-200/70 bg-slate-50/40 flex items-center justify-between gap-2.5 hover:bg-slate-50 transition"
           >
-            <div className="flex items-start justify-between gap-2.5">
-              <span className="text-sm font-semibold text-slate-900 leading-snug">
-                {item.dimension}
-              </span>
-              <span className={`px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold border whitespace-nowrap ${getStatusBadge(item.status)}`}>
-                {item.status}
-              </span>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed font-normal">
-              {item.detail}
-            </p>
+            <span className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
+              {item.label}
+            </span>
+            <span className={`px-2.5 py-1 rounded-md text-xs font-mono font-medium border shrink-0 ${getBadgeStyle(item.type)}`}>
+              {item.status}
+            </span>
           </div>
         ))}
       </div>

@@ -82,8 +82,17 @@ export default function ExternalThreatIntelligence({ intel, urlEvidence }) {
         detail: `${mal} malicious, ${susp} suspicious out of ${total} security engines.`
       };
     }
+    if (total === 0) {
+      return {
+        label: 'No detection data',
+        ratio: '0/0',
+        badgeClass: 'bg-slate-100 text-slate-600 border-slate-200',
+        dotColor: 'bg-slate-400',
+        detail: 'No detection data returned.'
+      };
+    }
     return {
-      label: 'No detections',
+      label: 'No malicious detections',
       ratio: ratio,
       badgeClass: 'bg-slate-50 text-slate-700 border-slate-200',
       dotColor: 'bg-emerald-600',
