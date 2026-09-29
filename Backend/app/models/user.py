@@ -18,6 +18,7 @@ class User(Base):
     submissions = relationship("Submission", back_populates="user", cascade="all, delete-orphan")
     feedback = relationship("Feedback", back_populates="user", cascade="all, delete-orphan")
     conversations = relationship("ProfileConversation", back_populates="user", cascade="all, delete-orphan")
+    profile_history = relationship("ProfileHistory", back_populates="user", cascade="all, delete-orphan", order_by="desc(ProfileHistory.created_at)")
 
 class UserProfile(Base):
     __tablename__ = "user_profiles"
@@ -71,4 +72,20 @@ class Session(Base):
     expires_at = Column(DateTime, nullable=False)
 
     user = relationship("User", back_populates="sessions")
+ 
+class ProfileHistory(Base):
+    __tablename__ = "profile_history"
+
+    history_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
+    change_type = Column(String(50), default="profile_update")  # role_change, services_added, services_removed, preference_change, profile_update
+    field_name = Column(String(100), nullable=True)
+    old_value = Column(JSON, nullable=True)
+    new_value = Column(JSON, nullable=True)
+    title = Column(String(150), nullable=True)
+    description = Column(String(255), nullable=False)
+    source = Column(String(50), default="ai_assistant")  # onboarding, ai_assistant, manual_edit
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user = relationship("User", back_populates="profile_history")
 

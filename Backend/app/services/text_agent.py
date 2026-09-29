@@ -163,9 +163,62 @@ class TextAgent:
             except Exception as e:
                 print(f"TextAgent LLM inference error (falling back to ML/heuristics): {e}")
 
+        # Extract structured evidence items with exact snippet matching
+        structured_evidence = []
+        for p in URGENCY_PATTERNS:
+            m = re.search(p, cleaned, re.IGNORECASE)
+            if m:
+                start = max(0, m.start() - 15)
+                end = min(len(cleaned), m.end() + 40)
+                snippet = cleaned[start:end].strip().replace("\n", " ")
+                structured_evidence.append({
+                    "indicator": "urgency",
+                    "severity": "HIGH",
+                    "evidence": snippet
+                })
+        for p in PAYMENT_PATTERNS:
+            m = re.search(p, cleaned, re.IGNORECASE)
+            if m:
+                start = max(0, m.start() - 15)
+                end = min(len(cleaned), m.end() + 40)
+                snippet = cleaned[start:end].strip().replace("\n", " ")
+                structured_evidence.append({
+                    "indicator": "payment_request",
+                    "severity": "HIGH",
+                    "evidence": snippet
+                })
+        for p in CREDENTIAL_PATTERNS:
+            m = re.search(p, cleaned, re.IGNORECASE)
+            if m:
+                start = max(0, m.start() - 15)
+                end = min(len(cleaned), m.end() + 40)
+                snippet = cleaned[start:end].strip().replace("\n", " ")
+                structured_evidence.append({
+                    "indicator": "credential_request",
+                    "severity": "HIGH",
+                    "evidence": snippet
+                })
+        for p in SOCIAL_ENGINEERING_PATTERNS:
+            m = re.search(p, cleaned, re.IGNORECASE)
+            if m:
+                start = max(0, m.start() - 15)
+                end = min(len(cleaned), m.end() + 40)
+                snippet = cleaned[start:end].strip().replace("\n", " ")
+                structured_evidence.append({
+                    "indicator": "social_engineering",
+                    "severity": "MEDIUM",
+                    "evidence": snippet
+                })
+
+        for sig in llm_signals:
+            structured_evidence.append({
+                "indicator": sig.get("type", "llm_indicator"),
+                "severity": str(sig.get("severity", "MEDIUM")).upper(),
+                "evidence": sig.get("description", "")
+            })
+
         # Compute combined risk score
         if used_llm and llm_confidence is not None:
-            # Calibrate LLM confidence with Logistic Regression probability
             if llm_classification == "phishing":
                 eff_prob = max(prob_phish, llm_confidence)
             elif llm_classification == "legitimate":
@@ -187,16 +240,25 @@ class TextAgent:
         if indicators:
             summary_parts.append(f"Detected {len(indicators)} deceptive semantic patterns: {'; '.join(indicators[:2])}.")
         else:
-            summary_parts.append("Natural text flow with standard phrasing.")
+            summary_parts.append("Natural text flow with standard phrasing and legitimate lexical patterns.")
+
+        confidence_val = llm_confidence if llm_confidence is not None else round(0.72 + (prob_phish * 0.22), 2)
+        risk_level_str = "HIGH" if risk_score >= 75.0 else ("MEDIUM" if risk_score >= 40.0 else "LOW")
 
         return {
             "agent_type": "text",
+            "agent": "text",
+            "status": "success",
             "risk_score": risk_score,
             "model_probability": round(prob_phish, 4),
             "indicators": indicators,
+            "evidence": structured_evidence,
             "signals": llm_signals,
-            "classification": llm_classification or ("phishing" if risk_score >= 70 else "legitimate"),
-            "llm_confidence": llm_confidence,
+            "classification": llm_classification or ("phishing" if risk_score >= 70 else ("suspicious" if risk_score >= 40 else "legitimate")),
+            "risk_level": risk_level_str,
+            "confidence": confidence_val,
+            "llm_confidence": confidence_val,
+            "llm_reasoning": " ".join(summary_parts),
             "attack_type": llm_attack_type,
             "summary": " ".join(summary_parts),
             "model_name": active_model

@@ -1,34 +1,91 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { validateEmail, checkPasswordStrength, getFriendlyErrorMessage } from '../utils/authValidation';
+import TermsPrivacyModal from '../components/TermsPrivacyModal';
 import aiVisualization from '../assets/ai_visualization.png';
 
 export default function SignUpPage({ onNavigate }) {
   const { register } = useAuth();
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('Student');
   const [customRole, setCustomRole] = useState('');
-  const [agreeTerms, setAgreeTerms] = useState(true);
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false); // Explicit opt-in, not pre-checked
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [confirmTouched, setConfirmTouched] = useState(false);
+  const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Legal Modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState('terms');
 
   const ROLES = ['Student', 'Employee', 'Developer', 'IT Professional', 'Business Owner', 'Teacher / Educator', 'Other'];
 
+  const pwStrength = checkPasswordStrength(password);
+  const passwordsMatch = !confirmPassword || password === confirmPassword;
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    const { isValid, error } = validateEmail(email);
+    setEmailError(isValid ? '' : error);
+  };
+
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setEmail(val);
+    if (formError) setFormError('');
+    if (emailTouched) {
+      const { isValid, error } = validateEmail(val);
+      setEmailError(isValid ? '' : error);
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    setPasswordTouched(true);
+    if (formError) setFormError('');
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+    setConfirmTouched(true);
+    if (formError) setFormError('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setFormError('');
+
+    const trimmedEmail = email.trim();
+    const emailValidation = validateEmail(trimmedEmail);
+    if (!emailValidation.isValid) {
+      setEmailTouched(true);
+      setEmailError(emailValidation.error);
+      return;
+    }
+
+    if (!pwStrength.isValid) {
+      setPasswordTouched(true);
+      setFormError('Please ensure your password meets all required security criteria.');
+      return;
+    }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setConfirmTouched(true);
+      setFormError('Passwords do not match.');
       return;
     }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      return;
-    }
+
     if (!agreeTerms) {
-      setError('Please acknowledge the terms and privacy notice');
+      setFormError('You must review and agree to the Terms & Conditions and Privacy Policy to continue.');
       return;
     }
 
@@ -36,253 +93,459 @@ export default function SignUpPage({ onNavigate }) {
 
     setLoading(true);
     try {
-      await register(email, password, finalRole);
-      // Route immediately to dynamic conversational profiling wizard!
+      await register(trimmedEmail, password, finalRole, fullName.trim());
       onNavigate('onboarding');
     } catch (err) {
-      setError(err.message || 'Registration failed.');
+      setFormError(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
+  const openLegalModal = (tab) => {
+    setModalTab(tab);
+    setModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
-      {/* Left Visual Showcase Panel (#0B1220 Deep Navy) */}
-      <aside className="w-full lg:w-[48%] xl:w-[50%] bg-[#0B1220] text-slate-100 flex flex-col justify-between p-6 sm:p-10 lg:p-12 relative overflow-y-auto custom-scrollbar border-b lg:border-b-0 lg:border-r border-slate-800">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#14233D15_1px,transparent_1px),linear-gradient(to_bottom,#14233D15_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
+      {/* Terms & Privacy Dialog */}
+      <TermsPrivacyModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        initialTab={modalTab}
+      />
 
-        <div className="relative z-10 space-y-8">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div 
-              className="flex items-center space-x-3 cursor-pointer"
+      {/* LEFT COLUMN: Registration Form (Priority on Mobile & Tablet) */}
+      <main className="w-full lg:w-[50%] xl:w-[48%] bg-white flex items-center justify-center p-6 sm:p-10 lg:p-12 order-1 overflow-y-auto">
+        <div className="w-full max-w-sm space-y-5">
+          {/* Header */}
+          <div className="space-y-1">
+            {/* Mobile Branding Header */}
+            <div
+              className="lg:hidden flex items-center gap-2 cursor-pointer select-none mb-3"
               onClick={() => onNavigate('landing')}
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
-                <span className="material-symbols-outlined text-[24px]">security</span>
+              <div className="w-7 h-7 rounded-md bg-navy-900 flex items-center justify-center text-white">
+                <span className="material-symbols-outlined text-[18px]">security</span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
-                PhishGuard <span className="text-cyan-400">AI</span>
+              <span className="text-base font-bold tracking-tight text-slate-900">
+                PhishGuard <span className="text-blue-600">AI</span>
               </span>
             </div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-medium tracking-wide bg-cyan-500/10 text-cyan-400 border border-cyan-500/25">
-              Account Registration
-            </span>
-          </div>
 
-          <div className="space-y-3 pt-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider bg-blue-950/60 text-blue-300 border border-blue-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-              Dynamic Context-Aware Protection
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-snug">
-              Join the Next Generation of Phishing Defense
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Create your account
             </h1>
-            <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
-              Create an account to unlock interactive conversational profiling, single-click threat triage, and personalized security action plans.
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              Set up your PhishGuard account to run multi-agent threat analyses and calibrate your defense profile.
             </p>
           </div>
 
-          <div className="relative rounded-xl overflow-hidden border border-slate-700 glow-blue-subtle bg-[#0B1220]">
-            <img 
-              src={aiVisualization} 
-              alt="Cybersecurity AI pipeline visualization" 
-              className="w-full h-48 sm:h-56 object-cover object-center opacity-90 transition duration-500 hover:scale-[1.01]" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220] via-transparent to-transparent opacity-80 pointer-events-none" />
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-mono text-cyan-300 bg-[#0B1220]/75 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-slate-700">
-              <span>PROTECTION: Continuous Learning Memory</span>
-              <span className="text-emerald-400">ENCRYPTION: AES-256</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">
-              Included Capstone Modules:
-            </div>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300 font-mono">
-              <li className="flex items-center gap-2 bg-[#14233D]/50 p-2 rounded-lg border border-slate-800">
-                <span className="text-cyan-400">✓</span> Text Agent (TF-IDF + LR)
-              </li>
-              <li className="flex items-center gap-2 bg-[#14233D]/50 p-2 rounded-lg border border-slate-800">
-                <span className="text-cyan-400">✓</span> URL Agent (XGBoost 54f)
-              </li>
-              <li className="flex items-center gap-2 bg-[#14233D]/50 p-2 rounded-lg border border-slate-800">
-                <span className="text-cyan-400">✓</span> Sender Agent (Random Forest)
-              </li>
-              <li className="flex items-center gap-2 bg-[#14233D]/50 p-2 rounded-lg border border-slate-800">
-                <span className="text-cyan-400">✓</span> Vector RAG + Dynamic LLM
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="relative z-10 pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono">
-          <span>Student Security Suite</span>
-          <span>CS-CAPSTONE-2025</span>
-        </div>
-      </aside>
-
-      {/* Right Registration Form */}
-      <main className="w-full lg:w-[52%] xl:w-[50%] bg-white flex items-center justify-center p-6 sm:p-12 lg:p-16">
-        <div className="w-full max-w-md space-y-6 py-4">
-          <div className="space-y-2">
-            <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
-              NEW REGISTRATION
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-              Create Account
-            </h2>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              Register your email to configure your threat defense profile and begin analysis.
-            </p>
-          </div>
-
-          {error && (
-            <div className="p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2 font-medium">
-              <span className="material-symbols-outlined text-[18px]">error</span>
-              <span>{error}</span>
+          {/* Form Error Message */}
+          {formError && (
+            <div
+              role="alert"
+              className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5"
+            >
+              <span className="material-symbols-outlined text-[18px] text-red-600 shrink-0 mt-0.5">
+                error
+              </span>
+              <span className="leading-relaxed font-medium">{formError}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700" htmlFor="reg-email">
-                Email Address
+          {/* Sign Up Form */}
+          <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
+            {/* Full Name Field */}
+            <div className="space-y-1">
+              <label
+                htmlFor="signup-name"
+                className="block text-xs font-semibold uppercase font-mono text-slate-700"
+              >
+                Full Name
               </label>
-              <div className="relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">mail</span>
-                </div>
-                <input
-                  id="reg-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="student@university.edu"
-                  required
-                  className="block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition"
-                />
-              </div>
+              <input
+                id="signup-name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Alex Rivera"
+                required
+                className="block w-full px-3 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
+              />
             </div>
 
-            {/* What best describes your role? (Section 10/12) */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700">
-                What best describes your role?
+            {/* Email Address */}
+            <div className="space-y-1">
+              <label
+                htmlFor="signup-email"
+                className="block text-xs font-semibold uppercase font-mono text-slate-700"
+              >
+                Email address
               </label>
-              <div className="flex flex-wrap gap-1.5">
-                {ROLES.map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setRole(r)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
-                      role === r
-                        ? 'bg-blue-600 text-white shadow-sm font-semibold'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                    }`}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
-              {role === 'Other' && (
-                <div className="pt-1">
-                  <label className="block text-[11px] font-medium text-slate-600 mb-1">
-                    Please specify your role
-                  </label>
-                  <input
-                    type="text"
-                    value={customRole}
-                    onChange={(e) => setCustomRole(e.target.value)}
-                    placeholder="e.g. Freelancer, Consultant, Researcher"
-                    required={role === 'Other'}
-                    className="block w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition"
-                  />
-                </div>
+              <input
+                id="signup-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={handleEmailChange}
+                onBlur={handleEmailBlur}
+                placeholder="alex.rivera@university.edu"
+                required
+                aria-required="true"
+                aria-invalid={!!emailError}
+                aria-describedby={emailError ? 'signup-email-error' : undefined}
+                className={`block w-full px-3 py-2 text-xs sm:text-sm bg-white border rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                  emailError
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                    : 'border-slate-300 focus:ring-blue-600 focus:border-blue-600'
+                }`}
+              />
+              {emailError && (
+                <p id="signup-email-error" className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
+                  <span className="material-symbols-outlined text-[14px]">error</span>
+                  <span>{emailError}</span>
+                </p>
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700" htmlFor="reg-password">
-                Create Password
+            {/* Primary Role */}
+            <div className="space-y-1">
+              <label
+                htmlFor="signup-role"
+                className="block text-xs font-semibold uppercase font-mono text-slate-700"
+              >
+                Primary Role
               </label>
-              <div className="relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">lock</span>
-                </div>
+              <select
+                id="signup-role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="block w-full px-3 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
+              >
+                {ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {role === 'Other' && (
+              <div className="space-y-1 animate-in fade-in duration-100">
+                <label
+                  htmlFor="signup-custom-role"
+                  className="block text-xs font-semibold uppercase font-mono text-slate-700"
+                >
+                  Specify Custom Role
+                </label>
                 <input
-                  id="reg-password"
-                  type="password"
+                  id="signup-custom-role"
+                  type="text"
+                  value={customRole}
+                  onChange={(e) => setCustomRole(e.target.value)}
+                  placeholder="e.g. Security Researcher, Data Analyst"
+                  className="block w-full px-3 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 transition"
+                />
+              </div>
+            )}
+
+            {/* Password Field */}
+            <div className="space-y-1">
+              <label
+                htmlFor="signup-password"
+                className="block text-xs font-semibold uppercase font-mono text-slate-700"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="signup-password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 8 characters"
+                  onChange={handlePasswordChange}
+                  placeholder="••••••••••••"
                   required
-                  className="block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition"
+                  aria-required="true"
+                  className="block w-full px-3 pr-10 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
               </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700" htmlFor="reg-confirm">
-                Confirm Password
-              </label>
-              <div className="relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">lock_reset</span>
+              {/* Password Strength Indicator */}
+              {password && (
+                <div className="pt-1.5 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500 font-mono text-[11px]">Strength:</span>
+                    <span
+                      className={`font-semibold text-[11px] font-mono ${
+                        pwStrength.strength === 'Strong'
+                          ? 'text-emerald-700'
+                          : pwStrength.strength === 'Good'
+                          ? 'text-blue-700'
+                          : pwStrength.strength === 'Fair'
+                          ? 'text-amber-700'
+                          : 'text-red-700'
+                      }`}
+                    >
+                      {pwStrength.strength}
+                    </span>
+                  </div>
+                  {/* Visual Strength Meter */}
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden flex gap-1">
+                    {[1, 2, 3, 4].map((step) => (
+                      <div
+                        key={step}
+                        className={`h-full flex-1 rounded-full transition-colors duration-200 ${
+                          pwStrength.score >= step
+                            ? pwStrength.score === 4
+                              ? 'bg-emerald-500'
+                              : pwStrength.score === 3
+                              ? 'bg-blue-500'
+                              : pwStrength.score === 2
+                              ? 'bg-amber-500'
+                              : 'bg-red-500'
+                            : 'bg-slate-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <input
-                  id="reg-confirm"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repeat password"
-                  required
-                  className="block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition"
-                />
+              )}
+
+              {/* Factual Password Policy Rules Checklist (Displayed BEFORE Submission) */}
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 mt-2 space-y-1 text-[11px] font-mono">
+                <span className="text-slate-600 font-semibold block uppercase text-[10px]">
+                  Password must contain:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-slate-600">
+                  <span className={`flex items-center gap-1.5 ${pwStrength.rules.length ? 'text-emerald-700 font-medium' : ''}`}>
+                    <span className="material-symbols-outlined text-[14px]">
+                      {pwStrength.rules.length ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span>At least 8 characters</span>
+                  </span>
+                  <span className={`flex items-center gap-1.5 ${pwStrength.rules.uppercase ? 'text-emerald-700 font-medium' : ''}`}>
+                    <span className="material-symbols-outlined text-[14px]">
+                      {pwStrength.rules.uppercase ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span>One uppercase letter</span>
+                  </span>
+                  <span className={`flex items-center gap-1.5 ${pwStrength.rules.lowercase ? 'text-emerald-700 font-medium' : ''}`}>
+                    <span className="material-symbols-outlined text-[14px]">
+                      {pwStrength.rules.lowercase ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span>One lowercase letter</span>
+                  </span>
+                  <span className={`flex items-center gap-1.5 ${pwStrength.rules.number ? 'text-emerald-700 font-medium' : ''}`}>
+                    <span className="material-symbols-outlined text-[14px]">
+                      {pwStrength.rules.number ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span>One number</span>
+                  </span>
+                  <span className={`flex items-center gap-1.5 ${pwStrength.rules.special ? 'text-emerald-700 font-medium' : ''} sm:col-span-2`}>
+                    <span className="material-symbols-outlined text-[14px]">
+                      {pwStrength.rules.special ? 'check_circle' : 'radio_button_unchecked'}
+                    </span>
+                    <span>One special character (e.g. !@#$%)</span>
+                  </span>
+                </div>
               </div>
             </div>
 
+            {/* Confirm Password Field */}
+            <div className="space-y-1">
+              <label
+                htmlFor="signup-confirm-password"
+                className="block text-xs font-semibold uppercase font-mono text-slate-700"
+              >
+                Confirm password
+              </label>
+              <div className="relative">
+                <input
+                  id="signup-confirm-password"
+                  name="confirm_password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  placeholder="Re-enter password"
+                  required
+                  aria-required="true"
+                  className={`block w-full px-3 pr-10 py-2 text-xs sm:text-sm bg-white border rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    confirmTouched && !passwordsMatch
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-blue-600 focus:border-blue-600'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {showConfirmPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
+              {confirmTouched && !passwordsMatch && (
+                <p className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
+                  <span className="material-symbols-outlined text-[14px]">error</span>
+                  <span>Passwords do not match.</span>
+                </p>
+              )}
+            </div>
+
+            {/* Terms and Privacy Consent Checkbox (Explicit, not pre-checked) */}
             <div className="flex items-start pt-1">
               <input
-                id="terms"
+                id="agree-terms"
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer mt-0.5"
+                className="h-4 w-4 mt-0.5 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer"
               />
-              <label htmlFor="terms" className="ml-2.5 block text-xs text-slate-600 select-none leading-snug">
-                I understand PhishGuard AI is an educational cybersecurity assistance platform and agrees to non-malicious usage terms.
+              <label htmlFor="agree-terms" className="ml-2 block text-xs text-slate-600 select-none cursor-pointer leading-relaxed">
+                I agree to the{' '}
+                <button
+                  type="button"
+                  onClick={() => openLegalModal('terms')}
+                  className="text-blue-600 hover:text-blue-800 underline font-medium"
+                >
+                  Terms & Conditions
+                </button>{' '}
+                and acknowledge the{' '}
+                <button
+                  type="button"
+                  onClick={() => openLegalModal('privacy')}
+                  className="text-blue-600 hover:text-blue-800 underline font-medium"
+                >
+                  Privacy Policy
+                </button>.
               </label>
             </div>
 
+            {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-md shadow-blue-500/20 transition disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>{loading ? 'Creating Account...' : 'Continue to Profiling AI'}</span>
-                <span className="material-symbols-outlined text-[18px] ml-2">arrow_forward</span>
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Creating account...</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <span>Create Account</span>
+                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  </span>
+                )}
               </button>
             </div>
           </form>
 
-          <div className="text-center pt-4 border-t border-slate-100">
+          {/* Switch to Sign In */}
+          <div className="text-center pt-3 border-t border-slate-100">
             <p className="text-xs text-slate-500">
               Already have an account?{' '}
               <button
                 type="button"
                 onClick={() => onNavigate('login')}
-                className="font-semibold text-blue-600 hover:text-blue-700"
+                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
-                Sign In instead
+                Sign In
               </button>
             </p>
           </div>
         </div>
       </main>
+
+      {/* RIGHT COLUMN: Product Explanation / Architecture Highlights */}
+      <aside className="w-full lg:w-[50%] xl:w-[52%] bg-navy-900 text-slate-100 flex flex-col justify-between p-6 sm:p-10 lg:p-12 border-t lg:border-t-0 lg:border-l border-slate-800 order-2">
+        <div className="space-y-7">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div
+              className="flex items-center space-x-2.5 cursor-pointer select-none"
+              onClick={() => onNavigate('landing')}
+            >
+              <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center text-white shadow-xs">
+                <span className="material-symbols-outlined text-[20px]">security</span>
+              </div>
+              <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1">
+                PhishGuard <span className="text-blue-400">AI</span>
+              </span>
+            </div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-navy-800 text-slate-300 border border-slate-700">
+              Account Registration
+            </span>
+          </div>
+
+          <div className="space-y-2 pt-2">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              Create Your Security Workspace
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-lg">
+              Set up your profile to receive personalized threat risk assessments, tailored security action plans, and explainable forensic insights.
+            </p>
+          </div>
+
+          <div className="relative rounded-lg overflow-hidden border border-slate-800 bg-navy-950 shadow-md">
+            <img
+              src={aiVisualization}
+              alt="Cybersecurity multi-agent architecture preview"
+              className="w-full h-44 sm:h-52 object-cover object-center opacity-85"
+            />
+            <div className="p-3 bg-navy-800/90 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-300">
+              <span className="text-slate-400">PROTECTION: Continuous RAG Memory</span>
+              <span className="text-emerald-400 font-semibold">ACTIVE</span>
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <div className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">
+              Included In This Platform:
+            </div>
+            <ul className="space-y-2 text-xs text-slate-300">
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-blue-400 text-[16px] shrink-0 mt-0.5">check</span>
+                <span>Contextual User Security Profiling (Adaptive Questionnaire)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-blue-400 text-[16px] shrink-0 mt-0.5">check</span>
+                <span>Multi-Agent Text, URL, and Sender Threat Verification</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="material-symbols-outlined text-blue-400 text-[16px] shrink-0 mt-0.5">check</span>
+                <span>Incident Vector RAG Memory & Explainable Attribution</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono">
+          <span>MDP Capstone Deliverable</span>
+          <span>Salted PBKDF2 Password Hashing</span>
+        </div>
+      </aside>
     </div>
   );
 }

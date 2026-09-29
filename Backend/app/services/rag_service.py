@@ -124,21 +124,64 @@ class RAGService:
             except Exception as e:
                 print(f"RAG database retrieval warning: {e}")
 
-        # If similarity is meaningful (> 0.40), return it
-        if best_match and highest_sim >= 0.45:
+        # Spec §9: Enforce strict similarity threshold
+        SIMILARITY_THRESHOLD = 0.55
+
+        if best_match and highest_sim >= SIMILARITY_THRESHOLD:
+            best_match["has_match"] = True
+            best_match["similarity"] = highest_sim
+
+            # Spec §23: What Changed? comparison for strong matches
+            if highest_sim >= 0.70:
+                curr_amt_match = re.search(r'(?:₹|\$|USD|INR)\s*[\d,]+', text)
+                curr_amt = curr_amt_match.group(0) if curr_amt_match else "Unspecified"
+
+                curr_deadline_match = re.search(r'\b\d+\s*(?:hours?|mins?|days?)\b|immediate(?:ly)?|urgent', text, re.IGNORECASE)
+                curr_deadline = curr_deadline_match.group(0) if curr_deadline_match else "Standard"
+
+                prev_amt_match = re.search(r'(?:₹|\$|USD|INR)\s*[\d,]+', best_match.get("content_summary", ""))
+                prev_amt = prev_amt_match.group(0) if prev_amt_match else "Unspecified"
+
+                prev_deadline_match = re.search(r'\b\d+\s*(?:hours?|mins?|days?)\b|immediate(?:ly)?|urgent', best_match.get("content_summary", ""), re.IGNORECASE)
+                prev_deadline = prev_deadline_match.group(0) if prev_deadline_match else "Standard"
+
+                best_match["what_changed"] = {
+                    "is_strong_match": True,
+                    "previous_title": best_match["title"],
+                    "previous_attack": best_match["attack_type"],
+                    "comparison_points": [
+                        {
+                            "dimension": "Payment Demand",
+                            "previous": prev_amt,
+                            "current": curr_amt,
+                            "analysis": "Similar advance-fee structure with updated pricing." if curr_amt != "Unspecified" else "Financial demand pattern observed."
+                        },
+                        {
+                            "dimension": "Artificial Urgency",
+                            "previous": prev_deadline,
+                            "current": curr_deadline,
+                            "analysis": "Coercive psychological timeline pressure maintained."
+                        },
+                        {
+                            "dimension": "Attack Vector",
+                            "previous": best_match["attack_type"],
+                            "current": best_match["attack_type"],
+                            "analysis": f"Consistent {best_match['attack_type']} playbook observed."
+                        }
+                    ],
+                    "common_pattern": f"Both cases employ social-engineering lures with immediate calls to action mimicking institutional workflows."
+                }
             return best_match
 
-        # Default fallback incident if none matched strongly but payload has threat indicators
-        if any(w in combined_query.lower() for w in ["fee", "pay", "urgent", "login", "verify"]):
-            return {
-                "title": "General Phishing Threat Vector",
-                "attack_type": "Generic Phishing",
-                "similarity": 0.62,
-                "content_summary": "Historical incident involving unverified payment requests and social-engineering language.",
-                "indicators": ["Suspicious communication with urgent call to action"],
-                "source": "baseline_vector_bank"
-            }
-
-        return None
+        # Spec §9: If no result passes threshold, return explicit no-match state. Never invent fallback incidents!
+        return {
+            "has_match": False,
+            "title": "No Direct Incident Match",
+            "attack_type": "None",
+            "similarity": round(highest_sim, 2) if highest_sim > 0.1 else 0.0,
+            "content_summary": "No sufficiently similar previous incident found in vector memory.",
+            "indicators": [],
+            "what_changed": None
+        }
 
 rag_service = RAGService()

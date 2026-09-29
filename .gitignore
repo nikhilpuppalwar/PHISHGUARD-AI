@@ -17,6 +17,8 @@ venv/
 .venv/
 pip-log.txt
 pip-delete-this-directory.txt
+Backend/storage/
+storage/
 
 # Large Dataset files (>100MB strictly rejected by GitHub)
 *.csv

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import PageHeader from '../components/PageHeader';
 import {
   User,
   Briefcase,
@@ -26,7 +27,12 @@ import {
   EyeOff,
   MessageSquare,
   HelpCircle,
-  RefreshCw
+  RefreshCw,
+  Send,
+  History,
+  Tag,
+  AlertTriangle,
+  ArrowRight
 } from 'lucide-react';
 
 const FALLBACK_PROVIDERS = [
@@ -108,6 +114,8 @@ export default function ProfileSettingsPage({ onNavigate }) {
     missing_fields: [],
     message: ''
   });
+  const [completenessDetails, setCompletenessDetails] = useState(null);
+  const [historyEntries, setHistoryEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successToast, setSuccessToast] = useState('');
 
@@ -115,7 +123,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
   const [editingField, setEditingField] = useState(null);
   const [editValue, setEditValue] = useState('');
 
-  // Conversational Profile Editing modal state
+  // Conversational Profile Assistant modal state (Spec §13, §14)
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiChatMessages, setAiChatMessages] = useState([]);
   const [aiInput, setAiInput] = useState('');
@@ -143,15 +151,19 @@ export default function ProfileSettingsPage({ onNavigate }) {
   const loadAllData = async () => {
     setLoading(true);
     try {
-      const [prof, comp, pList, cList] = await Promise.all([
+      const [prof, comp, cDetail, hist, pList, cList] = await Promise.all([
         api.profile.get().catch(() => null),
         api.profile.getCompletion().catch(() => null),
+        api.profile.getCompleteness().catch(() => null),
+        api.profile.getHistory().catch(() => []),
         api.llm.getProviders().catch(() => FALLBACK_PROVIDERS),
         api.llm.getCredentials().catch(() => [])
       ]);
 
       if (prof) setProfile(prof);
       if (comp) setCompletionData(comp);
+      if (cDetail) setCompletenessDetails(cDetail);
+      if (hist) setHistoryEntries(hist);
       if (pList && pList.length > 0) setProviders(pList);
       if (cList) {
         setDbCreds(cList);
@@ -187,7 +199,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
   const saveField = async (field) => {
     try {
       let val = editValue;
-      if (field === 'common_services' || field === 'online_activities') {
+      if (field === 'common_services' || field === 'online_activities' || field === 'common_communication_types') {
         val = editValue
           .split(',')
           .map((s) => s.trim())
@@ -198,8 +210,14 @@ export default function ProfileSettingsPage({ onNavigate }) {
 
       const updated = await api.profile.patchField(field, val);
       setProfile(updated);
-      const comp = await api.profile.getCompletion();
-      setCompletionData(comp);
+      const [comp, cDetail, hist] = await Promise.all([
+        api.profile.getCompletion().catch(() => null),
+        api.profile.getCompleteness().catch(() => null),
+        api.profile.getHistory().catch(() => [])
+      ]);
+      if (comp) setCompletionData(comp);
+      if (cDetail) setCompletenessDetails(cDetail);
+      if (hist) setHistoryEntries(hist);
       await refreshProfile();
       setEditingField(null);
       showToast(`Updated ${field.replace('_', ' ')} successfully!`);
@@ -208,14 +226,17 @@ export default function ProfileSettingsPage({ onNavigate }) {
     }
   };
 
-  // --- Conversational Profile Editing ("Edit Profile with AI") ---
-  const openAiEditModal = () => {
+  // --- Conversational Profile Editing ("Edit Profile with AI" - Spec §13, §14) ---
+  const openAiEditModal = (prefill = '') => {
     setShowAiModal(true);
+    if (prefill) {
+      setAiInput(prefill);
+    }
     if (aiChatMessages.length === 0) {
       setAiChatMessages([
         {
           role: 'assistant',
-          content: `👋 Hi ${profile?.preferred_name || 'there'}! I'm your Conversational Profile Assistant.\n\nYou can tell me things like:\n• "I changed my role to Software Developer"\n• "Add AWS and GitHub to my services"\n• "Remove Instagram from my platforms"\n• "I don't use online banking"\n\nWhat would you like to update?`
+          content: `👋 Hi ${profile?.preferred_name || 'there'}! I'm your Conversational Profile Assistant.\n\nYou can update your profile in plain English:\n• "I changed my role to Software Developer"\n• "Add AWS and GitHub to my services"\n• "Remove Instagram from my platforms"\n• "I don't use online banking"\n• "Set my explanation style to Technical"\n\nWhat would you like to update?`
         }
       ]);
     }
@@ -230,7 +251,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
     setPendingConfirmation(null);
 
     try {
-      const res = await api.profile.conversationalEdit(userText);
+      const res = await api.profile.assistant(userText);
       const botMsg = {
         role: 'assistant',
         content: res.assistant_message
@@ -239,18 +260,25 @@ export default function ProfileSettingsPage({ onNavigate }) {
 
       if (res.requires_confirmation) {
         setPendingConfirmation({
-          changes: res.changes,
-          prompt: res.confirmation_prompt
+          changes: res.proposed_changes || res.changes,
+          prompt: res.confirmation_prompt || res.assistant_message,
+          diff: res.preview_diff
         });
       } else {
-        // Updated immediately!
+        // Direct safe update (Spec §13)
         if (res.updated_profile) {
           setProfile(res.updated_profile);
         }
-        const comp = await api.profile.getCompletion();
-        setCompletionData(comp);
+        const [comp, cDetail, hist] = await Promise.all([
+          api.profile.getCompletion().catch(() => null),
+          api.profile.getCompleteness().catch(() => null),
+          api.profile.getHistory().catch(() => [])
+        ]);
+        if (comp) setCompletionData(comp);
+        if (cDetail) setCompletenessDetails(cDetail);
+        if (hist) setHistoryEntries(hist);
         await refreshProfile();
-        showToast('Profile updated conversationally!');
+        showToast(res.history_entry ? `✓ ${res.history_entry}` : 'Profile updated conversationally!');
       }
     } catch (err) {
       setAiChatMessages((prev) => [
@@ -269,7 +297,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
     if (!pendingConfirmation) return;
     setAiLoading(true);
     try {
-      const res = await api.profile.confirmChanges(
+      const res = await api.profile.confirmAssistant(
         'edit_session',
         confirmed,
         pendingConfirmation.changes
@@ -285,10 +313,16 @@ export default function ProfileSettingsPage({ onNavigate }) {
 
       if (confirmed && res.profile) {
         setProfile(res.profile);
-        const comp = await api.profile.getCompletion();
-        setCompletionData(comp);
+        const [comp, cDetail, hist] = await Promise.all([
+          api.profile.getCompletion().catch(() => null),
+          api.profile.getCompleteness().catch(() => null),
+          api.profile.getHistory().catch(() => [])
+        ]);
+        if (comp) setCompletionData(comp);
+        if (cDetail) setCompletenessDetails(cDetail);
+        if (hist) setHistoryEntries(hist);
         await refreshProfile();
-        showToast('Confirmed changes applied!');
+        showToast('✓ Confirmed changes applied to Database & User Profile RAG!');
       }
     } catch (err) {
       alert(`Error confirming changes: ${err.message}`);
@@ -384,44 +418,59 @@ export default function ProfileSettingsPage({ onNavigate }) {
   const activeCredObj = dbCreds.find((c) => c.is_active);
   const currentProvider = providers.find((p) => p.id === selectedProviderId) || providers[0];
 
+  // Helper for rendering empty/missing field values (Spec §16)
+  const renderValueOrFallback = (val, placeholder = 'Not provided') => {
+    if (val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0)) {
+      return <span className="text-slate-400 italic text-xs">{placeholder}</span>;
+    }
+    return val;
+  };
+
+  // Dynamic threat exposure categories based on role (Spec §16, §17)
+  const getRoleThreatThemes = (role) => {
+    const r = (role || '').toLowerCase();
+    if (r.includes('student')) {
+      return ['Internship & Recruitment Scams', 'College Tuition / Financial Aid Phishing', 'Academic Portal Credential Harvesters', 'Emergency Wire Transfer Traps'];
+    }
+    if (r.includes('developer') || r.includes('engineer')) {
+      return ['GitHub / GitLab Access Token Thefts', 'Cloud Infrastructure (AWS/GCP) Phishing', 'Malicious Open-Source Package Lures', 'API Key Exposure Traps'];
+    }
+    if (r.includes('employee') || r.includes('business') || r.includes('manager')) {
+      return ['Business Email Compromise (BEC)', 'Fake Vendor Wire Invoices', 'Payroll / HR Direct Deposit Scams', 'Executive Display Name Spoofing'];
+    }
+    return ['Credential Harvesting Lookalikes', 'Fake Delivery / Parcel SMS', 'Urgent Account Suspension Alerts', 'Payment Gateway Impersonation'];
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16">
-      {/* Page Title & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-mono bg-blue-50 text-blue-700 border border-blue-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-            Personalized Defense Profile
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-            User Profile & AI Configuration
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Manage your digital footprint, security awareness tier, and connect LLM providers.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* Conversational Profile Editing Trigger */}
+      {/* Consistent Header & Breadcrumbs */}
+      <PageHeader
+        screenId="profile"
+        eyebrow="SECURITY CALIBRATION"
+        title="Profile & Settings"
+        description="Dynamic conversational security profile, User Profile RAG memory, and LLM provider credentials."
+        onNavigate={onNavigate}
+      >
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
-            onClick={openAiEditModal}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 flex items-center gap-2 transition"
+            onClick={() => openAiEditModal()}
+            className="px-3.5 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium shadow-xs flex items-center gap-1.5 transition"
           >
-            <Sparkles className="w-4 h-4 text-cyan-300 animate-pulse" />
+            <Sparkles className="w-4 h-4 text-blue-200" />
             <span>Edit Profile with AI</span>
           </button>
 
           <button
             type="button"
             onClick={() => onNavigate('onboarding')}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs"
+            className="px-3.5 py-2 rounded-md border border-slate-200 hover:bg-slate-50 bg-white text-slate-700 text-xs font-medium flex items-center gap-1.5 transition"
           >
             <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-            <span>Retake Wizard</span>
+            <span>Retake Profiling Wizard</span>
           </button>
         </div>
-      </div>
+      </PageHeader>
 
       {/* Success Toast */}
       {successToast && (
@@ -432,49 +481,111 @@ export default function ProfileSettingsPage({ onNavigate }) {
       )}
 
       {/* ========================================================================= */}
-      {/* PROFILE COMPLETION BANNER (Section 15) */}
+      {/* 1. MEANINGFUL PROFILE COMPLETENESS BY DIMENSION (Spec §15) */}
       {/* ========================================================================= */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold font-mono text-sm border border-blue-100">
-              {completionData.completion_percentage}%
+      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold font-mono text-base border border-blue-100">
+              {completenessDetails?.completion_percentage || completionData.completion_percentage}%
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900">
-                Security Profile Completeness
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span>Security Profile Completeness</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 font-semibold">
+                  Dimension-Calibrated
+                </span>
               </h3>
-              <p className="text-xs text-slate-500">
-                {completionData.message || `Your security profile is ${completionData.completion_percentage}% complete.`}
+              <p className="text-xs text-slate-500 mt-0.5">
+                Calculated from core threat-personalization dimensions rather than generic form fields.
               </p>
             </div>
           </div>
 
-          {completionData.missing_fields?.length > 0 && (
-            <div className="text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200 flex items-center gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5" />
-              <span>Recommended to complete: <strong>{completionData.missing_fields.slice(0, 2).join(', ')}</strong></span>
-            </div>
+          {/* Action button if profile incomplete */}
+          {completenessDetails?.missing_dimensions?.length > 0 && (
+            <button
+              onClick={() => openAiEditModal(`Configure my missing profile dimensions: ${completenessDetails.missing_dimensions.join(', ')}`)}
+              className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold border border-blue-200 flex items-center gap-1.5 transition self-start sm:self-auto"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+              <span>Complete Profile with AI</span>
+            </button>
           )}
         </div>
 
+        {/* Progress Bar */}
         <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
           <div
-            className="bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 h-full transition-all duration-500"
-            style={{ width: `${completionData.completion_percentage}%` }}
+            className="bg-blue-600 h-full transition-all duration-300"
+            style={{ width: `${completenessDetails?.completion_percentage || completionData.completion_percentage}%` }}
           />
         </div>
+
+        {/* Dimension Chips Breakdown (Spec §15) */}
+        {completenessDetails?.dimensions && (
+          <div className="pt-2 border-t border-slate-100">
+            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-2 font-semibold">
+              Security Dimensions Status
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {completenessDetails.dimensions.map((dim) => {
+                const isDone = dim.status === 'completed';
+                return (
+                  <div
+                    key={dim.dimension}
+                    className={`text-xs px-2.5 py-1 rounded-lg border flex items-center gap-1.5 transition ${
+                      isDone
+                        ? 'bg-emerald-50/70 border-emerald-200 text-emerald-800'
+                        : 'bg-slate-50 border-slate-200 text-slate-500'
+                    }`}
+                    title={dim.description}
+                  >
+                    {isDone ? (
+                      <Check className="w-3 h-3 text-emerald-600" />
+                    ) : (
+                      <span className="w-2 h-2 rounded-full bg-slate-300" />
+                    )}
+                    <span className="font-medium">{dim.dimension}</span>
+                    {!isDone && (
+                      <span className="text-[10px] text-amber-600 font-mono font-semibold">(Missing)</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Missing Dimension Recommendation */}
+        {completenessDetails?.recommendation && (
+          <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>{completenessDetails.recommendation}</span>
+            </div>
+            <button
+              onClick={() => openAiEditModal(`Configure my ${completenessDetails.missing_dimensions[0]}`)}
+              className="text-xs font-bold text-amber-900 underline hover:no-underline whitespace-nowrap"
+            >
+              Add with AI →
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ========================================================================= */}
-      {/* 4 STRUCTURED PROFILE SECTIONS (Section 8 & 9) */}
+      {/* 2. DYNAMIC PROFILE SECTIONS (Spec §16 & §17 - Data-Driven, No Fake Values) */}
       {/* ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Section 1: Personal / Professional */}
+        {/* Card 1: Personal & Professional Identity */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-sm border-b border-slate-100 pb-3">
-            <Briefcase className="w-4 h-4 text-blue-600" />
-            <span>Personal & Professional Identity</span>
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+              <Briefcase className="w-4 h-4 text-blue-600" />
+              <span>Personal & Professional Identity</span>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">Spec §16</span>
           </div>
 
           <div className="space-y-3">
@@ -498,7 +609,9 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-bold text-slate-900">{profile?.preferred_name || 'User'}</span>
+                  <span className="text-xs font-bold text-slate-900">
+                    {renderValueOrFallback(profile?.preferred_name, 'Not provided')}
+                  </span>
                 )}
               </div>
               {editingField !== 'preferred_name' && (
@@ -523,7 +636,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                       onChange={(e) => setEditValue(e.target.value)}
                       className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900 font-medium"
                     >
-                      {['Student', 'Employee', 'Business Owner', 'IT Professional', 'Developer', 'Teacher', 'General User'].map((r) => (
+                      {['Student', 'Software Developer', 'Developer', 'Employee', 'Business Owner', 'IT Professional', 'Teacher', 'Security Analyst'].map((r) => (
                         <option key={r} value={r}>{r}</option>
                       ))}
                     </select>
@@ -536,7 +649,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                   </div>
                 ) : (
                   <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-                    {profile?.role || 'Unspecified'}
+                    {renderValueOrFallback(profile?.role, 'Not provided')}
                   </span>
                 )}
               </div>
@@ -551,7 +664,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
               )}
             </div>
 
-            {/* Industry */}
+            {/* Industry Domain */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
                 <span className="text-[10px] font-mono text-slate-400 uppercase block">Industry Domain</span>
@@ -561,7 +674,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                       type="text"
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      placeholder="e.g. Higher Education, Tech, Finance"
+                      placeholder="e.g. Higher Education, Cybersecurity, Finance"
                       className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
                     />
                     <button onClick={() => saveField('industry')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
@@ -572,8 +685,8 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-medium text-slate-700">
-                    {profile?.industry || 'Not specified'}
+                  <span className="text-xs font-medium text-slate-800">
+                    {renderValueOrFallback(profile?.industry, 'Not configured')}
                   </span>
                 )}
               </div>
@@ -598,7 +711,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                       type="text"
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      placeholder="e.g. University, Enterprise, Start-up"
+                      placeholder="e.g. University, Tech Startup, Enterprise"
                       className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
                     />
                     <button onClick={() => saveField('organization_type')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
@@ -609,8 +722,8 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-medium text-slate-700">
-                    {profile?.organization_type || 'University / Academic Campus'}
+                  <span className="text-xs font-medium text-slate-800">
+                    {renderValueOrFallback(profile?.organization_type, 'Not configured')}
                   </span>
                 )}
               </div>
@@ -627,18 +740,21 @@ export default function ProfileSettingsPage({ onNavigate }) {
           </div>
         </div>
 
-        {/* Section 2: Digital Behavior */}
+        {/* Card 2: Digital Behavior & Account Ecosystems */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-sm border-b border-slate-100 pb-3">
-            <Globe className="w-4 h-4 text-cyan-600" />
-            <span>Digital Behavior & Account Ecosystems</span>
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+              <Globe className="w-4 h-4 text-cyan-600" />
+              <span>Digital Behavior & Account Ecosystems</span>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">Spec §16</span>
           </div>
 
           <div className="space-y-3">
             {/* Common Services */}
             <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Common Services & Accounts</span>
+                <span className="text-[10px] font-mono text-slate-400 uppercase block">Monitored Services & Platforms</span>
                 {editingField !== 'common_services' && (
                   <button
                     onClick={() => startEditing('common_services', profile?.common_services)}
@@ -656,7 +772,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     type="text"
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
-                    placeholder="Separate with commas, e.g. Google, GitHub, Microsoft, AWS"
+                    placeholder="Separate with commas, e.g. Google, GitHub, AWS, Microsoft"
                     className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
                   />
                   <div className="flex gap-2">
@@ -670,11 +786,15 @@ export default function ProfileSettingsPage({ onNavigate }) {
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-1.5">
-                  {(profile?.common_services?.length > 0 ? profile.common_services : ['Google', 'University Email']).map((s, i) => (
-                    <span key={i} className="text-[11px] font-medium bg-cyan-50 text-cyan-800 px-2.5 py-0.5 rounded-full border border-cyan-200">
-                      {s}
-                    </span>
-                  ))}
+                  {profile?.common_services && profile.common_services.length > 0 ? (
+                    profile.common_services.map((s, i) => (
+                      <span key={i} className="text-[11px] font-medium bg-cyan-50 text-cyan-800 px-2.5 py-0.5 rounded-full border border-cyan-200">
+                        {s}
+                      </span>
+                    ))
+                  ) : (
+                    renderValueOrFallback(null, 'Not configured')
+                  )}
                 </div>
               )}
             </div>
@@ -714,11 +834,63 @@ export default function ProfileSettingsPage({ onNavigate }) {
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-1.5">
-                  {(profile?.online_activities?.length > 0 ? profile.online_activities : ['Education', 'Online Banking']).map((a, i) => (
-                    <span key={i} className="text-[11px] font-medium bg-blue-50 text-blue-800 px-2.5 py-0.5 rounded-full border border-blue-200">
-                      {a}
-                    </span>
-                  ))}
+                  {profile?.online_activities && profile.online_activities.length > 0 ? (
+                    profile.online_activities.map((a, i) => (
+                      <span key={i} className="text-[11px] font-medium bg-blue-50 text-blue-800 px-2.5 py-0.5 rounded-full border border-blue-200">
+                        {a}
+                      </span>
+                    ))
+                  ) : (
+                    renderValueOrFallback(null, 'Not configured')
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Common Communications */}
+            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-slate-400 uppercase block">Common Communication Channels</span>
+                {editingField !== 'common_communication_types' && (
+                  <button
+                    onClick={() => startEditing('common_communication_types', profile?.common_communication_types)}
+                    className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>Edit</span>
+                  </button>
+                )}
+              </div>
+
+              {editingField === 'common_communication_types' ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    placeholder="Separate with commas, e.g. University Email, LinkedIn Messages"
+                    className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={() => saveField('common_communication_types')} className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-md">
+                      Save
+                    </button>
+                    <button onClick={() => setEditingField(null)} className="px-3 py-1 bg-slate-200 text-slate-700 text-xs rounded-md">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {profile?.common_communication_types && profile.common_communication_types.length > 0 ? (
+                    profile.common_communication_types.map((c, i) => (
+                      <span key={i} className="text-[11px] font-medium bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200">
+                        {c}
+                      </span>
+                    ))
+                  ) : (
+                    renderValueOrFallback(null, 'Not configured')
+                  )}
                 </div>
               )}
             </div>
@@ -737,7 +909,13 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     const newVal = !item.value;
                     const upd = await api.profile.patchField(item.field, newVal);
                     setProfile(upd);
-                    showToast(`Toggled ${item.label} to ${newVal ? 'Yes' : 'No'}`);
+                    const [cDetail, hist] = await Promise.all([
+                      api.profile.getCompleteness().catch(() => null),
+                      api.profile.getHistory().catch(() => [])
+                    ]);
+                    if (cDetail) setCompletenessDetails(cDetail);
+                    if (hist) setHistoryEntries(hist);
+                    showToast(`Toggled ${item.label} to ${newVal ? 'Active' : 'Inactive'}`);
                   }}
                   className={`p-2.5 rounded-xl border text-center transition ${
                     item.value
@@ -753,15 +931,18 @@ export default function ProfileSettingsPage({ onNavigate }) {
           </div>
         </div>
 
-        {/* Section 3: Security Profile */}
+        {/* Card 3: Security Calibrations & Explanations */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-sm border-b border-slate-100 pb-3">
-            <Shield className="w-4 h-4 text-emerald-600" />
-            <span>Security Calibrations & Explanations</span>
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+              <Shield className="w-4 h-4 text-emerald-600" />
+              <span>Security Calibrations & Explanations</span>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">Spec §16</span>
           </div>
 
           <div className="space-y-3">
-            {/* Security Awareness */}
+            {/* Security Awareness Tier */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
                 <span className="text-[10px] font-mono text-slate-400 uppercase block">Security Awareness Tier</span>
@@ -785,7 +966,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                   </div>
                 ) : (
                   <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    {profile?.security_awareness || 'Beginner'}
+                    {renderValueOrFallback(profile?.security_awareness, 'Beginner')}
                   </span>
                 )}
               </div>
@@ -824,7 +1005,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                   </div>
                 ) : (
                   <span className="text-xs font-semibold text-slate-800">
-                    {profile?.technical_experience || 'Intermediate'}
+                    {renderValueOrFallback(profile?.technical_experience, 'Intermediate')}
                   </span>
                 )}
               </div>
@@ -839,7 +1020,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
               )}
             </div>
 
-            {/* Explanation Style */}
+            {/* Threat Explanation Style */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
                 <span className="text-[10px] font-mono text-slate-400 uppercase block">Threat Explanation Complexity</span>
@@ -850,8 +1031,9 @@ export default function ProfileSettingsPage({ onNavigate }) {
                       onChange={(e) => setEditValue(e.target.value)}
                       className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
                     >
-                      <option value="Simple">Simple & Action-Oriented</option>
-                      <option value="Detailed">Detailed & Technical (SHAP Deltas)</option>
+                      <option value="Simple">Simple (Concise, Plain-English, Actionable)</option>
+                      <option value="Detailed">Detailed (Step-by-step breakdown & evidence)</option>
+                      <option value="Technical">Technical (Forensic IoCs, headers, SHAP deltas)</option>
                     </select>
                     <button onClick={() => saveField('preferred_explanation_style')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
                       <Check className="w-4 h-4" />
@@ -862,7 +1044,11 @@ export default function ProfileSettingsPage({ onNavigate }) {
                   </div>
                 ) : (
                   <span className="text-xs font-semibold text-slate-800">
-                    {profile?.preferred_explanation_style === 'Detailed' ? 'Detailed & Technical' : 'Simple & Action-Oriented'}
+                    {profile?.preferred_explanation_style === 'Technical'
+                      ? 'Technical (Forensic IoCs & Deltas)'
+                      : (profile?.preferred_explanation_style === 'Detailed'
+                        ? 'Detailed (Full Breakdown)'
+                        : 'Simple (Plain English & Actionable)')}
                   </span>
                 )}
               </div>
@@ -879,87 +1065,185 @@ export default function ProfileSettingsPage({ onNavigate }) {
           </div>
         </div>
 
-        {/* Section 4: Custom Information */}
+        {/* Card 4: Threat Exposure & Context (Spec §16 & §17) */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
-              <Sliders className="w-4 h-4 text-purple-600" />
-              <span>Custom Information & Context</span>
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <span>Threat Exposure & Contextual Memory</span>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">Extensible Schema</span>
+            <span className="text-[10px] font-mono text-slate-400">User Profile RAG</span>
           </div>
 
-          <div className="space-y-2 text-xs">
-            {profile?.custom_information && Object.keys(profile.custom_information).length > 0 ? (
-              <div className="space-y-2">
-                {Object.entries(profile.custom_information).map(([k, v]) => (
-                  <div key={k} className="p-2.5 rounded-xl bg-purple-50/50 border border-purple-100 flex items-center justify-between">
-                    <div>
-                      <span className="font-mono text-[10px] text-purple-700 uppercase block">{k.replace('_', ' ')}</span>
-                      <span className="font-semibold text-slate-900">{String(v)}</span>
-                    </div>
-                    <button
-                      onClick={async () => {
-                        const updated = { ...profile.custom_information };
-                        delete updated[k];
-                        const res = await api.profile.patchField('custom_information', updated);
-                        setProfile(res);
-                        showToast(`Removed ${k}`);
-                      }}
-                      className="text-slate-400 hover:text-rose-500 p-1"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+          <div className="space-y-3">
+            {/* Calibrated Attack Exposure Themes */}
+            <div className="p-3 rounded-xl bg-amber-50/50 border border-amber-200 space-y-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-900 font-semibold block">
+                Targeted Attack Vectors Calibrated for {profile?.role || 'Your Role'}
+              </span>
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {getRoleThreatThemes(profile?.role).map((theme, i) => (
+                  <span key={i} className="text-[11px] font-medium bg-white text-amber-900 px-2 py-0.5 rounded-md border border-amber-200/80 shadow-2xs">
+                    • {theme}
+                  </span>
                 ))}
               </div>
-            ) : (
-              <div className="p-4 rounded-xl bg-slate-50 text-slate-500 text-center font-mono text-xs">
-                No custom tags yet. The AI automatically populates this when you select "Other" or provide custom context.
+            </div>
+
+            {/* Custom Notes / Extensible Context */}
+            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-slate-400 uppercase block">Custom Security Context Notes</span>
+                <button
+                  onClick={() => openAiEditModal('Add contextual security note: ')}
+                  className="px-2.5 py-1 text-[11px] text-purple-600 hover:bg-purple-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>Add with AI</span>
+                </button>
               </div>
-            )}
+
+              {profile?.custom_information && Object.keys(profile.custom_information).length > 0 ? (
+                <div className="space-y-2 pt-1">
+                  {Object.entries(profile.custom_information).map(([k, v]) => (
+                    <div key={k} className="p-2.5 rounded-xl bg-purple-50/60 border border-purple-200 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="font-mono text-[10px] text-purple-700 uppercase block font-semibold">
+                          {k.replace('_', ' ')}
+                        </span>
+                        <span className="text-slate-800">{String(v)}</span>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          const updated = { ...profile.custom_information };
+                          delete updated[k];
+                          const res = await api.profile.patchField('custom_information', updated);
+                          setProfile(res);
+                          showToast(`Removed custom tag ${k}`);
+                        }}
+                        className="text-slate-400 hover:text-rose-500 p-1"
+                        title="Delete note"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-xs text-slate-500 italic py-1">
+                  Not configured. (e.g. "I frequently receive internship messages on LinkedIn.")
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* CONVERSATIONAL PROFILE EDITING MODAL ("Edit Profile with AI") */}
+      {/* 3. PROFILE CHANGE HISTORY TIMELINE (Spec §18 & §26) */}
+      {/* ========================================================================= */}
+      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+            <History className="w-4 h-4 text-blue-600" />
+            <span>Profile Change History</span>
+          </div>
+          <span className="text-[11px] font-mono text-slate-400">
+            {historyEntries.length} recorded event(s)
+          </span>
+        </div>
+
+        {historyEntries.length === 0 ? (
+          <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-500 font-mono space-y-1">
+            <p>No profile changes recorded yet.</p>
+            <p className="text-[11px] text-slate-400">
+              Meaningful changes made through conversational AI or profile edits will be tracked here.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {historyEntries.slice(0, 10).map((h) => {
+              const dt = new Date(h.created_at);
+              const formattedDate = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+              const formattedTime = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
+              return (
+                <div
+                  key={h.history_id}
+                  className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 flex items-center justify-between gap-4 text-xs"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
+                      <Clock className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-900 text-xs sm:text-sm">
+                        {h.description}
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono mt-0.5 flex items-center gap-2">
+                        <span>{formattedDate} at {formattedTime}</span>
+                        <span>•</span>
+                        <span className="capitalize text-blue-600 font-semibold">{h.source.replace('_', ' ')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600 shrink-0 font-medium">
+                    {h.change_type.replace('_', ' ').toUpperCase()}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 4. CONVERSATIONAL PROFILE ASSISTANT MODAL (Spec §13, §14) */}
       {/* ========================================================================= */}
       {showAiModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-xl w-full flex flex-col overflow-hidden animate-scale-in max-h-[85vh]">
+        <div 
+          className="fixed inset-0 z-50 bg-slate-900/60 flex items-center justify-center p-4 backdrop-blur-xs"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ai-profile-modal-title"
+        >
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-xl w-full flex flex-col overflow-hidden max-h-[85vh] animate-fade-in">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-cyan-300 animate-pulse" />
+            <div className="p-4 bg-navy-900 text-white flex items-center justify-between border-b border-navy-border">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+                  <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base">Conversational Profile Assistant</h3>
-                  <p className="text-xs text-blue-100">Talk naturally to update your security attributes</p>
+                  <h3 id="ai-profile-modal-title" className="font-bold text-sm text-white">
+                    Conversational Profile Assistant
+                  </h3>
+                  <p className="text-xs text-slate-400">Update security parameters using natural language</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAiModal(false)}
-                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition"
+                className="p-1 rounded text-slate-400 hover:text-white hover:bg-navy-800 transition"
+                aria-label="Close dialog"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Chat Feed */}
-            <div className="p-4 sm:p-5 overflow-y-auto space-y-3 flex-1 bg-slate-50/50 min-h-[280px]">
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-3 flex-1 bg-slate-50/50 min-h-[300px]">
               {aiChatMessages.map((m, i) => {
                 const isUser = m.role === 'user';
                 return (
                   <div key={i} className={`flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}>
                     {!isUser && (
-                      <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 text-xs font-bold">
+                      <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
                         <Bot className="w-4 h-4" />
                       </div>
                     )}
                     <div
-                      className={`p-3 rounded-2xl text-xs sm:text-sm leading-relaxed max-w-[85%] ${
+                      className={`p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed max-w-[85%] ${
                         isUser
                           ? 'bg-blue-600 text-white rounded-tr-none'
                           : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none shadow-2xs'
@@ -981,31 +1265,55 @@ export default function ProfileSettingsPage({ onNavigate }) {
               )}
             </div>
 
-            {/* Confirmation Box if Required (Section 12) */}
+            {/* Structured Proposed Changes Preview Card (Spec §13, §14) */}
             {pendingConfirmation && (
-              <div className="p-3.5 bg-amber-50 border-t border-amber-200 text-xs text-amber-900 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>{pendingConfirmation.prompt || 'Confirm applying these profile modifications?'}</span>
+              <div className="p-4 bg-blue-50/80 border-t border-blue-200 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-blue-900">
+                  <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>Proposed Changes Confirmation</span>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleConfirmAiChanges(true)}
-                    className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition"
-                  >
-                    Confirm
-                  </button>
+                <div className="p-3 bg-white rounded-xl border border-blue-200 text-xs text-slate-800 font-mono space-y-1">
+                  <div className="whitespace-pre-line">{pendingConfirmation.prompt}</div>
+                </div>
+                <div className="flex items-center justify-end gap-2 pt-1">
                   <button
                     onClick={() => handleConfirmAiChanges(false)}
-                    className="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-lg transition"
+                    className="px-3.5 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-medium transition"
                   >
                     Cancel
+                  </button>
+                  <button
+                    onClick={() => handleConfirmAiChanges(true)}
+                    className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Confirm Changes</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Modal Input */}
+            {/* Quick Suggestion Pills */}
+            <div className="px-4 py-2 bg-slate-100/70 border-t border-slate-200 flex flex-wrap gap-1.5">
+              {[
+                'Change role to Software Developer',
+                'Add AWS and GitHub to services',
+                'Remove Instagram from services',
+                "I don't use online banking",
+                'Set explanation style to Technical'
+              ].map((sug) => (
+                <button
+                  key={sug}
+                  type="button"
+                  onClick={() => setAiInput(sug)}
+                  className="text-[11px] bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 px-2.5 py-1 rounded-md border border-slate-200 transition"
+                >
+                  {sug}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Bar */}
             <div className="p-3.5 bg-white border-t border-slate-200">
               <form
                 onSubmit={(e) => {
@@ -1019,7 +1327,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                   value={aiInput}
                   onChange={(e) => setAiInput(e.target.value)}
                   placeholder="e.g. I changed my role to Software Developer, add AWS..."
-                  className="flex-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="flex-1 px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
                 />
                 <button
                   type="submit"
@@ -1035,7 +1343,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
       )}
 
       {/* ========================================================================= */}
-      {/* 5. MULTI-PROVIDER LLM & AI ENGINE STUDIO (From Previous Step) */}
+      {/* 5. MULTI-PROVIDER LLM & AI ENGINE STUDIO */}
       {/* ========================================================================= */}
       <div className="p-6 sm:p-7 rounded-2xl bg-[#0B1220] text-slate-100 border border-slate-800 shadow-2xl space-y-6">
         <div className="flex items-start justify-between flex-wrap gap-4 border-b border-slate-800 pb-5">
@@ -1200,17 +1508,17 @@ export default function ProfileSettingsPage({ onNavigate }) {
             type="button"
             onClick={handleTestAI}
             disabled={testing}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-mono font-bold flex items-center gap-2 shadow-lg shadow-cyan-900/30 transition disabled:opacity-50"
+            className="px-4 py-2 rounded-md bg-navy-900 hover:bg-slate-800 text-white text-xs font-mono font-medium flex items-center gap-2 shadow-xs transition disabled:opacity-50"
           >
             {testing ? (
               <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Pinging Provider...</span>
+                <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <span>Testing Provider...</span>
               </>
             ) : (
               <>
-                <Zap className="w-4 h-4 text-cyan-300" />
-                <span>Test AI Connection</span>
+                <Zap className="w-3.5 h-3.5 text-blue-400" />
+                <span>Test Connection</span>
               </>
             )}
           </button>

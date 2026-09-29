@@ -1,29 +1,68 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { validateEmail, getFriendlyErrorMessage } from '../utils/authValidation';
 import aiVisualization from '../assets/ai_visualization.png';
 
 export default function LoginPage({ onNavigate, redirectMessage, targetScreen }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('alex.rivera@university.edu');
   const [password, setPassword] = useState('Password123!');
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    const { isValid, error } = validateEmail(email);
+    setEmailError(isValid ? '' : error);
+  };
+
+  const handleEmailChange = (e) => {
+    const val = e.target.value;
+    setEmail(val);
+    if (formError) setFormError('');
+    if (emailTouched) {
+      const { isValid, error } = validateEmail(val);
+      setEmailError(isValid ? '' : error);
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (formError) setFormError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setFormError('');
+
+    const trimmedEmail = email.trim();
+    const emailValidation = validateEmail(trimmedEmail);
+    if (!emailValidation.isValid) {
+      setEmailTouched(true);
+      setEmailError(emailValidation.error);
+      return;
+    }
+
+    if (!password) {
+      setFormError('Please enter your password.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await login(email, password);
+      const res = await login(trimmedEmail, password, rememberMe);
       if (!res.has_profile) {
         onNavigate('onboarding');
       } else {
         onNavigate(targetScreen || 'dashboard');
       }
     } catch (err) {
-      setError(err.message || 'Login failed. Please check credentials.');
+      setFormError(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -31,158 +70,135 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
-      {/* Left Telemetry Panel (#0B1220 Deep Navy) */}
-      <aside className="w-full lg:w-[48%] xl:w-[50%] bg-[#0B1220] text-slate-100 flex flex-col justify-between p-6 sm:p-10 lg:p-12 relative overflow-y-auto custom-scrollbar border-b lg:border-b-0 lg:border-r border-slate-800">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#14233D15_1px,transparent_1px),linear-gradient(to_bottom,#14233D15_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
-
-        <div className="relative z-10 space-y-8">
+      {/* LEFT COLUMN: Sign In Form (Priority on Mobile & Tablet) */}
+      <main className="w-full lg:w-[50%] xl:w-[48%] bg-white flex items-center justify-center p-6 sm:p-12 lg:p-16 order-1">
+        <div className="w-full max-w-sm space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div 
-              className="flex items-center space-x-3 cursor-pointer"
+          <div className="space-y-1.5">
+            {/* Mobile Branding Header */}
+            <div
+              className="lg:hidden flex items-center gap-2 cursor-pointer select-none mb-4"
               onClick={() => onNavigate('landing')}
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20 text-white">
-                <span className="material-symbols-outlined text-[24px]">security</span>
+              <div className="w-7 h-7 rounded-md bg-navy-900 flex items-center justify-center text-white">
+                <span className="material-symbols-outlined text-[18px]">security</span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
-                PhishGuard <span className="text-cyan-400">AI</span>
+              <span className="text-base font-bold tracking-tight text-slate-900">
+                PhishGuard <span className="text-blue-600">AI</span>
               </span>
             </div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-medium tracking-wide bg-blue-500/10 text-blue-400 border border-blue-500/25">
-              Student / Capstone Project
-            </span>
-          </div>
 
-          {/* Title & summary */}
-          <div className="space-y-3 pt-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[11px] font-mono uppercase tracking-wider bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              Capstone Defense Intelligence
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-snug">
-              Sign In to Your Security Workspace
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Welcome back
             </h1>
-            <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
-              Log in to review multi-agent analysis results, manage your personal security profile, and inspect threat forensic indicators.
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              Sign in to manage your security workspaces, threat analyses, and defense profile.
             </p>
           </div>
 
-          {/* Visualization preview */}
-          <div className="relative rounded-xl overflow-hidden border border-slate-700 glow-blue-subtle bg-[#0B1220]">
-            <img 
-              src={aiVisualization} 
-              alt="Cybersecurity AI pipeline visualization" 
-              className="w-full h-48 sm:h-56 object-cover object-center opacity-90 transition duration-500 hover:scale-[1.01]" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220] via-transparent to-transparent opacity-80 pointer-events-none" />
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-mono text-cyan-300 bg-[#0B1220]/75 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-slate-700">
-              <span>STATUS: Multi-Agent Engine Active</span>
-              <span className="text-emerald-400">PIPELINE: ONLINE</span>
-            </div>
-          </div>
-
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
-            <div className="p-3 rounded-lg bg-[#14233D]/60 border border-slate-800">
-              <span className="text-slate-400 block text-[10px] uppercase">Agents Active</span>
-              <span className="text-cyan-400 font-bold">Text, URL, Sender</span>
-            </div>
-            <div className="p-3 rounded-lg bg-[#14233D]/60 border border-slate-800">
-              <span className="text-slate-400 block text-[10px] uppercase">Model Base</span>
-              <span className="text-emerald-400 font-bold">Random Forest + XGBoost</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono">
-          <span>Student Security Suite</span>
-          <span>CS-CAPSTONE-2025</span>
-        </div>
-      </aside>
-
-      {/* Right Login Form */}
-      <main className="w-full lg:w-[52%] xl:w-[50%] bg-white flex items-center justify-center p-6 sm:p-12 lg:p-16">
-        <div className="w-full max-w-md space-y-6 py-4">
-          <div className="space-y-2">
-            <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
-              AUTHENTICATION
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-              Welcome Back
-            </h2>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              Sign in to your PhishGuard AI account to analyze suspicious emails, links, and messages.
-            </p>
-          </div>
-
+          {/* Session Expiry or Guard Notice */}
           {redirectMessage && (
-            <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-800 flex items-start gap-2.5 font-medium shadow-xs">
-              <span className="material-symbols-outlined text-[18px] text-blue-600 shrink-0 mt-0.5">lock</span>
-              <span className="leading-snug">{redirectMessage}</span>
+            <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-start gap-2.5">
+              <span className="material-symbols-outlined text-[18px] text-blue-600 shrink-0 mt-0.5">
+                lock
+              </span>
+              <span className="leading-relaxed">{redirectMessage}</span>
             </div>
           )}
 
-          {error && (
-            <div className="p-3.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2 font-medium">
-              <span className="material-symbols-outlined text-[18px]">error</span>
-              <span>{error}</span>
+          {/* Form Level Error Message */}
+          {formError && (
+            <div
+              role="alert"
+              className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5"
+            >
+              <span className="material-symbols-outlined text-[18px] text-red-600 shrink-0 mt-0.5">
+                error
+              </span>
+              <span className="leading-relaxed font-medium">{formError}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Sign In Form */}
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {/* Email Field */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700" htmlFor="email">
-                College or Personal Email
+            <div className="space-y-1">
+              <label
+                htmlFor="login-email"
+                className="block text-xs font-semibold uppercase font-mono text-slate-700"
+              >
+                Email address
               </label>
-              <div className="relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <span className="material-symbols-outlined text-[18px]">mail</span>
-                </div>
+                </span>
                 <input
-                  id="email"
+                  id="login-email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="alex.rivera@university.edu"
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
+                  placeholder="student@example.com"
                   required
-                  className="block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition"
+                  aria-required="true"
+                  aria-invalid={!!emailError}
+                  aria-describedby={emailError ? 'login-email-error' : undefined}
+                  className={`block w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white border rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    emailError
+                      ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                      : 'border-slate-300 focus:ring-blue-600 focus:border-blue-600'
+                  }`}
                 />
               </div>
+              {emailError && (
+                <p id="login-email-error" className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
+                  <span className="material-symbols-outlined text-[14px]">error</span>
+                  <span>{emailError}</span>
+                </p>
+              )}
             </div>
 
             {/* Password Field */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700" htmlFor="password">
+                <label
+                  htmlFor="login-password"
+                  className="block text-xs font-semibold uppercase font-mono text-slate-700"
+                >
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => onNavigate('forgot-password')}
-                  className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
                 >
-                  Forgot Password?
+                  Forgot password?
                 </button>
               </div>
-              <div className="relative rounded-lg shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <span className="material-symbols-outlined text-[18px]">lock</span>
-                </div>
+                </span>
                 <input
-                  id="password"
+                  id="login-password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   placeholder="••••••••••••"
                   required
-                  className="block w-full pl-10 pr-10 py-2.5 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 transition"
+                  aria-required="true"
+                  className="block w-full pl-9 pr-10 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
                 >
                   <span className="material-symbols-outlined text-[18px]">
                     {showPassword ? 'visibility_off' : 'visibility'}
@@ -191,29 +207,42 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
               </div>
             </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center pt-1">
+            {/* Remember Me Checkbox */}
+            <div className="flex items-center pt-0.5">
               <input
                 id="remember-me"
+                name="remember_me"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer"
               />
-              <label htmlFor="remember-me" className="ml-2.5 block text-xs text-slate-600 select-none cursor-pointer">
-                Remember me on this device
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-xs text-slate-600 select-none cursor-pointer"
+              >
+                Keep me signed in on this device (30 days)
               </label>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit Action */}
             <div className="pt-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-md shadow-blue-500/20 transition disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>{loading ? 'Authenticating...' : 'Sign In'}</span>
-                <span className="material-symbols-outlined text-[18px] ml-2">arrow_forward</span>
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Signing in...</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <span>Sign In</span>
+                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  </span>
+                )}
               </button>
             </div>
           </form>
@@ -221,11 +250,11 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
           {/* Switch to Sign Up */}
           <div className="text-center pt-4 border-t border-slate-100">
             <p className="text-xs text-slate-500">
-              Don't have an account yet?{' '}
+              Don't have an account?{' '}
               <button
                 type="button"
                 onClick={() => onNavigate('signup')}
-                className="font-semibold text-blue-600 hover:text-blue-700"
+                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
                 Create an account
               </button>
@@ -233,6 +262,73 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
           </div>
         </div>
       </main>
+
+      {/* RIGHT COLUMN: Product Explanation / Detection Workspace Preview */}
+      <aside className="w-full lg:w-[50%] xl:w-[52%] bg-navy-900 text-slate-100 flex flex-col justify-between p-6 sm:p-10 lg:p-12 border-t lg:border-t-0 lg:border-l border-slate-800 order-2">
+        <div className="space-y-8">
+          {/* Header & Capstone Context */}
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div
+              className="flex items-center space-x-2.5 cursor-pointer select-none"
+              onClick={() => onNavigate('landing')}
+            >
+              <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center text-white shadow-xs">
+                <span className="material-symbols-outlined text-[20px]">security</span>
+              </div>
+              <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1">
+                PhishGuard <span className="text-blue-400">AI</span>
+              </span>
+            </div>
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-navy-800 text-slate-300 border border-slate-700">
+              MDP Capstone
+            </span>
+          </div>
+
+          {/* Heading and Short Context */}
+          <div className="space-y-2 pt-2">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              Personalized Phishing Threat Triage
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-lg">
+              Sign in to run multi-agent threat analyses, review Bayesian risk assessments, and configure personalized defense profiles.
+            </p>
+          </div>
+
+          {/* Real Architecture Preview Card */}
+          <div className="relative rounded-lg overflow-hidden border border-slate-800 bg-navy-950 shadow-md">
+            <img
+              src={aiVisualization}
+              alt="PhishGuard AI multi-agent detection pipeline preview"
+              className="w-full h-44 sm:h-52 object-cover object-center opacity-85"
+            />
+            <div className="p-3 bg-navy-800/90 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-300">
+              <span className="text-slate-400">DETECTION ENGINES:</span>
+              <span className="text-emerald-400 flex items-center gap-1 font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                4 Active Agents
+              </span>
+            </div>
+          </div>
+
+          {/* Detection Highlights */}
+          <div className="grid grid-cols-2 gap-3 pt-1 font-mono text-xs">
+            <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60">
+              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Detection Agents</span>
+              <span className="text-white font-medium">Text, URL, Sender</span>
+            </div>
+            <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60">
+              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Trained Models</span>
+              <span className="text-white font-medium">Random Forest + XGBoost</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Security Note */}
+        <div className="pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono">
+          <span>Applied AI Research</span>
+          <span>Salted PBKDF2 Encryption</span>
+        </div>
+      </aside>
     </div>
   );
 }

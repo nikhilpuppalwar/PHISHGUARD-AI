@@ -37,10 +37,10 @@ async function request(endpoint, options = {}) {
 
 export const api = {
   auth: {
-    login: (email, password) =>
-      request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-    register: (email, password, role = 'Student') =>
-      request('/auth/register', { method: 'POST', body: JSON.stringify({ email, password, role }) }),
+    login: (email, password, remember_me = false) =>
+      request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password, remember_me }) }),
+    register: (email, password, role = 'Student', full_name = '') =>
+      request('/auth/register', { method: 'POST', body: JSON.stringify({ email, password, role, full_name }) }),
     me: () => request('/auth/me'),
     requestPasswordReset: (email) =>
       request('/auth/password-reset/request', { method: 'POST', body: JSON.stringify({ email }) }),
@@ -54,12 +54,18 @@ export const api = {
     patchField: (field, value) =>
       request(`/profile/${field}`, { method: 'PATCH', body: JSON.stringify({ field, value }) }),
     getCompletion: () => request('/profile/completion'),
+    getCompleteness: () => request('/profile/completeness'),
+    getHistory: () => request('/profile/history'),
     startOnboarding: () => request('/profile/onboarding/start', { method: 'POST' }),
-    answerOnboarding: (data) => request('/profile/onboarding/answer', { method: 'POST', body: JSON.stringify(data) }),
+    answerOnboarding: (data) => request('/profile/onboarding/message', { method: 'POST', body: JSON.stringify(data) }),
+    assistant: (message, conversation_id = null) =>
+      request('/profile/assistant', { method: 'POST', body: JSON.stringify({ message, conversation_id }) }),
+    confirmAssistant: (conversation_id, confirmed = true, changes = []) =>
+      request('/profile/assistant/confirm', { method: 'POST', body: JSON.stringify({ conversation_id, confirmed, changes }) }),
     conversationalEdit: (message, conversation_id = null) =>
-      request('/profile/conversation', { method: 'POST', body: JSON.stringify({ message, conversation_id }) }),
+      request('/profile/assistant', { method: 'POST', body: JSON.stringify({ message, conversation_id }) }),
     confirmChanges: (conversation_id, confirmed = true, changes = null) =>
-      request('/profile/conversation/confirm', { method: 'POST', body: JSON.stringify({ conversation_id, confirmed, changes }) }),
+      request('/profile/assistant/confirm', { method: 'POST', body: JSON.stringify({ conversation_id, confirmed, changes }) }),
     conversationalTurn: (message, history) =>
       request('/profile/conversational-turn', { method: 'POST', body: JSON.stringify({ message, history }) }),
   },
@@ -73,7 +79,13 @@ export const api = {
   },
   incidents: {
     list: (params = {}) => {
-      const query = new URLSearchParams(params).toString();
+      const cleanParams = {};
+      for (const [k, v] of Object.entries(params)) {
+        if (v !== undefined && v !== null && v !== '' && v !== 'all') {
+          cleanParams[k] = v;
+        }
+      }
+      const query = new URLSearchParams(cleanParams).toString();
       return request(`/incidents${query ? `?${query}` : ''}`);
     },
   },

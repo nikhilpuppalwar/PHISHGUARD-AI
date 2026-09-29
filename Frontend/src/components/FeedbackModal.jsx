@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
 
 export default function FeedbackModal({ submissionId, currentVerdict, isOpen, onClose, onSubmitted }) {
@@ -6,6 +6,17 @@ export default function FeedbackModal({ submissionId, currentVerdict, isOpen, on
   const [context, setContext] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // Close on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -19,97 +30,119 @@ export default function FeedbackModal({ submissionId, currentVerdict, isOpen, on
         setSuccess(false);
         onSubmitted(verdict);
         onClose();
-      }, 1000);
+      }, 900);
     } catch (err) {
-      alert(err.message);
+      alert(`Feedback submission failed: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   const options = [
-    { value: 'confirmed_phishing', label: 'Confirmed Phishing', desc: 'Malicious threat intent verified. Adds to vector memory.', color: 'border-red-500 text-red-700 bg-red-50' },
-    { value: 'confirmed_legitimate', label: 'Confirmed Legitimate', desc: 'False positive; communication is authentic.', color: 'border-emerald-500 text-emerald-700 bg-emerald-50' },
-    { value: 'incorrect', label: 'Classification Incorrect', desc: 'Wrong attack type or mismatched risk scoring.', color: 'border-amber-500 text-amber-700 bg-amber-50' },
-    { value: 'unsure', label: 'Unsure / Under Review', desc: 'Requires administrative or secondary human review.', color: 'border-slate-400 text-slate-700 bg-slate-50' },
+    { value: 'confirmed_phishing', label: 'Confirmed Phishing', desc: 'Malicious threat intent verified. Adds verified vector to incident memory.', borderClass: 'hover:border-red-500' },
+    { value: 'confirmed_legitimate', label: 'Confirmed Legitimate', desc: 'False positive; this communication was genuine.', borderClass: 'hover:border-emerald-500' },
+    { value: 'incorrect', label: 'Classification Incorrect', desc: 'Wrong attack type or mismatched risk severity score.', borderClass: 'hover:border-amber-500' },
+    { value: 'unsure', label: 'Unsure / Under Review', desc: 'Ambiguous or requires administrative review.', borderClass: 'hover:border-slate-500' },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="feedback-modal-title"
+    >
+      <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-modal space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-blue-600 text-[24px]">rate_review</span>
-            <h3 className="text-lg font-bold text-slate-900">Provide Analysis Feedback</h3>
+            <span className="material-symbols-outlined text-blue-600 text-[22px]">rate_review</span>
+            <h3 id="feedback-modal-title" className="text-base font-bold text-slate-900">
+              Record Threat Verdict Feedback
+            </h3>
           </div>
-          <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
-            <span className="material-symbols-outlined">close</span>
+          <button 
+            onClick={onClose} 
+            className="p-1 text-slate-400 hover:text-slate-600 rounded-md transition"
+            aria-label="Close dialog"
+          >
+            <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
 
         {success ? (
-          <div className="py-8 text-center space-y-2">
-            <span className="material-symbols-outlined text-emerald-600 text-[48px]">check_circle</span>
-            <div className="text-base font-bold text-slate-900">Feedback Recorded!</div>
-            <p className="text-xs text-slate-500">Your ground-truth input has been saved to reinforce threat memory.</p>
+          <div className="py-6 text-center space-y-2">
+            <span className="material-symbols-outlined text-emerald-600 text-[40px]">check_circle</span>
+            <div className="text-sm font-bold text-slate-900">Feedback Saved</div>
+            <p className="text-xs text-slate-500">Your verification label has been saved to the incident memory store.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-xs text-slate-600">
-              Your feedback is stored in PhishGuard's incident memory to calibrate future threat detection for your organization.
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Your feedback is recorded to calibrate future threat detection and validate multi-agent accuracy metrics.
             </p>
 
-            <div className="space-y-2">
-              {options.map((opt) => (
-                <label
-                  key={opt.value}
-                  className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition ${
-                    verdict === opt.value ? opt.color : 'border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="verdict"
-                    value={opt.value}
-                    checked={verdict === opt.value}
-                    onChange={(e) => setVerdict(e.target.value)}
-                    className="mt-0.5 text-blue-600"
-                  />
-                  <div>
-                    <div className="text-sm font-bold text-slate-900">{opt.label}</div>
-                    <div className="text-xs text-slate-500">{opt.desc}</div>
-                  </div>
-                </label>
-              ))}
-            </div>
+            <fieldset className="space-y-2">
+              <legend className="text-xs font-semibold text-slate-700 uppercase font-mono block mb-1">
+                Select Observed Reality:
+              </legend>
+              {options.map((opt) => {
+                const selected = verdict === opt.value;
+                return (
+                  <label
+                    key={opt.value}
+                    className={`block p-3 rounded-lg border text-xs cursor-pointer transition ${
+                      selected
+                        ? 'border-blue-600 bg-blue-50/50 shadow-2xs'
+                        : `border-slate-200 bg-white ${opt.borderClass}`
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="radio"
+                        name="verdict"
+                        value={opt.value}
+                        checked={selected}
+                        onChange={() => setVerdict(opt.value)}
+                        className="mt-0.5 text-blue-600 focus:ring-blue-500"
+                      />
+                      <div>
+                        <div className="font-semibold text-slate-900">{opt.label}</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">{opt.desc}</div>
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
+            </fieldset>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700 block">
-                Additional Notes or Clarifications (Optional)
+              <label htmlFor="feedback-notes" className="block text-xs font-semibold text-slate-700">
+                Additional Forensic Notes (Optional):
               </label>
               <textarea
+                id="feedback-notes"
+                rows={2}
                 value={context}
                 onChange={(e) => setContext(e.target.value)}
-                placeholder="e.g. Sender claimed to be university recruiter but domain was newly created."
-                rows={3}
-                className="w-full text-xs p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                placeholder="e.g. Sender address was confirmed via phone call with vendor..."
+                className="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 placeholder-slate-400"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-800"
+                className="px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 rounded-md transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 disabled:opacity-50"
+                className="px-4 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-xs transition disabled:opacity-50"
               >
-                {loading ? 'Submitting...' : 'Save Feedback'}
+                {loading ? 'Saving...' : 'Submit Feedback'}
               </button>
             </div>
           </form>

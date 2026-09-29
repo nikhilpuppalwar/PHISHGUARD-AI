@@ -18,9 +18,15 @@ def list_user_submissions(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    query = db.query(Submission).filter(Submission.user_id == current_user.user_id)
+    query = db.query(Submission)
 
-    if channel and channel != "all":
+    # Filter to user's submissions if they have any, otherwise fall back to organization submissions
+    has_user_submissions = db.query(Submission).filter(Submission.user_id == current_user.user_id).first() is not None
+    if has_user_submissions:
+        query = query.filter(Submission.user_id == current_user.user_id)
+
+    # Ignore 'all', 'undefined', 'null', 'none'
+    if channel and channel.lower() not in ("all", "undefined", "null", "none"):
         query = query.filter(Submission.channel == channel.lower())
 
     submissions = query.order_by(Submission.submitted_at.desc()).limit(limit).all()
@@ -32,8 +38,9 @@ def list_user_submissions(
         feed = db.query(Feedback).filter(Feedback.submission_id == s.submission_id).first()
 
         sev = risk.severity if risk else "Low Risk"
-        if severity and severity.lower() != "all" and sev.lower() != severity.lower():
-            continue
+        if severity and severity.lower() not in ("all", "undefined", "null", "none"):
+            if sev.lower() != severity.lower():
+                continue
 
         raw_snippet = (s.raw_text[:120] + "...") if len(s.raw_text) > 120 else s.raw_text
         attack_name = final.attack_type.name if (final and final.attack_type) else "Generic Phishing"

@@ -54,26 +54,26 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
   return (
     <div className="space-y-6">
       {/* Top Welcome Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0B1220] via-[#14233D] to-[#0B1220] text-white border border-slate-800 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 rounded-xl bg-navy-900 text-white border border-navy-border shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-mono bg-cyan-950 text-cyan-400 border border-cyan-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              Role: {user?.profile?.role || 'Student'} • Tier: {user?.profile?.security_awareness || 'Beginner'}
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-xs font-mono bg-navy-800 text-slate-300 border border-slate-700">
+              <span>Role: {user?.profile?.role || 'Student'}</span>
+              <span>•</span>
+              <span>Awareness: {user?.profile?.security_awareness || 'Standard'}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Welcome back, {user?.profile?.preferred_name || 'Alex'}!
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              Welcome back, {user?.profile?.preferred_name || 'Analyst'}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-              PhishGuard AI multi-agent defense pipeline is active and monitoring for inbound social engineering threats.
+            <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
+              PhishGuard AI detection pipeline is active. Evaluate suspicious emails, text messages, and links below.
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => onNavigate('submit')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium shadow-xs transition"
             >
               <span className="material-symbols-outlined text-[18px]">add_moderator</span>
               <span>New Threat Analysis</span>
@@ -82,31 +82,27 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
         </div>
       </div>
 
-      {/* AI Security Summary Card (Section 17) */}
-      <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0B1220] to-[#111C33] border border-blue-900/40 text-slate-200 shadow-lg relative overflow-hidden">
-        <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-800">
+      {/* AI Security Summary Card */}
+      <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-3">
+        <div className="flex items-center justify-between flex-wrap gap-2 pb-2.5 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-              <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
-            </div>
-            <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-              AI Security Summary
-              <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-cyan-400 border border-cyan-500/30">
-                LIVE INTEL
-              </span>
+            <span className="material-symbols-outlined text-blue-600 text-[20px]">psychology</span>
+            <h2 className="text-xs sm:text-sm font-bold text-slate-900 tracking-wide uppercase font-mono">
+              System Telemetry Summary
             </h2>
           </div>
           <div className="flex items-center gap-2">
             {aiSummary?.llm_provider && (
-              <span className="text-[11px] font-mono text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-md border border-slate-800">
-                Engine: <strong className="text-cyan-400 uppercase">{aiSummary.llm_provider}</strong>
+              <span className="text-[11px] font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                Engine: <strong className="text-slate-700 uppercase">{aiSummary.llm_provider}</strong>
               </span>
             )}
             <button
               onClick={fetchAiSummary}
               disabled={loadingSummary}
-              className="text-xs text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition disabled:opacity-50"
-              title="Refresh AI Summary"
+              className="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition disabled:opacity-50"
+              title="Refresh Telemetry Summary"
+              aria-label="Refresh Telemetry Summary"
             >
               <span className={`material-symbols-outlined text-[18px] ${loadingSummary ? 'animate-spin' : ''}`}>
                 refresh
@@ -115,15 +111,15 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
           </div>
         </div>
 
-        <div className="pt-3">
+        <div>
           {loadingSummary ? (
-            <div className="flex items-center gap-3 py-2 text-xs font-mono text-cyan-400">
-              <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+            <div className="flex items-center gap-2 py-2 text-xs text-slate-500 font-mono">
+              <span className="w-3.5 h-3.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
               <span>Synthesizing multi-agent intelligence telemetry...</span>
             </div>
           ) : (
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
-              {aiSummary?.summary || 'Your security summary is being calculated from database telemetry.'}
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans">
+              {aiSummary?.summary || 'Telemetry status normal. Active models are trained on audited phishing corpora.'}
             </p>
           )}
         </div>
@@ -131,93 +127,89 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold uppercase text-slate-500">Total Scanned</span>
-            <span className="p-2 rounded-lg bg-blue-50 text-blue-600 material-symbols-outlined text-[20px]">
-              manage_search
-            </span>
+        <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
+          <div className="flex items-center justify-between text-xs font-mono uppercase text-slate-500">
+            <span>Total Scanned</span>
+            <span className="material-symbols-outlined text-[18px] text-slate-400">manage_search</span>
           </div>
-          <div className="text-3xl font-extrabold text-slate-900">
+          <div className="text-2xl font-bold text-slate-900">
             {analytics?.total_submissions || recentIncidents.length || 0}
           </div>
-          <div className="text-[11px] text-slate-500 font-mono">Inbound communication triage</div>
+          <div className="text-[11px] text-slate-500">Inbound submissions analyzed</div>
         </div>
 
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold uppercase text-slate-500">High Risk Attacks</span>
-            <span className="p-2 rounded-lg bg-red-50 text-red-600 material-symbols-outlined text-[20px]">
-              dangerous
-            </span>
+        <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
+          <div className="flex items-center justify-between text-xs font-mono uppercase text-slate-500">
+            <span>High Risk Threats</span>
+            <span className="material-symbols-outlined text-[18px] text-red-500">dangerous</span>
           </div>
-          <div className="text-3xl font-extrabold text-red-600">
+          <div className="text-2xl font-bold text-red-600">
             {analytics?.high_risk_count || 0}
           </div>
-          <div className="text-[11px] text-slate-500 font-mono">Confirmed malicious signatures</div>
+          <div className="text-[11px] text-slate-500">Score &gt;= 75/100</div>
         </div>
 
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold uppercase text-slate-500">Average Risk Score</span>
-            <span className="p-2 rounded-lg bg-amber-50 text-amber-600 material-symbols-outlined text-[20px]">
-              speed
-            </span>
+        <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
+          <div className="flex items-center justify-between text-xs font-mono uppercase text-slate-500">
+            <span>Average Risk Score</span>
+            <span className="material-symbols-outlined text-[18px] text-amber-500">speed</span>
           </div>
-          <div className="text-3xl font-extrabold text-slate-900">
+          <div className="text-2xl font-bold text-slate-900">
             {analytics?.average_risk_score ? `${analytics.average_risk_score}/100` : '—'}
           </div>
-          <div className="text-[11px] text-slate-500 font-mono">Bayesian composite metric</div>
+          <div className="text-[11px] text-slate-500">Bayesian composite metric</div>
         </div>
 
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold uppercase text-slate-500">Active ML Agents</span>
-            <span className="p-2 rounded-lg bg-emerald-50 text-emerald-600 material-symbols-outlined text-[20px]">
-              hub
-            </span>
+        <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1">
+          <div className="flex items-center justify-between text-xs font-mono uppercase text-slate-500">
+            <span>Active ML Agents</span>
+            <span className="material-symbols-outlined text-[18px] text-emerald-500">hub</span>
           </div>
-          <div className="text-3xl font-extrabold text-emerald-600">3 + RAG</div>
-          <div className="text-[11px] text-slate-500 font-mono">Parallel inference operational</div>
+          <div className="text-2xl font-bold text-slate-900">
+            3 + RAG
+          </div>
+          <div className="text-[11px] text-slate-500">Text, URL, Sender, Incident Vector</div>
         </div>
       </div>
 
       {/* Quick Submit Card */}
-      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+      <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Quick Unified Threat Ingestion</h3>
+            <h3 className="text-sm font-bold text-slate-900">Quick Threat Ingestion</h3>
             <p className="text-xs text-slate-500">
-              Paste any raw email, message snippet, or link. The AI automatically extracts text, URLs, and sender headers.
+              Paste suspicious email text, headers, SMS content, or a solitary link.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setQuickInput(sampleQuick)}
-            className="text-xs text-blue-600 hover:text-blue-800 font-mono font-medium underline"
+            className="text-xs text-blue-600 hover:text-blue-800 font-medium underline"
           >
             Load Sample Internship Scam
           </button>
         </div>
 
         <form onSubmit={handleQuickSubmit} className="space-y-3">
+          <label htmlFor="quick-threat-input" className="sr-only">Suspicious message or link</label>
           <textarea
+            id="quick-threat-input"
             rows={3}
             value={quickInput}
             onChange={(e) => setQuickInput(e.target.value)}
-            placeholder="Paste suspicious raw email with headers, SMS text, or URL here..."
-            className="w-full p-3.5 text-xs sm:text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
+            placeholder="Paste raw email, SMS, or URL here..."
+            className="w-full p-3 text-xs sm:text-sm font-mono bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition"
           />
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-slate-400 font-mono">
-              Auto-detects: Email Headers • Shortened Links • Advance Fee Demands
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span className="text-[11px] text-slate-500 font-mono">
+              Auto-extracts: Sender Headers, Clean Text, Embedded URLs, and Channels
             </span>
             <button
               type="submit"
               disabled={!quickInput.trim()}
-              className="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition disabled:opacity-50 flex items-center gap-1.5"
+              className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium shadow-xs transition disabled:opacity-50 inline-flex items-center justify-center gap-1.5 self-end sm:self-auto"
             >
-              <span>Launch Multi-Agent Triage</span>
+              <span>Analyze Threat</span>
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
           </div>
@@ -225,11 +217,11 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
       </div>
 
       {/* Recent Submissions Table */}
-      <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden space-y-0">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+      <div className="rounded-xl bg-white border border-slate-200 shadow-2xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Recent Threat Triage Activity</h3>
-            <p className="text-xs text-slate-500">Historical analysis assessments and feedback confirmation state.</p>
+            <h3 className="text-sm font-bold text-slate-900">Recent Threat Triage Activity</h3>
+            <p className="text-xs text-slate-500">Past risk assessments and verified feedback state.</p>
           </div>
           <button
             onClick={() => onNavigate('incidents')}
@@ -240,21 +232,24 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
         </div>
 
         {recentIncidents.length === 0 ? (
-          <div className="p-10 text-center space-y-2">
-            <span className="material-symbols-outlined text-slate-300 text-[40px]">inbox</span>
-            <p className="text-xs text-slate-500">No threat analyses yet. Paste a suspicious message above to test!</p>
+          <div className="p-8 text-center space-y-2">
+            <span className="material-symbols-outlined text-slate-300 text-[36px]">inbox</span>
+            <div className="text-xs font-semibold text-slate-700">No submissions recorded yet</div>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Analyze your first suspicious email or link using the input box above to see analysis records here.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-200 font-mono uppercase text-slate-500 text-[10px]">
                 <tr>
-                  <th className="py-3 px-4">Date / Time</th>
-                  <th className="py-3 px-4">Channel</th>
-                  <th className="py-3 px-4">Classification</th>
-                  <th className="py-3 px-4">Risk Score</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Action</th>
+                  <th className="py-2.5 px-4 font-semibold">Date / Time</th>
+                  <th className="py-2.5 px-4 font-semibold">Channel</th>
+                  <th className="py-2.5 px-4 font-semibold">Classification</th>
+                  <th className="py-2.5 px-4 font-semibold">Threat Score</th>
+                  <th className="py-2.5 px-4 font-semibold">Severity</th>
+                  <th className="py-2.5 px-4 text-right font-semibold">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -262,32 +257,36 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
                   const isHigh = inc.overall_score >= 75;
                   const isMed = inc.overall_score >= 40 && inc.overall_score < 75;
                   return (
-                    <tr key={inc.submission_id} className="hover:bg-slate-50/80 transition">
-                      <td className="py-3.5 px-4 font-mono text-slate-600">
+                    <tr key={inc.submission_id} className="hover:bg-slate-50 transition">
+                      <td className="py-3 px-4 font-mono text-slate-600">
                         {new Date(inc.submitted_at).toLocaleDateString()} {new Date(inc.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </td>
-                      <td className="py-3.5 px-4 uppercase font-mono font-semibold text-slate-700">
+                      <td className="py-3 px-4 uppercase font-mono font-medium text-slate-700">
                         {inc.channel}
                       </td>
-                      <td className="py-3.5 px-4 font-medium text-slate-900">
+                      <td className="py-3 px-4 font-medium text-slate-900">
                         {inc.attack_type}
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold">
+                      <td className="py-3 px-4 font-mono font-bold">
                         <span className={isHigh ? 'text-red-600' : isMed ? 'text-amber-600' : 'text-emerald-600'}>
                           {inc.overall_score}/100
                         </span>
                       </td>
-                      <td className="py-3.5 px-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          isHigh ? 'bg-red-50 text-red-700' : isMed ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                          isHigh 
+                            ? 'bg-red-50 text-red-700 border border-red-200' 
+                            : isMed 
+                            ? 'bg-amber-50 text-amber-700 border border-amber-200' 
+                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                         }`}>
                           {inc.severity}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => onSelectSubmission(inc.submission_id)}
-                          className="px-3 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-semibold transition"
+                          className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 text-xs font-medium transition"
                         >
                           View Report
                         </button>

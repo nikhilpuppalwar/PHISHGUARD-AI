@@ -48,10 +48,11 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
     db.flush()
 
     # Create initial empty profile
+    pref_name = user_in.full_name.strip() if user_in.full_name and user_in.full_name.strip() else user_in.email.split("@")[0].capitalize()
     initial_profile = UserProfile(
         user_id=new_user.user_id,
         role=user_in.role or "Student",
-        preferred_name=user_in.email.split("@")[0].capitalize(),
+        preferred_name=pref_name,
         security_awareness="Beginner",
         preferred_explanation_style="Simple"
     )
@@ -73,12 +74,14 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
 def login(login_in: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == login_in.email.lower()).first()
     if not user or not verify_password(login_in.password, user.password_hash):
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        raise HTTPException(status_code=400, detail="Email or password is incorrect.")
 
     user.last_login = datetime.utcnow()
     db.commit()
 
-    token = create_access_token({"sub": user.user_id, "email": user.email})
+    # 30-day persistent session if remember_me is selected, otherwise standard 7-day token
+    expires = timedelta(days=30) if login_in.remember_me else timedelta(days=7)
+    token = create_access_token({"sub": user.user_id, "email": user.email}, expires_delta=expires)
     profile = db.query(UserProfile).filter(UserProfile.user_id == user.user_id).first()
 
     return TokenResponse(

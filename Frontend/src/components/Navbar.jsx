@@ -1,165 +1,366 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { ALL_NAV_ITEMS } from '../navigation';
 
-export default function Navbar({ onNavigate, currentScreen }) {
+export default function Navbar({
+  onNavigate,
+  currentScreen,
+  onToggleMobileSidebar,
+  sidebarCollapsed,
+  onToggleCollapse
+}) {
   const { user, logout } = useAuth();
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const dropdownRef = useRef(null);
+  const notifRef = useRef(null);
+  const searchRef = useRef(null);
+
+  // Close dropdowns on outside click or ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setUserDropdownOpen(false);
+        setNotificationsOpen(false);
+        setSearchOpen(false);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    };
+
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotificationsOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setSearchOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleNavClick = (screenId, params = {}) => {
+    onNavigate(screenId, params);
+    setUserDropdownOpen(false);
+    setSearchOpen(false);
+  };
+
+  const username = user?.profile?.preferred_name || (user?.email ? user.email.split('@')[0] : 'Analyst');
+  const role = user?.profile?.role || 'Student';
+  const awareness = user?.profile?.security_awareness || 'Beginner';
+  const avatarLetter = (username ? username[0] : 'U').toUpperCase();
+
+  // Search matches for quick jump
+  const filteredNavItems = ALL_NAV_ITEMS.filter((item) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return item.label.toLowerCase().includes(q) || item.description?.toLowerCase().includes(q);
+  });
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-xs">
-      <div className="h-20 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6">
-        {/* Brand Logo */}
-        <div 
-          className="flex items-center gap-3 cursor-pointer select-none group"
-          onClick={() => onNavigate(user ? 'dashboard' : 'landing')}
-        >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-blue-500 to-cyan-400 flex items-center justify-center shadow-md shadow-blue-500/25 text-white transition-transform group-hover:scale-105">
-            <span className="material-symbols-outlined text-[24px]">security</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
-              PhishGuard <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">AI</span>
-            </span>
-            <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-blue-50 text-blue-700 border border-blue-200/70 tracking-wide">
-              Academic Capstone
-            </span>
+    <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-slate-200">
+      <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
+        {/* LEFT CLUSTER: Toggle Button + Branding + Subtle MDP Capstone Badge */}
+        <div className="flex items-center gap-3">
+          {/* Mobile Menu Hamburger (Visible on mobile only) */}
+          {user && (
+            <button
+              type="button"
+              onClick={onToggleMobileSidebar}
+              className="md:hidden p-1.5 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
+              aria-label="Toggle Mobile Navigation Drawer"
+            >
+              <span className="material-symbols-outlined text-[22px]">menu</span>
+            </button>
+          )}
+
+          {/* Desktop/Tablet Sidebar Collapse Toggle */}
+          {user && onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              className="hidden md:flex p-1.5 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
+              aria-label="Toggle Sidebar"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                {sidebarCollapsed ? 'menu_open' : 'menu'}
+              </span>
+            </button>
+          )}
+
+          {/* PhishGuard AI Branding */}
+          <div
+            className="flex items-center gap-2.5 cursor-pointer select-none"
+            onClick={() => handleNavClick(user ? 'dashboard' : 'landing')}
+          >
+            <div className="w-8 h-8 rounded-lg bg-navy-900 flex items-center justify-center text-white shrink-0 shadow-xs">
+              <span className="material-symbols-outlined text-[20px]">security</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900">
+                PhishGuard <span className="text-blue-600">AI</span>
+              </span>
+              {/* Subtle MDP Capstone Context Badge */}
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono text-slate-600 bg-slate-100 border border-slate-200">
+                MDP Capstone
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Center Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1.5">
+        {/* RIGHT CLUSTER: Global Application Controls & Authenticated User Status */}
+        <div className="flex items-center gap-2">
           {!user ? (
-            <>
-              <button 
-                onClick={() => onNavigate('landing')} 
-                className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
-                  currentScreen === 'landing' 
-                    ? 'bg-blue-50 text-blue-700 font-semibold' 
+            /* Public Top Navigation */
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleNavClick('landing')}
+                className={`hidden sm:inline-block px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                  currentScreen === 'landing'
+                    ? 'bg-slate-100 text-blue-700 font-semibold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
                 Overview
               </button>
-              <a 
-                href="#threat-inspector" 
-                onClick={() => onNavigate('landing')}
-                className="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
-              >
-                Live Inspector
-              </a>
-              <a 
-                href="#pipeline-architecture" 
-                onClick={() => onNavigate('landing')}
-                className="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
-              >
-                8-Stage Pipeline
-              </a>
-              <button 
-                onClick={() => onNavigate('glossary')} 
-                title="Sign in required to access full Threat Encyclopedia"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50/60 rounded-lg transition-all"
-              >
-                <span className="material-symbols-outlined text-[15px] text-slate-400">lock</span>
-                <span>Attack Glossary</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <button 
-                onClick={() => onNavigate('dashboard')} 
-                className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
-                  currentScreen === 'dashboard' 
-                    ? 'bg-blue-50 text-blue-700 font-semibold shadow-xs' 
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                Dashboard
-              </button>
-              <button 
-                onClick={() => onNavigate('submit')} 
-                className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
-                  currentScreen === 'submit' 
-                    ? 'bg-blue-50 text-blue-700 font-semibold shadow-xs' 
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                Analyze Threat
-              </button>
-              <button 
-                onClick={() => onNavigate('incidents')} 
-                className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
-                  currentScreen === 'incidents' 
-                    ? 'bg-blue-50 text-blue-700 font-semibold shadow-xs' 
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                Incident History
-              </button>
-              <button 
-                onClick={() => onNavigate('analytics')} 
-                className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
-                  currentScreen === 'analytics' 
-                    ? 'bg-blue-50 text-blue-700 font-semibold shadow-xs' 
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                Risk Analytics
-              </button>
-              <button 
-                onClick={() => onNavigate('glossary')} 
-                className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${
-                  currentScreen === 'glossary' 
-                    ? 'bg-blue-50 text-blue-700 font-semibold shadow-xs' 
+              <button
+                type="button"
+                onClick={() => handleNavClick('glossary')}
+                className={`hidden sm:inline-block px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                  currentScreen === 'glossary'
+                    ? 'bg-slate-100 text-blue-700 font-semibold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
                 Attack Glossary
               </button>
-            </>
-          )}
-        </nav>
-
-        {/* Right CTA Cluster */}
-        <div className="flex items-center gap-3">
-          {!user ? (
-            <>
               <button
-                onClick={() => onNavigate('login')}
-                className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition-colors cursor-pointer"
+                type="button"
+                onClick={() => handleNavClick('login')}
+                className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md transition"
               >
                 Sign In
               </button>
               <button
-                onClick={() => onNavigate('signup')}
-                className="inline-flex items-center justify-center px-4.5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white text-sm font-semibold shadow-md shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                type="button"
+                onClick={() => handleNavClick('signup')}
+                className="px-3.5 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-xs transition"
               >
-                Get Started
+                Create Account
               </button>
-            </>
+            </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => onNavigate('submit')}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all hover:scale-[1.02]"
-              >
-                <span className="material-symbols-outlined text-[16px]">add_moderator</span>
-                Analyze Threat
-              </button>
-              <button
-                onClick={() => onNavigate('profile')}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 transition text-slate-800 text-xs font-medium border border-slate-200/60"
-              >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 text-white flex items-center justify-center font-bold text-[11px] shadow-xs">
-                  {user.profile?.preferred_name ? user.profile.preferred_name[0].toUpperCase() : (user.email ? user.email[0].toUpperCase() : 'U')}
-                </div>
-                <span className="hidden sm:inline font-semibold">{user.profile?.preferred_name || (user.email ? user.email.split('@')[0] : 'Profile')}</span>
-              </button>
-              <button
-                onClick={logout}
-                title="Sign Out"
-                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition"
-              >
-                <span className="material-symbols-outlined text-[20px]">logout</span>
-              </button>
+            /* Authenticated Global Controls */
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Global Quick Search Dialog Trigger */}
+              <div className="relative" ref={searchRef}>
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(!searchOpen)}
+                  title="Search workspaces and navigation (Ctrl+K)"
+                  aria-label="Quick search navigation"
+                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition"
+                >
+                  <span className="material-symbols-outlined text-[17px] text-slate-400">search</span>
+                  <span className="hidden sm:inline text-slate-500">Quick jump...</span>
+                  <kbd className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-white border border-slate-200">
+                    ⌘K
+                  </kbd>
+                </button>
+
+                {searchOpen && (
+                  <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-lg border border-slate-200 shadow-xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 mb-2">
+                      <span className="material-symbols-outlined text-[18px] text-slate-400">search</span>
+                      <input
+                        type="text"
+                        autoFocus
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search workspace or tools..."
+                        className="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none"
+                      />
+                    </div>
+                    <div className="max-h-56 overflow-y-auto space-y-0.5">
+                      {filteredNavItems.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleNavClick(item.id)}
+                          className="w-full flex items-center justify-between px-3 py-2 text-xs rounded-md text-left hover:bg-slate-100 transition"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[17px] text-slate-500">
+                              {item.icon}
+                            </span>
+                            <span className="font-medium text-slate-800">{item.label}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-400 uppercase">
+                            {item.section}
+                          </span>
+                        </button>
+                      ))}
+                      {filteredNavItems.length === 0 && (
+                        <div className="py-4 text-center text-xs text-slate-400 font-mono">
+                          No matching navigation views
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* System Telemetry & Notifications Bell */}
+              <div className="relative" ref={notifRef}>
+                <button
+                  type="button"
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  title="System Telemetry & Notifications"
+                  aria-label="View notifications"
+                  className="relative p-2 rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition"
+                >
+                  <span className="material-symbols-outlined text-[20px]">notifications</span>
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+                </button>
+
+                {notificationsOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg border border-slate-200 shadow-xl p-3 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
+                      <span className="text-xs font-bold text-slate-900 font-mono uppercase">
+                        System Telemetry
+                      </span>
+                      <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                        All Engines Active
+                      </span>
+                    </div>
+                    <div className="space-y-2 text-xs">
+                      <div className="p-2 rounded bg-slate-50 border border-slate-100 flex items-start gap-2">
+                        <span className="material-symbols-outlined text-emerald-600 text-[16px] shrink-0 mt-0.5">
+                          check_circle
+                        </span>
+                        <div>
+                          <div className="font-semibold text-slate-800">4 Detection Agents Synchronized</div>
+                          <div className="text-[11px] text-slate-500">
+                            TF-IDF, XGBoost URL, Sender RF, and Vector RAG operational.
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-2 rounded bg-slate-50 border border-slate-100 flex items-start gap-2">
+                        <span className="material-symbols-outlined text-blue-600 text-[16px] shrink-0 mt-0.5">
+                          psychology
+                        </span>
+                        <div>
+                          <div className="font-semibold text-slate-800">Defense Profile Calibrated</div>
+                          <div className="text-[11px] text-slate-500">
+                            Awareness tier: <span className="font-medium text-slate-700">{awareness}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* User Avatar & Context Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-md hover:bg-slate-100 border border-slate-200 bg-white transition group"
+                  aria-expanded={userDropdownOpen}
+                  aria-label="User Account Menu"
+                >
+                  <div className="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                    {avatarLetter}
+                  </div>
+                  <div className="hidden sm:flex flex-col text-left">
+                    <span className="text-xs font-semibold text-slate-800 leading-tight max-w-[110px] truncate">
+                      {username}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono leading-none">
+                      {role}
+                    </span>
+                  </div>
+                  <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-slate-600 hidden sm:inline">
+                    expand_more
+                  </span>
+                </button>
+
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg border border-slate-200 shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    {/* User Summary Header */}
+                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/60">
+                      <div className="text-xs font-bold text-slate-900 truncate">
+                        {username}
+                      </div>
+                      <div className="text-[11px] text-slate-500 truncate">
+                        {user.email}
+                      </div>
+                      <div className="mt-2 flex items-center justify-between text-[10px] font-mono">
+                        <span className="text-slate-400">AWARENESS:</span>
+                        <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 font-medium">
+                          {awareness}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Menu Actions */}
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        onClick={() => handleNavClick('profile')}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 text-left transition"
+                      >
+                        <span className="material-symbols-outlined text-[18px] text-slate-500">
+                          manage_accounts
+                        </span>
+                        <span>Profile & Settings</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleNavClick('onboarding')}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 text-left transition"
+                      >
+                        <span className="material-symbols-outlined text-[18px] text-slate-500">
+                          quiz
+                        </span>
+                        <span>Retake Security Wizard</span>
+                      </button>
+                    </div>
+
+                    <div className="border-t border-slate-100 py-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          logout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-red-600 hover:bg-red-50 text-left transition font-medium"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">logout</span>
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

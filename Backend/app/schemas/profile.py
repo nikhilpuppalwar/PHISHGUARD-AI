@@ -79,9 +79,10 @@ class OnboardingStartResponse(BaseModel):
 
 class OnboardingAnswerRequest(BaseModel):
     conversation_id: Optional[str] = None
-    field: str
-    answer: Union[str, List[str], bool]
+    field: Optional[str] = None
+    answer: Optional[Union[str, List[str], bool, int]] = None
     custom_answer: Optional[str] = None  # populated if "Other" was chosen
+    message: Optional[str] = None  # for conversational natural language answers
 
 class OnboardingAnswerResponse(BaseModel):
     conversation_id: str
@@ -123,6 +124,57 @@ class ProfileCompletionOut(BaseModel):
     completed_fields: List[str]
     missing_fields: List[str]
     message: str
+
+class ProfileDimensionStatus(BaseModel):
+    dimension: str
+    status: str  # completed, missing, partial
+    description: str
+    field: str
+    value: Optional[Any] = None
+
+class ProfileCompletenessDetailOut(BaseModel):
+    completion_percentage: int
+    dimensions: List[ProfileDimensionStatus]
+    completed_dimensions: List[str]
+    missing_dimensions: List[str]
+    recommendation: Optional[str] = None
+    next_question_field: Optional[str] = None
+
+class ProfileHistoryOut(BaseModel):
+    history_id: str
+    user_id: str
+    change_type: str
+    field_name: Optional[str] = None
+    old_value: Optional[Any] = None
+    new_value: Optional[Any] = None
+    title: Optional[str] = None
+    description: str
+    source: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ProfileAssistantRequest(BaseModel):
+    message: str
+    conversation_id: Optional[str] = None
+
+class ProfileAssistantResponse(BaseModel):
+    conversation_id: str
+    intent: str = "update_profile"  # update_profile, clarification, info
+    assistant_message: str
+    proposed_changes: List[ProfileChangeItem] = Field(default_factory=list)
+    requires_confirmation: bool = False
+    confirmation_prompt: Optional[str] = None
+    preview_diff: Optional[Dict[str, Any]] = None
+    updated_profile: Optional[Dict[str, Any]] = None
+    profile_completion: int
+    history_entry: Optional[str] = None
+
+class ProfileAssistantConfirmRequest(BaseModel):
+    conversation_id: Optional[str] = None
+    confirmed: bool = True
+    changes: List[ProfileChangeItem] = Field(default_factory=list)
 
 class ConversationalTurnRequest(BaseModel):
     message: str

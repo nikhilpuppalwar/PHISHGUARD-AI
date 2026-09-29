@@ -133,41 +133,147 @@ class SenderAgent:
             pass
 
     def analyze(self, sender: Optional[str], raw_text: str = "") -> Dict[str, Any]:
-        """Perform Random Forest classification on sender metadata and heuristic checks."""
-        if not sender:
+        """
+        Perform Random Forest classification on sender metadata and heuristic checks (Spec §8).
+        Strictly preserves factual evidence: SPF/DKIM/DMARC reported as 'Not provided' if missing.
+        Never fabricates authentication results.
+        """
+        raw_lower = raw_text.lower() if raw_text else ""
+
+        # Parse actual authentication headers only if present in payload
+        spf_status = "Not provided"
+        if "received-spf:" in raw_lower or "spf=" in raw_lower:
+            if "pass" in raw_lower:
+                spf_status = "Pass"
+            elif "fail" in raw_lower or "softfail" in raw_lower:
+                spf_status = "Softfail / Fail"
+
+        dkim_status = "Not provided"
+        if "dkim-signature:" in raw_lower or "dkim=" in raw_lower:
+            if "dkim=pass" in raw_lower:
+                dkim_status = "Pass"
+            elif "dkim=fail" in raw_lower:
+                dkim_status = "Fail"
+
+        dmarc_status = "Not provided"
+        if "dmarc=" in raw_lower:
+            if "dmarc=pass" in raw_lower:
+                dmarc_status = "Pass"
+            elif "dmarc=fail" in raw_lower:
+                dmarc_status = "Fail"
+
+        auth_headers = {
+            "spf": spf_status,
+            "dkim": dkim_status,
+            "dmarc": dmarc_status
+        }
+
+        if not sender or len(sender.strip()) == 0:
             return {
                 "agent_type": "sender",
-                "risk_score": 25.0,  # Unauthenticated anonymous sender neutral-low
+                "agent": "sender",
+                "status": "limited_evidence",
+                "risk_score": 25.0,
                 "model_probability": 0.25,
                 "indicators": ["Anonymous sender / missing RFC 5322 From: address header"],
+                "evidence": [{
+                    "indicator": "missing_sender_header",
+                    "severity": "LOW",
+                    "evidence": "No sender header supplied in payload."
+                }],
+                "sender_email": None,
+                "sender_domain": None,
+                "display_name": None,
+                "auth_headers": auth_headers,
                 "summary": "Sender header absent or anonymous. Unable to verify domain origin.",
                 "model_name": self.algorithm
             }
+
+        sender_clean = sender.strip()
+        display_name = ""
+        email_addr = ""
+
+        match = re.search(r"^(.*?)(?:<([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)>)?$", sender_clean)
+        if match:
+            display_name = (match.group(1) or "").strip().strip('"\'')
+            email_addr = match.group(2) or ""
+
+        if not email_addr and "@" in sender_clean:
+            email_addr = sender_clean
+
+        domain = email_addr.split("@")[-1].lower() if "@" in email_addr else ""
 
         features = self._extract_sender_features(sender, raw_text)
         prob_phish = float(self.model.predict_proba(features)[0][1])
 
         indicators = []
-        sender_lower = sender.lower()
-        if "quick-career" in sender_lower or "hr-verify" in sender_lower or "secure-portal" in sender_lower:
-            indicators.append("Unauthenticated sender domain (Domain age < 5 days)")
-            indicators.append("SPF softfail / Missing verifiable corporate DMARC policy")
-        if any(f in sender_lower for f in FREE_EMAIL_PROVIDERS) and any(org in raw_text.lower() for org in ORGANIZATION_KEYWORDS):
-            indicators.append("Institutional communication originated from free public email service")
+        structured_evidence = []
+        sender_lower = sender_clean.lower()
+
+        # Display name impersonation check
+        disp_low = display_name.lower() if display_name else ""
+        if display_name and any(org in disp_low for org in ORGANIZATION_KEYWORDS):
+            if not any(org in domain for org in ORGANIZATION_KEYWORDS):
+                indicators.append(f"Display name impersonation: claims identity '{display_name}' but sent from unrelated domain '{domain}'")
+                structured_evidence.append({
+                    "indicator": "display_impersonation",
+                    "severity": "HIGH",
+                    "evidence": f"From: {sender_clean}"
+                })
+
+        if any(f in domain for f in FREE_EMAIL_PROVIDERS) and (display_name or any(org in raw_lower for org in ORGANIZATION_KEYWORDS)):
+            indicators.append(f"Institutional/commercial communication sent from free public email provider ({domain})")
+            structured_evidence.append({
+                "indicator": "free_provider_for_org",
+                "severity": "HIGH",
+                "evidence": f"Sender domain: {domain}"
+            })
+
+        if spf_status in ["Softfail / Fail", "Fail"]:
+            indicators.append(f"SPF authentication mismatch: {spf_status}")
+            structured_evidence.append({
+                "indicator": "spf_failure",
+                "severity": "HIGH",
+                "evidence": f"SPF header status: {spf_status}"
+            })
+
+        if dmarc_status == "Fail":
+            indicators.append("DMARC alignment check failed")
+            structured_evidence.append({
+                "indicator": "dmarc_failure",
+                "severity": "HIGH",
+                "evidence": "DMARC status: Fail"
+            })
+
         if re.search(r"Reply-To:", raw_text, re.IGNORECASE) and features[0][5] == 1.0:
-            indicators.append("Reply-To header redirection to external unverified domain")
+            indicators.append("Reply-To address points to an external unverified domain")
+            structured_evidence.append({
+                "indicator": "reply_to_mismatch",
+                "severity": "MEDIUM",
+                "evidence": "Reply-To header mismatch"
+            })
 
-        if not indicators and prob_phish > 0.5:
-            indicators.append("High entropy / anomaly detected in sender domain identity")
-
-        risk_score = round(max(prob_phish * 100, 78.0 if len(indicators) >= 2 else (40.0 if indicators else 15.0)), 1)
-        summary = f"Sender: {sender}. Flagged {len(indicators)} authentication anomalies." if indicators else f"Sender {sender} shows valid domain authentication signals."
+        # Base risk calculation
+        if indicators:
+            risk_score = round(max(prob_phish * 100, 75.0 if len(indicators) >= 2 else 55.0), 1)
+            summary = f"Sender {sender_clean}: Flagged {len(indicators)} domain and identity anomalies."
+        else:
+            risk_score = round(min(prob_phish * 100, 20.0), 1)
+            summary = f"Sender {sender_clean} domain aligns with expected identity conventions."
 
         return {
             "agent_type": "sender",
+            "agent": "sender",
+            "status": "success",
             "risk_score": risk_score,
             "model_probability": round(prob_phish, 4),
             "indicators": indicators,
+            "evidence": structured_evidence,
+            "sender_email": email_addr,
+            "sender_domain": domain,
+            "display_name": display_name or None,
+            "auth_headers": auth_headers,
+            "confidence": round(0.70 + (0.25 if indicators else 0.15), 2),
             "summary": summary,
             "model_name": self.algorithm
         }

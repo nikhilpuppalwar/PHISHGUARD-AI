@@ -1,8 +1,21 @@
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 
 class RiskEngine:
+    """
+    Bayesian Evidence Fusion Engine (Spec §10, §27).
+    Fuses:
+    - Text Agent ML (TF-IDF + Logistic Regression)
+    - URL Agent (XGBoost ML + Structural Analysis)
+    - External Threat Intelligence (Google Safe Browsing + VirusTotal)
+    - Sender Agent ML (Random Forest Classifier)
+    - Incident Memory RAG (ChromaDB similarity)
+
+    Enforces transparent, deterministic scoring. No single provider unilaterally
+    dictates the score, and 0 external detections never marks a threat as safe.
+    """
+
     def __init__(self):
-        # Configurable baseline weights for multi-agent evidence fusion
+        # Baseline weights across multi-agent evidence streams
         self.w_url = 0.40
         self.w_text = 0.35
         self.w_sender = 0.15
@@ -12,21 +25,26 @@ class RiskEngine:
                      text_res: Dict[str, Any],
                      url_res: Dict[str, Any],
                      sender_res: Dict[str, Any],
-                     rag_res: Dict[str, Any] = None) -> Dict[str, Any]:
+                     rag_res: Optional[Dict[str, Any]] = None,
+                     user_profile: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
-        Synthesize multi-agent evidence into composite threat score (0-100),
-        categorical severity, and statistical confidence.
+        Synthesize multi-agent and external threat intelligence evidence into
+        a transparent composite score (0-100), categorical severity, and confidence.
         """
         score_text = text_res.get("risk_score", 0.0)
         score_url = url_res.get("risk_score", 0.0)
         score_sender = sender_res.get("risk_score", 0.0)
         score_rag = (rag_res.get("similarity", 0.0) * 100.0) if rag_res else 0.0
 
-        # Dynamic weight normalization based on available signals
-        # If no URL exists, reallocate URL weight to text and sender
+        # Extract external threat intelligence signals
+        external_intel = url_res.get("external_threat_intel") or {}
+        gsb = external_intel.get("google_safe_browsing", {})
+        vt = external_intel.get("virustotal", {})
+
         has_url = score_url > 0.0 or len(url_res.get("indicators", [])) > 0
         has_sender = score_sender > 0.0
 
+        # Dynamic weight normalization based on available channels
         if not has_url and has_sender:
             eff_w_text = 0.65
             eff_w_sender = 0.25
@@ -49,7 +67,7 @@ class RiskEngine:
         eff_w_sender /= total_weight
         eff_w_rag /= total_weight
 
-        # Composite weighted score
+        # Composite base weighted score
         composite_score = (
             (score_url * eff_w_url) +
             (score_text * eff_w_text) +
@@ -57,12 +75,29 @@ class RiskEngine:
             (score_rag * eff_w_rag)
         )
 
-        # Non-linear boost for multi-signal convergence (if both text and URL or sender are high)
+        # Multi-signal convergence boost
         high_signals = sum(1 for s in [score_text, score_url, score_sender] if s >= 70.0)
         if high_signals >= 2:
             composite_score = min(98.5, composite_score * 1.15)
         elif high_signals == 0 and composite_score < 40.0:
             composite_score = max(5.0, composite_score * 0.85)
+
+        # External Threat Intelligence Corroboration (Spec §10)
+        # External APIs provide corroborative evidence without unilaterally controlling the decision
+        intel_boost = 0.0
+        if gsb.get("known_threat"):
+            intel_boost += 8.0
+
+        vt_mal = vt.get("malicious", 0)
+        if vt_mal >= 5:
+            intel_boost += 10.0
+        elif vt_mal >= 2:
+            intel_boost += 6.0
+        elif vt_mal == 1:
+            intel_boost += 3.0
+
+        if intel_boost > 0:
+            composite_score = min(99.0, composite_score + intel_boost)
 
         composite_score = round(composite_score, 1)
 
@@ -74,16 +109,18 @@ class RiskEngine:
         else:
             severity = "Low Risk"
 
-        # Statistical confidence estimation (based on signal convergence and indicator volume)
+        # Statistical confidence estimation
         indicator_count = (
             len(text_res.get("indicators", [])) +
             len(url_res.get("indicators", [])) +
             len(sender_res.get("indicators", []))
         )
         base_conf = 0.75 + min(0.22, indicator_count * 0.04)
+        if gsb.get("checked") or vt.get("checked"):
+            base_conf = min(0.98, base_conf + 0.05)
         confidence = round(base_conf, 3)
 
-        # Risk Factors
+        # Structured Risk Factors
         risk_factors = []
         for ind in text_res.get("indicators", []):
             risk_factors.append({"factor": ind, "agent": "text", "weight": 0.88})
@@ -92,10 +129,52 @@ class RiskEngine:
         for ind in sender_res.get("indicators", []):
             risk_factors.append({"factor": ind, "agent": "sender", "weight": 0.82})
 
+        # Add external intelligence specific factors if present
+        if gsb.get("known_threat"):
+            types_str = ", ".join(gsb.get("threat_types", [])) or "Threat"
+            risk_factors.append({
+                "factor": f"Google Safe Browsing: Confirmed malicious threat ({types_str})",
+                "agent": "external_intel",
+                "weight": 0.98
+            })
+        if vt_mal > 0:
+            risk_factors.append({
+                "factor": f"VirusTotal: {vt_mal} of {vt.get('total_engines', 0)} security engines flagged malicious",
+                "agent": "external_intel",
+                "weight": 0.95
+            })
+
+        # Spec §4 & §10: Profile relevance assessment
+        profile_relevance = "GENERAL"
+        if user_profile:
+            role_str = str(user_profile.get("role", "")).lower()
+            services = [s.lower() for s in user_profile.get("common_services", [])]
+            activities = [a.lower() for a in user_profile.get("online_activities", [])]
+            
+            # Check if threat touches user's active domain or services
+            indicators_combined = " ".join([rf["factor"].lower() for rf in risk_factors])
+            matched_profile = False
+            if "student" in role_str and ("internship" in indicators_combined or "campus" in indicators_combined):
+                matched_profile = True
+            elif any(s in indicators_combined for s in services if len(s) > 2):
+                matched_profile = True
+            elif any(a in indicators_combined for a in activities if len(a) > 2):
+                matched_profile = True
+
+            if matched_profile and composite_score >= 40.0:
+                profile_relevance = "HIGH"
+            elif composite_score >= 40.0:
+                profile_relevance = "MODERATE"
+            else:
+                profile_relevance = "LOW (Benign content)"
+
         return {
             "overall_score": composite_score,
+            "base_score": composite_score,
+            "personalized_score": composite_score,
             "severity": severity,
             "confidence": confidence,
+            "profile_relevance": profile_relevance,
             "risk_factors": risk_factors,
             "effective_weights": {
                 "url": round(eff_w_url, 3),

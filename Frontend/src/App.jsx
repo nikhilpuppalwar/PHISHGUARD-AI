@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -16,20 +16,70 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import ProfileSettingsPage from './pages/ProfileSettingsPage';
 import GlossaryPage from './pages/GlossaryPage';
 import { api } from './api/client';
+import { ROUTE_TO_SCREEN, SCREEN_TO_ROUTE } from './navigation';
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentScreen, setCurrentScreen] = useState('landing');
+  
+  // Resolve initial screen from URL pathname or fallback
+  const getInitialScreen = () => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+      if (ROUTE_TO_SCREEN[path]) {
+        return ROUTE_TO_SCREEN[path];
+      }
+    }
+    return 'landing';
+  };
+
+  const [currentScreen, setCurrentScreen] = useState(getInitialScreen);
   const [activeResult, setActiveResult] = useState(null);
   const [submitInitialText, setSubmitInitialText] = useState('');
+  
+  // Navigation layout state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  // Sync navigation with browser URL and history
   const navigate = (screen, params = {}) => {
     if (params.initialText) {
       setSubmitInitialText(params.initialText);
     }
     setCurrentScreen(screen);
+    setMobileSidebarOpen(false);
+
+    // Update browser URL
+    const targetRoute = SCREEN_TO_ROUTE[screen] || '/';
+    if (window.location.pathname !== targetRoute) {
+      window.history.pushState(params, '', targetRoute);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Handle browser back and forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+      const screen = ROUTE_TO_SCREEN[path] || (user ? 'dashboard' : 'landing');
+      setCurrentScreen(screen);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [user]);
+
+  // If user state finishes loading and on root path, route appropriately
+  useEffect(() => {
+    if (!loading) {
+      const path = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+      if (path === '/' || path === '/landing') {
+        if (user && currentScreen === 'landing') {
+          // Keep on landing unless they intentionally navigate or prefer dashboard
+        }
+      }
+    }
+  }, [loading, user]);
 
   const handleSelectSubmission = async (submissionId) => {
     try {
@@ -48,11 +98,11 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B1220] flex flex-col items-center justify-center text-white space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20 animate-pulse">
-          <span className="material-symbols-outlined text-[28px]">security</span>
+      <div className="min-h-screen bg-navy-900 flex flex-col items-center justify-center text-slate-200 space-y-3">
+        <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-xs">
+          <span className="material-symbols-outlined text-[24px]">security</span>
         </div>
-        <div className="text-sm font-mono text-cyan-400">Loading PhishGuard AI...</div>
+        <div className="text-sm font-medium text-slate-300 font-mono">Loading PhishGuard AI...</div>
       </div>
     );
   }
@@ -70,7 +120,13 @@ function AppContent() {
   if (currentScreen === 'onboarding') {
     return (
       <>
-        <Navbar onNavigate={navigate} currentScreen={currentScreen} />
+        <Navbar
+          onNavigate={navigate}
+          currentScreen={currentScreen}
+          onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+          sidebarCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
         <OnboardingPage onNavigate={navigate} />
       </>
     );
@@ -79,9 +135,15 @@ function AppContent() {
   // Public Landing Page (with Navbar)
   if (currentScreen === 'landing') {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar onNavigate={navigate} currentScreen={currentScreen} />
-        <main className="flex-1 pt-20">
+      <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+        <Navbar
+          onNavigate={navigate}
+          currentScreen={currentScreen}
+          onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+          sidebarCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+        <main className="flex-1 pt-16">
           <LandingPage onNavigate={navigate} />
         </main>
       </div>
@@ -93,7 +155,7 @@ function AppContent() {
   if (!user && PROTECTED_SCREENS.includes(currentScreen)) {
     const customMessage = currentScreen === 'glossary'
       ? "Authentication required: Please sign in to explore the Threat Intelligence & Attack Type Glossary reference."
-      : "Authentication required: Please sign in to access PhishGuard workspaces and multi-agent detection tools.";
+      : "Your session has expired. Please sign in to access your PhishGuard security workspace.";
     return (
       <LoginPage 
         onNavigate={navigate} 
@@ -106,10 +168,24 @@ function AppContent() {
   // Authenticated Workspace Layout (Navbar + Sidebar + Content)
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
-      <Navbar onNavigate={navigate} currentScreen={currentScreen} />
-      <div className="flex-1 pt-20 flex">
-        {/* Workspace Sidebar */}
-        <Sidebar currentScreen={currentScreen} onNavigate={navigate} />
+      <Navbar
+        onNavigate={navigate}
+        currentScreen={currentScreen}
+        onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+        sidebarCollapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
+
+      <div className="flex-1 pt-16 flex">
+        {/* Primary Left Application Sidebar (Persistent on desktop, collapsible, drawer on mobile) */}
+        <Sidebar
+          currentScreen={currentScreen}
+          onNavigate={navigate}
+          collapsed={sidebarCollapsed}
+          setCollapsed={setSidebarCollapsed}
+          mobileOpen={mobileSidebarOpen}
+          onCloseMobile={() => setMobileSidebarOpen(false)}
+        />
 
         {/* Dynamic Screen View */}
         <main className="flex-1 p-6 sm:p-8 lg:p-10 overflow-y-auto max-w-7xl mx-auto w-full">

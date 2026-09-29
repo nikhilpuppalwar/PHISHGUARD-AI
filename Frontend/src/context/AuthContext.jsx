@@ -30,15 +30,15 @@ export function AuthProvider({ children }) {
     fetchCurrentUser();
   }, []);
 
-  const login = async (email, password) => {
-    const res = await api.auth.login(email, password);
+  const login = async (email, password, rememberMe = false) => {
+    const res = await api.auth.login(email, password, rememberMe);
     setAuthToken(res.access_token);
     await fetchCurrentUser();
     return res;
   };
 
-  const register = async (email, password, role = 'Student') => {
-    const res = await api.auth.register(email, password, role);
+  const register = async (email, password, role = 'Student', fullName = '') => {
+    const res = await api.auth.register(email, password, role, fullName);
     setAuthToken(res.access_token);
     await fetchCurrentUser();
     return res;

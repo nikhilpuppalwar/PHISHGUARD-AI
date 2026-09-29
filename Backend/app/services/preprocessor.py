@@ -2,8 +2,18 @@ import re
 from typing import Dict, List, Optional, Any
 from urllib.parse import urlparse
 
+def normalize_markdown_artifacts(text: str) -> str:
+    """Normalize markdown links and mailto wrappers into standard plain text."""
+    # Convert [display](mailto:email@domain.com) -> display <email@domain.com>
+    cleaned = re.sub(r'\[([^\]]*)\]\(mailto:([^)]+)\)', r'\1 <\2>', text)
+    # Convert [label](http...) -> http...
+    cleaned = re.sub(r'\[([^\]]*)\]\((https?://[^)]+)\)', r'\2', cleaned)
+    # Standalone [text](url)
+    cleaned = re.sub(r'\[([^\]]*)\]\(([^)]+)\)', r'\2', cleaned)
+    return cleaned
+
 URL_REGEX = re.compile(
-    r'(?:https?://|www\.)[^\s<>"\'{}|\\^`]+|(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|io|xyz|info|biz|top|me|live|cc|online|site|app|link|click|vip|co|in|us|uk)[^\s<>"\'{}|\\^`]*',
+    r'(?:https?://|www\.)[^\s<>"\'{}|\\^`\[\]()]+|(?<![@\w.-])(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|io|xyz|info|biz|top|me|live|cc|online|site|app|link|click|vip|co|in|us|uk|example)[^\s<>"\'{}|\\^`\[\]()]*',
     re.IGNORECASE
 )
 
@@ -17,12 +27,24 @@ PHONE_REGEX = re.compile(
 )
 
 def extract_urls(text: str) -> List[str]:
-    """Find all valid HTTP/HTTPS and bare domain URLs in text."""
-    found = URL_REGEX.findall(text)
+    """Find all valid HTTP/HTTPS and bare domain URLs in text, safely filtering email domains and markdown brackets."""
+    norm_text = normalize_markdown_artifacts(text)
+    
+    # Extract email domains so we don't treat bare email domains as standalone web links
+    email_domains = set(re.findall(r'[a-zA-Z0-9_.+-]+@([a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)', norm_text, re.IGNORECASE))
+    
+    found = URL_REGEX.findall(norm_text)
     cleaned_urls = []
     for u in found:
-        # Strip trailing punctuation often caught in sentences
-        u_clean = u.rstrip(".,;:!?)'\"")
+        # Strip trailing and leading punctuation, brackets, parentheses, quotes
+        u_clean = u.rstrip(".,;:!?)'\"\\]\\[<>{} ")
+        u_clean = u_clean.lstrip("([{\"'<")
+        if not u_clean or u_clean.lower().startswith("mailto:"):
+            continue
+        # Skip bare domain if it is actually just an email address domain
+        if not u_clean.startswith("http://") and not u_clean.startswith("https://") and not u_clean.startswith("www."):
+            if u_clean.lower() in email_domains:
+                continue
         if not u_clean.startswith("http://") and not u_clean.startswith("https://"):
             u_clean = "http://" + u_clean
         if u_clean not in cleaned_urls:
@@ -31,24 +53,35 @@ def extract_urls(text: str) -> List[str]:
 
 def extract_sender_info(raw_text: str) -> Optional[str]:
     """Look for standard email headers (From:, Reply-To:) or first email address."""
-    # Pattern: From: Name <email@example.com> or From: email@example.com
-    from_match = re.search(r'From:\s*(.+?)(?:\r?\n|$)', raw_text, re.IGNORECASE)
+    norm_text = normalize_markdown_artifacts(raw_text)
+
+    def clean_sender(val: str) -> str:
+        s = re.sub(r'mailto:', '', val, flags=re.IGNORECASE)
+        s = re.sub(r'[\[\]]', '', s).strip()
+        m = re.search(r"^(.*?)(?:<([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)>)?$", s)
+        if m:
+            disp = (m.group(1) or "").strip()
+            addr = m.group(2) or ""
+            if disp == addr and addr:
+                return addr
+        return s
+
+    from_match = re.search(r'From:\s*(.+?)(?:\r?\n|$)', norm_text, re.IGNORECASE)
     if from_match:
-        from_str = from_match.group(1).strip()
-        return from_str
+        return clean_sender(from_match.group(1))
     
     # Check for Sender:
-    sender_match = re.search(r'Sender:\s*(.+?)(?:\r?\n|$)', raw_text, re.IGNORECASE)
+    sender_match = re.search(r'Sender:\s*(.+?)(?:\r?\n|$)', norm_text, re.IGNORECASE)
     if sender_match:
-        return sender_match.group(1).strip()
+        return clean_sender(sender_match.group(1))
 
     # Check for Reply-To:
-    reply_match = re.search(r'Reply-To:\s*(.+?)(?:\r?\n|$)', raw_text, re.IGNORECASE)
+    reply_match = re.search(r'Reply-To:\s*(.+?)(?:\r?\n|$)', norm_text, re.IGNORECASE)
     if reply_match:
-        return reply_match.group(1).strip()
+        return clean_sender(reply_match.group(1))
 
     # Fallback to any detected email address in first 3 lines
-    lines = raw_text.strip().splitlines()[:3]
+    lines = norm_text.strip().splitlines()[:3]
     top_block = " ".join(lines)
     emails = EMAIL_REGEX.findall(top_block)
     if emails:
@@ -58,7 +91,8 @@ def extract_sender_info(raw_text: str) -> Optional[str]:
 
 def extract_subject(raw_text: str) -> Optional[str]:
     """Extract Subject: header if present."""
-    subj_match = re.search(r'Subject:\s*(.+?)(?:\r?\n|$)', raw_text, re.IGNORECASE)
+    norm_text = normalize_markdown_artifacts(raw_text)
+    subj_match = re.search(r'Subject:\s*(.+?)(?:\r?\n|$)', norm_text, re.IGNORECASE)
     if subj_match:
         return subj_match.group(1).strip()
     return None
@@ -89,7 +123,8 @@ def detect_channel(raw_text: str, urls: List[str], sender: Optional[str]) -> str
 
 def clean_body_text(raw_text: str) -> str:
     """Strip standard email headers to isolate the message body."""
-    lines = raw_text.strip().splitlines()
+    norm_text = normalize_markdown_artifacts(raw_text)
+    lines = norm_text.strip().splitlines()
     body_lines = []
     in_headers = True
     
@@ -103,7 +138,7 @@ def clean_body_text(raw_text: str) -> str:
         body_lines.append(line)
         
     cleaned = "\n".join(body_lines).strip()
-    return cleaned if cleaned else raw_text.strip()
+    return cleaned if cleaned else norm_text.strip()
 
 def preprocess_single_input(raw_input: str, channel_override: Optional[str] = None, sender_override: Optional[str] = None, subject_override: Optional[str] = None) -> Dict[str, Any]:
     """Single unified input parsing engine."""

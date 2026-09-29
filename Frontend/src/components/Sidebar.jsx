@@ -1,113 +1,283 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { NAV_SECTIONS } from '../navigation';
 
-export default function Sidebar({ currentScreen, onNavigate }) {
+export default function Sidebar({
+  currentScreen,
+  onNavigate,
+  collapsed = false,
+  setCollapsed,
+  mobileOpen = false,
+  onCloseMobile
+}) {
   const { user, logout } = useAuth();
 
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { id: 'submit', label: 'Submit Threat', icon: 'send_and_archive' },
-    { id: 'incidents', label: 'Incident History', icon: 'history' },
-    { id: 'analytics', label: 'Risk Analytics', icon: 'monitoring' },
-    { id: 'glossary', label: 'Attack Glossary', icon: 'menu_book' },
-    { id: 'profile', label: 'Profile & Settings', icon: 'manage_accounts' },
-  ];
+  // Close mobile drawer on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && mobileOpen && onCloseMobile) {
+        onCloseMobile();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileOpen, onCloseMobile]);
+
+  const handleItemClick = (screenId) => {
+    onNavigate(screenId);
+    if (mobileOpen && onCloseMobile) {
+      onCloseMobile();
+    }
+  };
+
+  const handleLogout = () => {
+    if (mobileOpen && onCloseMobile) {
+      onCloseMobile();
+    }
+    logout();
+  };
+
+  const username = user?.profile?.preferred_name || (user?.email ? user.email.split('@')[0] : 'Analyst');
+  const role = user?.profile?.role || 'Student';
+  const awareness = user?.profile?.security_awareness || 'Beginner';
+  const avatarLetter = (username ? username[0] : 'U').toUpperCase();
+
+  const workspaceSection = NAV_SECTIONS.find((s) => s.id === 'WORKSPACE');
+  const securitySection = NAV_SECTIONS.find((s) => s.id === 'SECURITY');
+  const accountSection = NAV_SECTIONS.find((s) => s.id === 'ACCOUNT');
+
+  const renderNavButton = (item) => {
+    const isActive = currentScreen === item.id;
+    return (
+      <button
+        key={item.id}
+        type="button"
+        onClick={() => handleItemClick(item.id)}
+        title={collapsed ? item.label : undefined}
+        aria-label={item.label}
+        aria-current={isActive ? 'page' : undefined}
+        className={`w-full flex items-center rounded-md font-medium text-xs transition-colors duration-150 group ${
+          collapsed
+            ? 'justify-center p-2.5 my-1'
+            : 'gap-3 px-3 py-2'
+        } ${
+          isActive
+            ? 'bg-blue-600 text-white font-semibold shadow-xs'
+            : 'text-slate-300 hover:text-white hover:bg-navy-800'
+        }`}
+      >
+        <span
+          className={`material-symbols-outlined shrink-0 text-[19px] transition-transform duration-150 ${
+            isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
+          }`}
+        >
+          {item.icon}
+        </span>
+        {!collapsed && <span className="truncate">{item.label}</span>}
+      </button>
+    );
+  };
+
+  const sidebarContent = (
+    <div className="h-full flex flex-col justify-between select-none">
+      <div className="space-y-4">
+        {/* Top Header Row in Sidebar */}
+        <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} pb-2 border-b border-slate-800/80`}>
+          {!collapsed ? (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                Navigation
+              </span>
+            </div>
+          ) : null}
+
+          {/* Sidebar Collapse Toggle Button (Desktop/Tablet) */}
+          {setCollapsed && (
+            <button
+              type="button"
+              onClick={() => setCollapsed(!collapsed)}
+              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-navy-800 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {collapsed ? 'chevron_right' : 'chevron_left'}
+              </span>
+            </button>
+          )}
+
+          {/* Close button for Mobile Drawer */}
+          {mobileOpen && onCloseMobile && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              title="Close navigation drawer"
+              aria-label="Close navigation drawer"
+              className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-navy-800 transition-colors md:hidden"
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          )}
+        </div>
+
+        {/* User Context Card */}
+        <div
+          onClick={() => handleItemClick('profile')}
+          title="Click to view Profile & Settings"
+          className={`rounded-lg bg-navy-800 border border-slate-700/60 cursor-pointer hover:border-slate-600 transition group ${
+            collapsed ? 'p-2 flex flex-col items-center' : 'p-3'
+          }`}
+        >
+          {collapsed ? (
+            <div
+              className="w-9 h-9 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-sm"
+              title={`${username} • Role: ${role} • Awareness: ${awareness}`}
+            >
+              {avatarLetter}
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-md bg-blue-600 flex items-center justify-center font-bold text-white text-sm shrink-0 shadow-xs">
+                  {avatarLetter}
+                </div>
+                <div className="overflow-hidden min-w-0">
+                  <div className="text-sm font-semibold text-white truncate group-hover:text-blue-300 transition-colors">
+                    {username}
+                  </div>
+                  <div className="text-xs text-slate-400 truncate">
+                    Role: {role}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-2.5 pt-2 border-t border-slate-700/60 flex items-center justify-between text-[11px] font-mono">
+                <span className="text-slate-400">SECURITY AWARENESS</span>
+                <span className="text-blue-400 font-medium bg-blue-950/60 px-1.5 py-0.5 rounded border border-blue-800/60">
+                  {awareness}
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Section 1: WORKSPACE */}
+        <nav aria-label="Workspace Navigation" className="space-y-1">
+          {!collapsed && (
+            <div className="px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-1">
+              Workspace
+            </div>
+          )}
+          {workspaceSection?.items.map(renderNavButton)}
+        </nav>
+
+        {/* Section 2: SECURITY */}
+        <nav aria-label="Security Navigation" className="space-y-1 pt-1">
+          {!collapsed && (
+            <div className="px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-1">
+              Security
+            </div>
+          )}
+          {securitySection?.items.map(renderNavButton)}
+        </nav>
+
+        {/* Section 3: Visual Divider & ACCOUNT */}
+        <div className="pt-2 border-t border-slate-800">
+          {!collapsed && (
+            <div className="px-3 text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-1">
+              Account
+            </div>
+          )}
+          <nav aria-label="Account Navigation" className="space-y-1">
+            {accountSection?.items.map(renderNavButton)}
+
+            {/* Sign Out Button */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              title={collapsed ? 'Sign Out' : undefined}
+              aria-label="Sign Out"
+              className={`w-full flex items-center rounded-md font-medium text-xs text-slate-400 hover:text-red-400 hover:bg-red-950/20 transition-colors duration-150 group ${
+                collapsed ? 'justify-center p-2.5 my-1' : 'gap-3 px-3 py-2'
+              }`}
+            >
+              <span className="material-symbols-outlined shrink-0 text-[19px] text-slate-400 group-hover:text-red-400">
+                logout
+              </span>
+              {!collapsed && <span>Sign Out</span>}
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Detection Engines Status Panel */}
+      <div className="pt-4 border-t border-slate-800">
+        {!collapsed ? (
+          <div className="p-3 rounded-lg bg-navy-850 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="text-slate-400 font-semibold">DETECTION ENGINES</span>
+              <span className="text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
+              </span>
+            </div>
+            <div className="space-y-1 text-[10px] font-mono text-slate-300">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Text Agent:</span>
+                <span className="text-slate-200">TF-IDF + LR</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">URL Agent:</span>
+                <span className="text-slate-200">XGBoost (54f)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Sender Agent:</span>
+                <span className="text-slate-200">Random Forest</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Incident Memory:</span>
+                <span className="text-slate-200">RAG Vectors</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="flex items-center justify-center p-2 rounded-lg bg-navy-850 border border-slate-800 text-emerald-400 cursor-help"
+            title="Multi-Agent Detection Engines: 4/4 Active (Text, URL, Sender, RAG Memory)"
+          >
+            <span className="material-symbols-outlined text-[18px]">verified_user</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
-    <aside className="w-64 bg-[#0B1220] text-slate-200 min-h-[calc(100vh-5rem)] border-r border-slate-800 flex flex-col justify-between p-4 shrink-0 select-none">
-      <div className="space-y-6">
-        {/* User context badge */}
-        <div className="p-3.5 rounded-xl bg-[#14233D] border border-cyan-500/20 glow-cyan-subtle">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-400 flex items-center justify-center font-bold text-white shadow-md">
-              {user?.profile?.preferred_name ? user.profile.preferred_name[0].toUpperCase() : (user?.email ? user.email[0].toUpperCase() : 'U')}
-            </div>
-            <div className="overflow-hidden">
-              <div className="text-sm font-semibold text-white truncate">
-                {user?.profile?.preferred_name || (user?.email ? user.email.split('@')[0] : 'Security Researcher')}
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-cyan-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span>Role: {user?.profile?.role || 'Capstone Analyst'}</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-2.5 pt-2 border-t border-slate-700/60 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-            <span>AWARENESS TIER:</span>
-            <span className="text-emerald-400 font-semibold">{user?.profile?.security_awareness || 'Active'}</span>
+    <>
+      {/* Desktop / Tablet Persistent Sidebar */}
+      <aside
+        className={`hidden md:flex bg-navy-900 text-slate-200 min-h-[calc(100vh-4rem)] border-r border-navy-border flex-col p-4 shrink-0 transition-all duration-200 ease-in-out ${
+          collapsed ? 'w-20' : 'w-64'
+        }`}
+      >
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Slide-Out Drawer & Backdrop */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop Overlay */}
+          <div
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+            onClick={onCloseMobile}
+            aria-hidden="true"
+          />
+
+          {/* Drawer Pane */}
+          <div className="relative w-72 max-w-[85vw] bg-navy-900 text-slate-200 h-full p-4 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
+            {sidebarContent}
           </div>
         </div>
-
-        {/* Navigation list */}
-        <div className="space-y-1">
-          <div className="px-3 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-2">
-            Workspaces
-          </div>
-          {navItems.map((item) => {
-            const active = currentScreen === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onNavigate(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  active
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-[#14233D]'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Multi-Agent Telemetry Status */}
-        <div className="p-3 rounded-lg bg-[#0F1A2E] border border-slate-800 space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-mono">
-            <span className="text-slate-400">PIPELINE ENGINE</span>
-            <span className="text-emerald-400 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ONLINE
-            </span>
-          </div>
-          <div className="space-y-1 text-[10px] font-mono text-slate-400">
-            <div className="flex justify-between">
-              <span>Text Agent:</span>
-              <span className="text-blue-400">TF-IDF + LR</span>
-            </div>
-            <div className="flex justify-between">
-              <span>URL Agent:</span>
-              <span className="text-cyan-400">XGBoost (54f)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Sender Agent:</span>
-              <span className="text-indigo-400">Random Forest</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Threat RAG:</span>
-              <span className="text-purple-400">Chroma Vectors</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Profile action */}
-      <div className="pt-4 border-t border-slate-800 space-y-2">
-        <button
-          onClick={() => onNavigate('onboarding')}
-          className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium text-cyan-400 bg-cyan-950/40 border border-cyan-500/30 hover:bg-cyan-950/70 transition"
-        >
-          <span className="material-symbols-outlined text-[16px]">psychology</span>
-          Re-run Profiling AI
-        </button>
-        <button
-          onClick={logout}
-          className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-red-400 hover:bg-red-950/20 transition"
-        >
-          <span className="material-symbols-outlined text-[16px]">logout</span>
-          Sign Out
-        </button>
-      </div>
-    </aside>
+      )}
+    </>
   );
 }

@@ -6,6 +6,7 @@ class UserRegister(BaseModel):
     email: str
     password: str
     role: Optional[str] = "Student"
+    full_name: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: str

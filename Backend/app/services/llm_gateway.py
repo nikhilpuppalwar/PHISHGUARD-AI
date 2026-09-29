@@ -224,7 +224,7 @@ class LLMGateway:
         except Exception as ex:
             return {"success": False, "error": str(ex)}
 
-    def generate_chat(self, db: Session, messages: List[Dict[str, str]], system_prompt: str = "") -> Optional[str]:
+    def generate_chat(self, db: Session, messages: List[Dict[str, str]], system_prompt: str = "", max_tokens: int = 1500) -> Optional[str]:
         """
         Execute live inference using whichever LLM credential is currently active in the database.
         Returns None if no active credential or if call fails, allowing automatic fallback.
@@ -269,7 +269,7 @@ class LLMGateway:
                     "model": model_name,
                     "messages": api_msgs,
                     "temperature": 0.4,
-                    "max_tokens": 500
+                    "max_tokens": max_tokens
                 }
                 headers = {
                     "Content-Type": "application/json",
@@ -280,7 +280,7 @@ class LLMGateway:
                     headers["X-Title"] = "PhishGuard AI"
 
                 req = urllib.request.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
-                with urllib.request.urlopen(req, timeout=15) as response:
+                with urllib.request.urlopen(req, timeout=18) as response:
                     data = json.loads(response.read().decode("utf-8"))
                     return data["choices"][0]["message"]["content"].strip()
 
@@ -297,7 +297,7 @@ class LLMGateway:
                     "stream": False
                 }
                 req = urllib.request.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers={"Content-Type": "application/json"}, method="POST")
-                with urllib.request.urlopen(req, timeout=12) as response:
+                with urllib.request.urlopen(req, timeout=18) as response:
                     data = json.loads(response.read().decode("utf-8"))
                     return data["message"]["content"].strip()
 
@@ -305,7 +305,7 @@ class LLMGateway:
                 endpoint = "https://api.anthropic.com/v1/messages"
                 payload = {
                     "model": model_name or "claude-3-5-haiku-20241022",
-                    "max_tokens": 800,
+                    "max_tokens": max_tokens,
                     "messages": [{"role": "user", "content": "\n".join([f"{m['role'].upper()}: {m['content']}" for m in messages])}]
                 }
                 if system_prompt:
@@ -316,7 +316,7 @@ class LLMGateway:
                     "anthropic-version": "2023-06-01"
                 }
                 req = urllib.request.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
-                with urllib.request.urlopen(req, timeout=15) as response:
+                with urllib.request.urlopen(req, timeout=18) as response:
                     data = json.loads(response.read().decode("utf-8"))
                     return data["content"][0]["text"].strip()
 
@@ -325,13 +325,13 @@ class LLMGateway:
                 endpoint = f"https://api-inference.huggingface.co/models/{m_target}"
                 full_prompt = f"{system_prompt}\n\n" if system_prompt else ""
                 full_prompt += "\n".join([f"{m['role'].upper()}: {m['content']}" for m in messages])
-                payload = {"inputs": full_prompt, "parameters": {"max_new_tokens": 400}}
+                payload = {"inputs": full_prompt, "parameters": {"max_new_tokens": max_tokens}}
                 headers = {
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {api_key}"
                 }
                 req = urllib.request.Request(endpoint, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
-                with urllib.request.urlopen(req, timeout=15) as response:
+                with urllib.request.urlopen(req, timeout=18) as response:
                     data = json.loads(response.read().decode("utf-8"))
                     if isinstance(data, list) and len(data) > 0:
                         return str(data[0].get("generated_text", "")).strip()

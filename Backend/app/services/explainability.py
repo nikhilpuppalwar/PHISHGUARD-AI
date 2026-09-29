@@ -1,6 +1,13 @@
 from typing import Dict, Any, List
 
 class ExplainabilityEngine:
+    """
+    Explainable AI (XAI) Attribution Engine (Spec §11, §17).
+    Computes SHAP-style attribution deltas across all multi-agent detection streams
+    and explicitly includes internal structural features and external threat intelligence
+    (Google Safe Browsing & VirusTotal) in the transparent evidence report.
+    """
+
     def compute_contributions(self,
                               overall_score: float,
                               text_res: Dict[str, Any],
@@ -8,7 +15,8 @@ class ExplainabilityEngine:
                               sender_res: Dict[str, Any],
                               rag_res: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        Derive SHAP-style attribution deltas and percentage share for each agent.
+        Derive SHAP-style attribution deltas, percentage share for each agent,
+        and structured evidence details including external threat intelligence.
         """
         s_url = url_res.get("risk_score", 0.0)
         s_text = text_res.get("risk_score", 0.0)
@@ -47,7 +55,10 @@ class ExplainabilityEngine:
                 "delta": deltas["url"],
                 "indicators": url_res.get("indicators", []),
                 "summary": url_res.get("summary", ""),
-                "model_name": url_res.get("model_name", "XGBoost")
+                "model_name": url_res.get("model_name", "XGBoost (PhiUSIIL)"),
+                "external_threat_intel": url_res.get("external_threat_intel"),
+                "structural_analysis": url_res.get("structural_analysis"),
+                "evidence_object": url_res.get("evidence_object")
             },
             "text": {
                 "agent_type": "text",
@@ -86,7 +97,7 @@ class ExplainabilityEngine:
             "contributions": percentages,
             "deltas": deltas,
             "agent_details": agent_details,
-            "all_indicators": list(dict.fromkeys(all_indicators))  # deduplicate preserving order
+            "all_indicators": list(dict.fromkeys(all_indicators))
         }
 
 explainability_engine = ExplainabilityEngine()
