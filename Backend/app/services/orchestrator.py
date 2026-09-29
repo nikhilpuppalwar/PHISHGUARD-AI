@@ -506,6 +506,7 @@ class AIOrchestrator:
             "profile_relevance": risk_summary.get("profile_relevance", "MODERATE"),
             "severity": risk_summary["severity"],
             "confidence": risk_summary["confidence"],
+            "risk_factors": risk_summary.get("risk_factors", []),
             "attack_type": genai_out["attack_type"],
             "attack_type_id": attack_type_id,
             "attack_type_description": genai_out["attack_type_description"],

@@ -12,13 +12,22 @@ import BeforeYouActChecklist from '../components/BeforeYouActChecklist';
 import EvidenceCoverageCard from '../components/EvidenceCoverageCard';
 import AgentAnalysisTrace from '../components/AgentAnalysisTrace';
 import WhatChangedComparison from '../components/WhatChangedComparison';
+import RiskFactorsBreakdown from '../components/RiskFactorsBreakdown';
 
 /**
  * Threat Analysis Report Page (Master Spec §18)
- * Assembles the full, evidence-grounded threat diagnostic report featuring:
- * 1. Detailed Evidence-Grounded Explanation (Why This Message Is Risky)
- * 2. Dynamic Action Plan (Operational Response)
- * 3. Personalized Recommendations (Tailored to Profile & Awareness)
+ * Forensic Analysis Workflow Order:
+ * 1. Threat Summary & Risk Gauge
+ * 2. Original Content
+ * 3. Attack Classification
+ * 4. Agents (Text, URL, Sender, RAG signal & traces)
+ * 5. External Intelligence (Google Safe Browsing, VirusTotal)
+ * 6. RAG (Incident Memory & Semantic Similarity)
+ * 7. Risk Factors (Structured & Weighted Breakdown)
+ * 8. Generative Security Assessment (Explainable AI)
+ * 9. Personalization Context
+ * 10. Dynamic Action Plan & Personalized Recommendations
+ * 11. Before You Act Checklist
  */
 export default function AnalysisResultPage({ result, onNavigate }) {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -75,7 +84,8 @@ export default function AnalysisResultPage({ result, onNavigate }) {
     evidence_coverage,
     agent_trace,
     external_threat_intel,
-    url_evidence
+    url_evidence,
+    risk_factors = result.risk_factors || result.risk?.risk_factors || []
   } = result;
 
   // Determine attack classification banner status
@@ -222,7 +232,60 @@ export default function AnalysisResultPage({ result, onNavigate }) {
         </p>
       </div>
 
-      {/* 5. GENERATIVE SECURITY ASSESSMENT — WHY THIS MESSAGE IS RISKY (Task Section 1 & 6) */}
+      {/* 5. AGENTS: MULTI-AGENT SIGNAL CONTRIBUTION & DELTA ANALYSIS */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px] text-slate-700">hub</span>
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+              Agent Analysis
+            </h3>
+          </div>
+          <span className="text-[11px] font-mono text-slate-500">
+            Isolated ML & Agent Probabilities
+          </span>
+        </div>
+
+        {/* Multi-Agent Signal Contribution Bar */}
+        <SignalBar contributions={agent_contributions} />
+
+        {/* Detailed 4-Agent SHAP Delta Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {['url', 'text', 'sender', 'rag'].map((key) => (
+            <AgentDeltaCard
+              key={key}
+              agentKey={key}
+              data={agent_details?.[key] || {}}
+            />
+          ))}
+        </div>
+
+        {/* Evidence Coverage Matrix (Spec §14, §18) */}
+        <EvidenceCoverageCard evidenceCoverage={evidence_coverage} />
+
+        {/* Pipeline Execution Trace (Spec §13, §18) */}
+        <AgentAnalysisTrace agentTrace={agent_trace} />
+      </div>
+
+      {/* 6. EXTERNAL INTELLIGENCE (Spec §8, §18) */}
+      <ExternalThreatIntelligence
+        intel={external_threat_intel}
+        urlEvidence={url_evidence || agent_details?.url?.evidence_object}
+      />
+
+      {/* 7. RAG: INCIDENT MEMORY & SIMILAR INCIDENTS (Spec §9, §18) */}
+      <WhatChangedComparison
+        similarIncident={similar_incident}
+        whatChanged={what_changed}
+      />
+
+      {/* 8. RISK FACTORS BREAKDOWN (Spec §10, §18) */}
+      <RiskFactorsBreakdown
+        riskFactors={risk_factors}
+        majorIndicators={major_indicators}
+      />
+
+      {/* 9. GENERATIVE SECURITY ASSESSMENT — WHY THIS MESSAGE IS RISKY (Task Section 1 & 6) */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
         <div className="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -322,25 +385,7 @@ export default function AnalysisResultPage({ result, onNavigate }) {
         </div>
       </div>
 
-      {/* 6. DYNAMIC ACTION PLAN (Task Section 2 & 6) */}
-      <ActionPlanList
-        actionPlan={action_plan}
-        userRole={personalization_context?.role || user_role_context || 'Student'}
-        attackType={displayAttackTitle}
-      />
-
-      {/* 7. PERSONALIZED RECOMMENDATIONS (Task Section 3 & 6) */}
-      <PersonalizedRecommendationsCard
-        recommendations={personalized_recommendations}
-        context={personalization_context}
-        whyThisMatters={why_this_matters}
-        userRole={user_role_context}
-      />
-
-      {/* 8. BEFORE YOU ACT CHECKLIST */}
-      <BeforeYouActChecklist items={before_you_act} />
-
-      {/* 9. PERSONALIZATION CONTEXT PANEL */}
+      {/* 10. PERSONALIZATION CONTEXT PANEL */}
       <PersonalizationContextPanel
         personalizationContext={personalization_context}
         userRole={user_role_context}
@@ -350,39 +395,24 @@ export default function AnalysisResultPage({ result, onNavigate }) {
         profileRelevance={profile_relevance}
       />
 
-      {/* 10. INCIDENT MEMORY & RAG RETRIEVAL (Spec §9, §18) */}
-      <WhatChangedComparison
-        similarIncident={similar_incident}
-        whatChanged={what_changed}
+      {/* 11. PERSONALIZED RECOMMENDATIONS & DYNAMIC ACTION PLAN (Task Section 2, 3 & 6) */}
+      <PersonalizedRecommendationsCard
+        recommendations={personalized_recommendations}
+        context={personalization_context}
+        whyThisMatters={why_this_matters}
+        userRole={user_role_context}
       />
 
-      {/* 11. EXTERNAL THREAT INTELLIGENCE (Spec §8, §18) */}
-      <ExternalThreatIntelligence
-        intel={external_threat_intel}
-        urlEvidence={url_evidence || agent_details?.url?.evidence_object}
+      <ActionPlanList
+        actionPlan={action_plan}
+        userRole={personalization_context?.role || user_role_context || 'Student'}
+        attackType={displayAttackTitle}
       />
 
-      {/* 12. MULTI-AGENT SIGNAL CONTRIBUTION BAR */}
-      <SignalBar contributions={agent_contributions} />
+      {/* 12. BEFORE YOU ACT CHECKLIST */}
+      <BeforeYouActChecklist items={before_you_act} />
 
-      {/* 12. DETAILED 4-AGENT SHAP DELTA CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {['url', 'text', 'sender', 'rag'].map((key) => (
-          <AgentDeltaCard
-            key={key}
-            agentKey={key}
-            data={agent_details?.[key] || {}}
-          />
-        ))}
-      </div>
-
-      {/* 13. EVIDENCE COVERAGE MATRIX (Spec §14, §18) */}
-      <EvidenceCoverageCard evidenceCoverage={evidence_coverage} />
-
-      {/* 14. PIPELINE EXECUTION TRACE (Spec §13, §18) */}
-      <AgentAnalysisTrace agentTrace={agent_trace} />
-
-      {/* 15. FORENSIC ANALYSIS NOTE & LIMITATIONS */}
+      {/* 13. FORENSIC ANALYSIS NOTE & LIMITATIONS */}
       <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 space-y-1">
         <div className="flex items-center gap-1.5 font-semibold text-slate-700">
           <span className="material-symbols-outlined text-[16px] text-slate-500">info</span>

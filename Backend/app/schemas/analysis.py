@@ -66,6 +66,7 @@ class AnalysisResponse(BaseModel):
     profile_relevance: Optional[str] = None
     severity: str        # Low, Medium, High
     confidence: float    # 0 to 1
+    risk_factors: Optional[List[Dict[str, Any]]] = []
     
     # Attack Type
     attack_type: str
