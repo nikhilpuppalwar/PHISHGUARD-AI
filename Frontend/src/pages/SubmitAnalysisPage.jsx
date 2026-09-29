@@ -93,7 +93,7 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6 pb-20">
       {/* Consistent Header & Breadcrumbs */}
       <PageHeader
         screenId="submit"

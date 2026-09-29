@@ -210,7 +210,7 @@ export default function OnboardingPage({ onNavigate }) {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pt-16 pb-12">
-      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 flex-1 flex flex-col lg:flex-row gap-6">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex-1 flex flex-col lg:flex-row gap-6">
         {/* Left Conversational Wizard Area */}
         <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-2xs flex flex-col overflow-hidden min-h-[580px]">
           {/* Top Bar with Dynamic Progress */}

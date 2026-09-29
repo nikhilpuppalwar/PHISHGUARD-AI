@@ -159,7 +159,7 @@ export default function GlossaryPage({ onNavigate }) {
   const selectedMeta = selectedAttack ? (VECTOR_METADATA[selectedAttack.name] || DEFAULT_META) : null;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 w-full">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 text-white text-xs font-medium shadow-md border border-slate-700 animate-in fade-in duration-150">

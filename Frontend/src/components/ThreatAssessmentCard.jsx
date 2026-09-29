@@ -82,7 +82,7 @@ export default function ThreatAssessmentCard({
     <div className={`p-6 sm:p-7 rounded-2xl border shadow-sm transition-all ${styles.cardBg}`}>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         {/* Left: Level badge, Main Category Heading, and Evidence-grounded Summary */}
-        <div className="space-y-2.5 max-w-2xl">
+        <div className="space-y-2.5 flex-1 min-w-0 pr-4">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
               Threat Assessment

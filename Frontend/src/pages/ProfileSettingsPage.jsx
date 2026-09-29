@@ -442,7 +442,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-16">
+    <div className="w-full space-y-8 pb-16">
       {/* Consistent Header & Breadcrumbs */}
       <PageHeader
         screenId="profile"

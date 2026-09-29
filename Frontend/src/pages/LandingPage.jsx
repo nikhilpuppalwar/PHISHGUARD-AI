@@ -4,7 +4,7 @@ export default function LandingPage({ onNavigate }) {
   return (
     <div className="w-full bg-[#F8FAFC] text-slate-900 font-sans">
       {/* 1. HERO SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16">
         <div className="flex flex-col items-center text-center space-y-5 max-w-4xl mx-auto">
           {/* Project Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-slate-200 text-xs text-slate-700 shadow-2xs">
@@ -99,7 +99,7 @@ export default function LandingPage({ onNavigate }) {
       </section>
 
       {/* 2. INTERACTIVE THREAT INSPECTOR DEMO */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="threat-inspector">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8" id="threat-inspector">
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           {/* Header */}
           <div className="bg-navy-900 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-slate-200">
@@ -281,7 +281,7 @@ export default function LandingPage({ onNavigate }) {
       </section>
 
       {/* 3. PIPELINE ARCHITECTURE */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16" id="pipeline-architecture">
+      <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16" id="pipeline-architecture">
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-2.5">
           <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
             System Design & Pipeline
@@ -352,7 +352,7 @@ export default function LandingPage({ onNavigate }) {
 
       {/* 4. FOOTER */}
       <footer className="bg-navy-900 text-slate-400 py-10 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center text-white">
               <span className="material-symbols-outlined text-[18px]">security</span>
