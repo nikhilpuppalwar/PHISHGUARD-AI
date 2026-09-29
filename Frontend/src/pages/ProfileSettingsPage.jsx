@@ -486,17 +486,17 @@ export default function ProfileSettingsPage({ onNavigate }) {
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold font-mono text-base border border-blue-100">
+            <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold font-mono text-lg border border-blue-100">
               {completenessDetails?.completion_percentage || completionData.completion_percentage}%
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                 <span>Security Profile Completeness</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 font-semibold">
+                <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-bold">
                   Dimension-Calibrated
                 </span>
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-sm text-slate-600 mt-0.5 leading-relaxed">
                 Calculated from core threat-personalization dimensions rather than generic form fields.
               </p>
             </div>
@@ -506,16 +506,16 @@ export default function ProfileSettingsPage({ onNavigate }) {
           {completenessDetails?.missing_dimensions?.length > 0 && (
             <button
               onClick={() => openAiEditModal(`Configure my missing profile dimensions: ${completenessDetails.missing_dimensions.join(', ')}`)}
-              className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold border border-blue-200 flex items-center gap-1.5 transition self-start sm:self-auto"
+              className="px-4 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-bold border border-blue-200 flex items-center gap-2 transition self-start sm:self-auto"
             >
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+              <Sparkles className="w-4 h-4 text-blue-600" />
               <span>Complete Profile with AI</span>
             </button>
           )}
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
           <div
             className="bg-blue-600 h-full transition-all duration-300"
             style={{ width: `${completenessDetails?.completion_percentage || completionData.completion_percentage}%` }}
@@ -525,7 +525,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
         {/* Dimension Chips Breakdown (Spec §15) */}
         {completenessDetails?.dimensions && (
           <div className="pt-2 border-t border-slate-100">
-            <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-2 font-semibold">
+            <span className="text-xs font-mono text-slate-600 uppercase tracking-wider block mb-2.5 font-bold">
               Security Dimensions Status
             </span>
             <div className="flex flex-wrap gap-2">
@@ -534,21 +534,21 @@ export default function ProfileSettingsPage({ onNavigate }) {
                 return (
                   <div
                     key={dim.dimension}
-                    className={`text-xs px-2.5 py-1 rounded-lg border flex items-center gap-1.5 transition ${
+                    className={`text-sm px-3 py-1.5 rounded-lg border flex items-center gap-2 transition ${
                       isDone
-                        ? 'bg-emerald-50/70 border-emerald-200 text-emerald-800'
-                        : 'bg-slate-50 border-slate-200 text-slate-500'
+                        ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900 font-medium'
+                        : 'bg-slate-50 border-slate-200 text-slate-600'
                     }`}
                     title={dim.description}
                   >
                     {isDone ? (
-                      <Check className="w-3 h-3 text-emerald-600" />
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
                     ) : (
-                      <span className="w-2 h-2 rounded-full bg-slate-300" />
+                      <span className="w-2 h-2 rounded-full bg-slate-400" />
                     )}
-                    <span className="font-medium">{dim.dimension}</span>
+                    <span className="font-semibold">{dim.dimension}</span>
                     {!isDone && (
-                      <span className="text-[10px] text-amber-600 font-mono font-semibold">(Missing)</span>
+                      <span className="text-xs text-amber-700 font-mono font-bold">(Missing)</span>
                     )}
                   </div>
                 );
@@ -559,7 +559,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
 
         {/* Missing Dimension Recommendation */}
         {completenessDetails?.recommendation && (
-          <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800 flex items-center justify-between gap-3">
+          <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-sm text-amber-900 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
               <span>{completenessDetails.recommendation}</span>
@@ -581,35 +581,35 @@ export default function ProfileSettingsPage({ onNavigate }) {
         {/* Card 1: Personal & Professional Identity */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
               <Briefcase className="w-4 h-4 text-blue-600" />
               <span>Personal & Professional Identity</span>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">Spec §16</span>
+            <span className="text-xs font-mono font-semibold text-slate-500">Spec §16</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {/* Preferred Name */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Preferred Name</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Preferred Name</span>
                 {editingField === 'preferred_name' ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     <input
                       type="text"
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                      className="px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900"
                     />
-                    <button onClick={() => saveField('preferred_name')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                    <button onClick={() => saveField('preferred_name')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded">
                       <Check className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingField(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
+                    <button onClick={() => setEditingField(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-bold text-slate-900">
+                  <span className="text-sm font-bold text-slate-900">
                     {renderValueOrFallback(profile?.preferred_name, 'Not provided')}
                   </span>
                 )}
@@ -617,38 +617,38 @@ export default function ProfileSettingsPage({ onNavigate }) {
               {editingField !== 'preferred_name' && (
                 <button
                   onClick={() => startEditing('preferred_name', profile?.preferred_name)}
-                  className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
               )}
             </div>
 
             {/* Role */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Primary Role</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Primary Role</span>
                 {editingField === 'role' ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     <select
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900 font-medium"
+                      className="px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 font-medium"
                     >
                       {['Student', 'Software Developer', 'Developer', 'Employee', 'Business Owner', 'IT Professional', 'Teacher', 'Security Analyst'].map((r) => (
                         <option key={r} value={r}>{r}</option>
                       ))}
                     </select>
-                    <button onClick={() => saveField('role')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                    <button onClick={() => saveField('role')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded">
                       <Check className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingField(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
+                    <button onClick={() => setEditingField(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                  <span className="text-sm font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
                     {renderValueOrFallback(profile?.role, 'Not provided')}
                   </span>
                 )}
@@ -656,36 +656,36 @@ export default function ProfileSettingsPage({ onNavigate }) {
               {editingField !== 'role' && (
                 <button
                   onClick={() => startEditing('role', profile?.role)}
-                  className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
               )}
             </div>
 
             {/* Industry Domain */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Industry Domain</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Industry Domain</span>
                 {editingField === 'industry' ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     <input
                       type="text"
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
                       placeholder="e.g. Higher Education, Cybersecurity, Finance"
-                      className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                      className="px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900"
                     />
-                    <button onClick={() => saveField('industry')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                    <button onClick={() => saveField('industry')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded">
                       <Check className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingField(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
+                    <button onClick={() => setEditingField(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-medium text-slate-800">
+                  <span className="text-sm font-semibold text-slate-900">
                     {renderValueOrFallback(profile?.industry, 'Not configured')}
                   </span>
                 )}
@@ -693,36 +693,36 @@ export default function ProfileSettingsPage({ onNavigate }) {
               {editingField !== 'industry' && (
                 <button
                   onClick={() => startEditing('industry', profile?.industry)}
-                  className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
               )}
             </div>
 
             {/* Organization Type */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Organization Type</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Organization Type</span>
                 {editingField === 'organization_type' ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     <input
                       type="text"
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
                       placeholder="e.g. University, Tech Startup, Enterprise"
-                      className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                      className="px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900"
                     />
-                    <button onClick={() => saveField('organization_type')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                    <button onClick={() => saveField('organization_type')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded">
                       <Check className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingField(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
+                    <button onClick={() => setEditingField(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-medium text-slate-800">
+                  <span className="text-sm font-semibold text-slate-900">
                     {renderValueOrFallback(profile?.organization_type, 'Not configured')}
                   </span>
                 )}
@@ -730,9 +730,9 @@ export default function ProfileSettingsPage({ onNavigate }) {
               {editingField !== 'organization_type' && (
                 <button
                   onClick={() => startEditing('organization_type', profile?.organization_type)}
-                  className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
               )}
@@ -743,24 +743,24 @@ export default function ProfileSettingsPage({ onNavigate }) {
         {/* Card 2: Digital Behavior & Account Ecosystems */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
               <Globe className="w-4 h-4 text-cyan-600" />
               <span>Digital Behavior & Account Ecosystems</span>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">Spec §16</span>
+            <span className="text-xs font-mono font-semibold text-slate-500">Spec §16</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {/* Common Services */}
-            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Monitored Services & Platforms</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Monitored Services & Platforms</span>
                 {editingField !== 'common_services' && (
                   <button
                     onClick={() => startEditing('common_services', profile?.common_services)}
-                    className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                    className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                   >
-                    <Edit3 className="w-3 h-3" />
+                    <Edit3 className="w-3.5 h-3.5" />
                     <span>Edit</span>
                   </button>
                 )}
@@ -773,22 +773,22 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
                     placeholder="Separate with commas, e.g. Google, GitHub, AWS, Microsoft"
-                    className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                    className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-900"
                   />
                   <div className="flex gap-2">
-                    <button onClick={() => saveField('common_services')} className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-md">
+                    <button onClick={() => saveField('common_services')} className="px-3.5 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md">
                       Save
                     </button>
-                    <button onClick={() => setEditingField(null)} className="px-3 py-1 bg-slate-200 text-slate-700 text-xs rounded-md">
+                    <button onClick={() => setEditingField(null)} className="px-3.5 py-1.5 bg-slate-200 text-slate-700 text-xs rounded-md">
                       Cancel
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {profile?.common_services && profile.common_services.length > 0 ? (
                     profile.common_services.map((s, i) => (
-                      <span key={i} className="text-[11px] font-medium bg-cyan-50 text-cyan-800 px-2.5 py-0.5 rounded-full border border-cyan-200">
+                      <span key={i} className="text-xs font-semibold bg-cyan-50 text-cyan-900 px-3 py-1 rounded-full border border-cyan-200">
                         {s}
                       </span>
                     ))
@@ -800,15 +800,15 @@ export default function ProfileSettingsPage({ onNavigate }) {
             </div>
 
             {/* Online Activities */}
-            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Primary Digital Activities</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Primary Digital Activities</span>
                 {editingField !== 'online_activities' && (
                   <button
                     onClick={() => startEditing('online_activities', profile?.online_activities)}
-                    className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                    className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                   >
-                    <Edit3 className="w-3 h-3" />
+                    <Edit3 className="w-3.5 h-3.5" />
                     <span>Edit</span>
                   </button>
                 )}
@@ -821,22 +821,22 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
                     placeholder="Separate with commas, e.g. Education, Online Banking, Social Media"
-                    className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                    className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-900"
                   />
                   <div className="flex gap-2">
-                    <button onClick={() => saveField('online_activities')} className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-md">
+                    <button onClick={() => saveField('online_activities')} className="px-3.5 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md">
                       Save
                     </button>
-                    <button onClick={() => setEditingField(null)} className="px-3 py-1 bg-slate-200 text-slate-700 text-xs rounded-md">
+                    <button onClick={() => setEditingField(null)} className="px-3.5 py-1.5 bg-slate-200 text-slate-700 text-xs rounded-md">
                       Cancel
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {profile?.online_activities && profile.online_activities.length > 0 ? (
                     profile.online_activities.map((a, i) => (
-                      <span key={i} className="text-[11px] font-medium bg-blue-50 text-blue-800 px-2.5 py-0.5 rounded-full border border-blue-200">
+                      <span key={i} className="text-xs font-semibold bg-blue-50 text-blue-900 px-3 py-1 rounded-full border border-blue-200">
                         {a}
                       </span>
                     ))
@@ -848,15 +848,15 @@ export default function ProfileSettingsPage({ onNavigate }) {
             </div>
 
             {/* Common Communications */}
-            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Common Communication Channels</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Common Communication Channels</span>
                 {editingField !== 'common_communication_types' && (
                   <button
                     onClick={() => startEditing('common_communication_types', profile?.common_communication_types)}
-                    className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                    className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                   >
-                    <Edit3 className="w-3 h-3" />
+                    <Edit3 className="w-3.5 h-3.5" />
                     <span>Edit</span>
                   </button>
                 )}
@@ -869,22 +869,22 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
                     placeholder="Separate with commas, e.g. University Email, LinkedIn Messages"
-                    className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                    className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-900"
                   />
                   <div className="flex gap-2">
-                    <button onClick={() => saveField('common_communication_types')} className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-md">
+                    <button onClick={() => saveField('common_communication_types')} className="px-3.5 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-md">
                       Save
                     </button>
-                    <button onClick={() => setEditingField(null)} className="px-3 py-1 bg-slate-200 text-slate-700 text-xs rounded-md">
+                    <button onClick={() => setEditingField(null)} className="px-3.5 py-1.5 bg-slate-200 text-slate-700 text-xs rounded-md">
                       Cancel
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {profile?.common_communication_types && profile.common_communication_types.length > 0 ? (
                     profile.common_communication_types.map((c, i) => (
-                      <span key={i} className="text-[11px] font-medium bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200">
+                      <span key={i} className="text-xs font-semibold bg-slate-100 text-slate-900 px-3 py-1 rounded-full border border-slate-200">
                         {c}
                       </span>
                     ))
@@ -896,7 +896,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
             </div>
 
             {/* Activity Toggles: Banking, Shopping, Work Email */}
-            <div className="grid grid-cols-3 gap-2 pt-1">
+            <div className="grid grid-cols-3 gap-2.5 pt-1">
               {[
                 { field: 'banking_usage', label: 'Online Banking', value: profile?.banking_usage },
                 { field: 'online_shopping', label: 'Online Shopping', value: profile?.online_shopping },
@@ -917,14 +917,14 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     if (hist) setHistoryEntries(hist);
                     showToast(`Toggled ${item.label} to ${newVal ? 'Active' : 'Inactive'}`);
                   }}
-                  className={`p-2.5 rounded-xl border text-center transition ${
+                  className={`p-3 rounded-xl border text-center transition ${
                     item.value
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                      : 'bg-slate-50 border-slate-200 text-slate-500'
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      : 'bg-slate-50 border-slate-200 text-slate-600'
                   }`}
                 >
-                  <div className="text-[10px] font-mono uppercase">{item.label}</div>
-                  <div className="text-xs font-bold mt-0.5">{item.value ? '✓ Active' : '✕ Inactive'}</div>
+                  <div className="text-xs font-mono uppercase font-bold">{item.label}</div>
+                  <div className="text-xs font-bold mt-1">{item.value ? '✓ Active' : '✕ Inactive'}</div>
                 </button>
               ))}
             </div>
@@ -934,38 +934,38 @@ export default function ProfileSettingsPage({ onNavigate }) {
         {/* Card 3: Security Calibrations & Explanations */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
               <Shield className="w-4 h-4 text-emerald-600" />
               <span>Security Calibrations & Explanations</span>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">Spec §16</span>
+            <span className="text-xs font-mono font-semibold text-slate-500">Spec §16</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {/* Security Awareness Tier */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Security Awareness Tier</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Security Awareness Tier</span>
                 {editingField === 'security_awareness' ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     <select
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                      className="px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 font-medium"
                     >
                       {['Beginner', 'Intermediate', 'Advanced', 'Security Professional'].map((t) => (
                         <option key={t} value={t}>{t}</option>
                       ))}
                     </select>
-                    <button onClick={() => saveField('security_awareness')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                    <button onClick={() => saveField('security_awareness')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded">
                       <Check className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingField(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
+                    <button onClick={() => setEditingField(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="text-sm font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
                     {renderValueOrFallback(profile?.security_awareness, 'Beginner')}
                   </span>
                 )}
@@ -973,38 +973,38 @@ export default function ProfileSettingsPage({ onNavigate }) {
               {editingField !== 'security_awareness' && (
                 <button
                   onClick={() => startEditing('security_awareness', profile?.security_awareness)}
-                  className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
               )}
             </div>
 
             {/* Technical Experience */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Technical Experience</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Technical Experience</span>
                 {editingField === 'technical_experience' ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     <select
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                      className="px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 font-medium"
                     >
                       {['Beginner', 'Intermediate', 'Advanced', 'Expert'].map((t) => (
                         <option key={t} value={t}>{t}</option>
                       ))}
                     </select>
-                    <button onClick={() => saveField('technical_experience')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                    <button onClick={() => saveField('technical_experience')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded">
                       <Check className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingField(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
+                    <button onClick={() => setEditingField(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-semibold text-slate-800">
+                  <span className="text-sm font-bold text-slate-900">
                     {renderValueOrFallback(profile?.technical_experience, 'Intermediate')}
                   </span>
                 )}
@@ -1012,38 +1012,38 @@ export default function ProfileSettingsPage({ onNavigate }) {
               {editingField !== 'technical_experience' && (
                 <button
                   onClick={() => startEditing('technical_experience', profile?.technical_experience)}
-                  className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
               )}
             </div>
 
             {/* Threat Explanation Style */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/70 border border-slate-100">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Threat Explanation Complexity</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Threat Explanation Complexity</span>
                 {editingField === 'preferred_explanation_style' ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1.5">
                     <select
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
-                      className="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg text-slate-900"
+                      className="px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 font-medium"
                     >
                       <option value="Simple">Simple (Concise, Plain-English, Actionable)</option>
                       <option value="Detailed">Detailed (Step-by-step breakdown & evidence)</option>
                       <option value="Technical">Technical (Forensic IoCs, headers, SHAP deltas)</option>
                     </select>
-                    <button onClick={() => saveField('preferred_explanation_style')} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                    <button onClick={() => saveField('preferred_explanation_style')} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded">
                       <Check className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingField(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded">
+                    <button onClick={() => setEditingField(null)} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <span className="text-xs font-semibold text-slate-800">
+                  <span className="text-sm font-bold text-slate-900">
                     {profile?.preferred_explanation_style === 'Technical'
                       ? 'Technical (Forensic IoCs & Deltas)'
                       : (profile?.preferred_explanation_style === 'Detailed'
@@ -1055,9 +1055,9 @@ export default function ProfileSettingsPage({ onNavigate }) {
               {editingField !== 'preferred_explanation_style' && (
                 <button
                   onClick={() => startEditing('preferred_explanation_style', profile?.preferred_explanation_style)}
-                  className="px-2.5 py-1 text-[11px] text-blue-600 hover:bg-blue-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  className="px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
               )}
@@ -1068,22 +1068,22 @@ export default function ProfileSettingsPage({ onNavigate }) {
         {/* Card 4: Threat Exposure & Context (Spec §16 & §17) */}
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
               <AlertTriangle className="w-4 h-4 text-amber-600" />
               <span>Threat Exposure & Contextual Memory</span>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">User Profile RAG</span>
+            <span className="text-xs font-mono font-semibold text-slate-500">User Profile RAG</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {/* Calibrated Attack Exposure Themes */}
-            <div className="p-3 rounded-xl bg-amber-50/50 border border-amber-200 space-y-1.5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-900 font-semibold block">
+            <div className="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 space-y-2">
+              <span className="text-xs font-mono uppercase tracking-wider text-amber-950 font-bold block">
                 Targeted Attack Vectors Calibrated for {profile?.role || 'Your Role'}
               </span>
-              <div className="flex flex-wrap gap-1.5 pt-0.5">
+              <div className="flex flex-wrap gap-2 pt-0.5">
                 {getRoleThreatThemes(profile?.role).map((theme, i) => (
-                  <span key={i} className="text-[11px] font-medium bg-white text-amber-900 px-2 py-0.5 rounded-md border border-amber-200/80 shadow-2xs">
+                  <span key={i} className="text-xs font-semibold bg-white text-amber-950 px-2.5 py-1 rounded-md border border-amber-200/80 shadow-2xs">
                     • {theme}
                   </span>
                 ))}
@@ -1091,14 +1091,14 @@ export default function ProfileSettingsPage({ onNavigate }) {
             </div>
 
             {/* Custom Notes / Extensible Context */}
-            <div className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
+            <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Custom Security Context Notes</span>
+                <span className="text-xs font-mono text-slate-600 uppercase font-bold block">Custom Security Context Notes</span>
                 <button
                   onClick={() => openAiEditModal('Add contextual security note: ')}
-                  className="px-2.5 py-1 text-[11px] text-purple-600 hover:bg-purple-50 rounded-lg font-semibold flex items-center gap-1 transition"
+                  className="px-3 py-1.5 text-xs text-purple-700 hover:bg-purple-50 rounded-lg font-bold flex items-center gap-1.5 transition"
                 >
-                  <Sparkles className="w-3 h-3" />
+                  <Sparkles className="w-3.5 h-3.5" />
                   <span>Add with AI</span>
                 </button>
               </div>
@@ -1106,12 +1106,12 @@ export default function ProfileSettingsPage({ onNavigate }) {
               {profile?.custom_information && Object.keys(profile.custom_information).length > 0 ? (
                 <div className="space-y-2 pt-1">
                   {Object.entries(profile.custom_information).map(([k, v]) => (
-                    <div key={k} className="p-2.5 rounded-xl bg-purple-50/60 border border-purple-200 flex items-center justify-between text-xs">
+                    <div key={k} className="p-3 rounded-xl bg-purple-50/60 border border-purple-200 flex items-center justify-between text-sm">
                       <div>
-                        <span className="font-mono text-[10px] text-purple-700 uppercase block font-semibold">
+                        <span className="font-mono text-xs text-purple-900 uppercase block font-bold">
                           {k.replace('_', ' ')}
                         </span>
-                        <span className="text-slate-800">{String(v)}</span>
+                        <span className="text-slate-900 font-medium">{String(v)}</span>
                       </div>
                       <button
                         onClick={async () => {
@@ -1144,19 +1144,19 @@ export default function ProfileSettingsPage({ onNavigate }) {
       {/* ========================================================================= */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+          <div className="flex items-center gap-2 text-slate-900 font-bold text-base">
             <History className="w-4 h-4 text-blue-600" />
             <span>Profile Change History</span>
           </div>
-          <span className="text-[11px] font-mono text-slate-400">
+          <span className="text-xs font-mono font-semibold text-slate-500">
             {historyEntries.length} recorded event(s)
           </span>
         </div>
 
         {historyEntries.length === 0 ? (
-          <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-500 font-mono space-y-1">
+          <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center text-sm text-slate-600 font-mono space-y-1">
             <p>No profile changes recorded yet.</p>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-xs text-slate-500">
               Meaningful changes made through conversational AI or profile edits will be tracked here.
             </p>
           </div>
@@ -1170,25 +1170,25 @@ export default function ProfileSettingsPage({ onNavigate }) {
               return (
                 <div
                   key={h.history_id}
-                  className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 flex items-center justify-between gap-4 text-xs"
+                  className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200 flex items-center justify-between gap-4 text-sm"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
-                      <Clock className="w-3.5 h-3.5" />
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
+                      <Clock className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="font-bold text-slate-900 text-xs sm:text-sm">
+                      <div className="font-bold text-slate-900 text-sm sm:text-base">
                         {h.description}
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono mt-0.5 flex items-center gap-2">
+                      <div className="text-xs text-slate-600 font-mono mt-0.5 flex items-center gap-2">
                         <span>{formattedDate} at {formattedTime}</span>
                         <span>•</span>
-                        <span className="capitalize text-blue-600 font-semibold">{h.source.replace('_', ' ')}</span>
+                        <span className="capitalize text-blue-700 font-bold">{h.source.replace('_', ' ')}</span>
                       </div>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600 shrink-0 font-medium">
+                  <span className="text-xs font-mono px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 shrink-0 font-bold">
                     {h.change_type.replace('_', ' ').toUpperCase()}
                   </span>
                 </div>
@@ -1361,7 +1361,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-[#14233D] border border-cyan-500/30 text-cyan-300 flex items-center gap-1.5">
+            <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#14233D] border border-cyan-500/30 text-cyan-300 flex items-center gap-1.5 font-semibold">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
               Active Primary:{' '}
               <strong className="text-white">
@@ -1373,7 +1373,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
 
         {/* Provider Tabs */}
         <div className="space-y-2">
-          <label className="text-xs font-mono uppercase tracking-wider text-slate-400 block">
+          <label className="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold block">
             Select AI Provider
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
@@ -1400,7 +1400,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                   <span className="text-xs font-bold font-mono tracking-tight leading-snug">
                     {p.name.split(' ')[0]}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono mt-0.5">
+                  <span className="text-xs text-slate-400 font-mono mt-0.5">
                     {p.id === 'ollama' ? 'Local' : (hasKeyInDb ? 'Configured' : 'Available')}
                   </span>
                 </button>
@@ -1438,7 +1438,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-mono uppercase tracking-wider text-slate-400 block">
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
               Or Custom Model Identifier
             </label>
             <input
@@ -1446,7 +1446,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
               value={customModel}
               onChange={(e) => setCustomModel(e.target.value)}
               placeholder={`e.g. ${currentProvider.default_model} or custom tag`}
-              className="w-full px-3.5 py-2 text-xs bg-[#14233D] border border-slate-700 rounded-lg text-white font-mono placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#14233D] border border-slate-700 rounded-lg text-white font-mono placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
         </div>
@@ -1455,12 +1455,12 @@ export default function ProfileSettingsPage({ onNavigate }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Key className="w-3.5 h-3.5 text-cyan-400" />
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <Key className="w-4 h-4 text-cyan-400" />
                 <span>{currentProvider.name} API Key</span>
               </label>
               {!currentProvider.requires_key && (
-                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
+                <span className="text-xs font-medium text-emerald-400 bg-emerald-950/60 px-2.5 py-0.5 rounded-md border border-emerald-800/40">
                   Optional (Local Engine)
                 </span>
               )}
@@ -1475,7 +1475,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     ? `Paste ${currentProvider.name} API key here...`
                     : 'Not required for local Ollama'
                 }
-                className="w-full pl-3.5 pr-10 py-2.5 text-xs bg-[#14233D] border border-slate-700 rounded-lg text-white font-mono placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full pl-3.5 pr-10 py-2.5 text-sm bg-[#14233D] border border-slate-700 rounded-lg text-white font-mono placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
               <button
                 type="button"
@@ -1488,8 +1488,8 @@ export default function ProfileSettingsPage({ onNavigate }) {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Server className="w-3.5 h-3.5 text-cyan-400" />
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <Server className="w-4 h-4 text-cyan-400" />
               <span>Base Endpoint URL (Optional)</span>
             </label>
             <input
@@ -1497,7 +1497,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
               placeholder={currentProvider.base_url || 'https://api.openai.com/v1'}
-              className="w-full px-3.5 py-2.5 text-xs bg-[#14233D] border border-slate-700 rounded-lg text-white font-mono placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#14233D] border border-slate-700 rounded-lg text-white font-mono placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
         </div>
@@ -1508,16 +1508,16 @@ export default function ProfileSettingsPage({ onNavigate }) {
             type="button"
             onClick={handleTestAI}
             disabled={testing}
-            className="px-4 py-2 rounded-md bg-navy-900 hover:bg-slate-800 text-white text-xs font-mono font-medium flex items-center gap-2 shadow-xs transition disabled:opacity-50"
+            className="px-4 py-2.5 rounded-lg bg-navy-900 hover:bg-slate-800 text-white text-sm font-semibold flex items-center gap-2 shadow-xs transition disabled:opacity-50"
           >
             {testing ? (
               <>
-                <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 <span>Testing Provider...</span>
               </>
             ) : (
               <>
-                <Zap className="w-3.5 h-3.5 text-blue-400" />
+                <Zap className="w-4 h-4 text-blue-400" />
                 <span>Test Connection</span>
               </>
             )}
@@ -1527,14 +1527,14 @@ export default function ProfileSettingsPage({ onNavigate }) {
             type="button"
             onClick={handleSaveCredential}
             disabled={savingCred}
-            className="px-5 py-2.5 rounded-xl bg-[#182744] hover:bg-[#20345b] text-cyan-300 border border-cyan-500/40 text-xs font-mono font-semibold flex items-center gap-2 transition disabled:opacity-50"
+            className="px-5 py-2.5 rounded-lg bg-[#182744] hover:bg-[#20345b] text-cyan-300 border border-cyan-500/40 text-sm font-semibold flex items-center gap-2 transition disabled:opacity-50"
           >
             <Check className="w-4 h-4 text-cyan-400" />
             <span>{savingCred ? 'Saving to DB...' : 'Save Credential in DB'}</span>
           </button>
 
           {credSuccessMsg && (
-            <span className="text-xs font-mono text-emerald-400 flex items-center gap-1.5 animate-fade-in">
+            <span className="text-sm font-medium text-emerald-400 flex items-center gap-1.5 animate-fade-in">
               <CheckCircle2 className="w-4 h-4" />
               {credSuccessMsg}
             </span>
@@ -1544,7 +1544,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
         {/* Live Test AI Diagnostic Feedback Panel */}
         {testResult && (
           <div
-            className={`p-4 rounded-xl border text-xs font-mono transition-all ${
+            className={`p-4 rounded-xl border text-sm transition-all ${
               testResult.success
                 ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
                 : 'bg-rose-950/40 border-rose-500/40 text-rose-200'
@@ -1557,29 +1557,29 @@ export default function ProfileSettingsPage({ onNavigate }) {
                 ) : (
                   <AlertCircle className="w-4 h-4 text-rose-400" />
                 )}
-                <span className="font-bold">
+                <span className="font-bold text-sm">
                   {testResult.success
                     ? `Connection Verified: ${testResult.provider.toUpperCase()} (${testResult.model})`
                     : 'Connection Failed'}
                 </span>
               </div>
               {testResult.latency_ms !== null && testResult.latency_ms !== undefined && (
-                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/40 border border-emerald-500/30 text-[11px] text-emerald-300">
-                  <Clock className="w-3 h-3 text-emerald-400" />
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 border border-emerald-500/30 text-xs text-emerald-300 font-semibold">
+                  <Clock className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Latency: <strong>{testResult.latency_ms}ms</strong></span>
                 </div>
               )}
             </div>
 
             {testResult.response && (
-              <div className="mt-2 p-3 bg-black/30 rounded-lg border border-slate-800/80 text-[11px] text-slate-300">
-                <span className="text-slate-500 block mb-1">Model Response Probe:</span>
+              <div className="mt-2 p-3 bg-black/30 rounded-lg border border-slate-800/80 text-xs text-slate-200 leading-relaxed font-mono">
+                <span className="text-slate-400 font-semibold block mb-1">Model Response Probe:</span>
                 "{testResult.response}"
               </div>
             )}
 
             {testResult.error && (
-              <div className="mt-2 p-3 bg-rose-950/50 rounded-lg border border-rose-800/50 text-[11px] text-rose-300">
+              <div className="mt-2 p-3 bg-rose-950/50 rounded-lg border border-rose-800/50 text-xs text-rose-200 leading-relaxed font-mono">
                 <span className="text-rose-400 font-bold block mb-1">Error Diagnostics:</span>
                 {testResult.error}
               </div>
@@ -1590,17 +1590,17 @@ export default function ProfileSettingsPage({ onNavigate }) {
         {/* Database Stored Credentials Inventory */}
         <div className="pt-4 border-t border-slate-800 space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Layers className="w-3.5 h-3.5 text-cyan-400" />
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-cyan-400" />
               <span>Saved Database Credentials ({dbCreds.length})</span>
             </h4>
-            <span className="text-[11px] font-mono text-slate-500">
-              Auto-persisted to SQLite <code className="text-cyan-400">phishguard.db</code>
+            <span className="text-xs text-slate-400">
+              Auto-persisted to SQLite <code className="text-cyan-400 font-mono">phishguard.db</code>
             </span>
           </div>
 
           {dbCreds.length === 0 ? (
-            <div className="p-4 rounded-xl bg-[#121B2F] border border-slate-800 text-center text-xs text-slate-500 font-mono">
+            <div className="p-4 rounded-xl bg-[#121B2F] border border-slate-800 text-center text-sm text-slate-400">
               No API keys stored in database yet. Currently running on built-in offline ML pipeline & context generator.
             </div>
           ) : (
@@ -1615,18 +1615,18 @@ export default function ProfileSettingsPage({ onNavigate }) {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className={`w-2 h-2 rounded-full ${c.is_active ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                    <span className={`w-2.5 h-2.5 rounded-full ${c.is_active ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
                     <div>
-                      <div className="text-xs font-bold font-mono text-white flex items-center gap-2">
+                      <div className="text-sm font-bold text-white flex items-center gap-2 font-mono">
                         <span>{c.provider.toUpperCase()}</span>
-                        <span className="text-[11px] text-cyan-400 font-normal">({c.model_name})</span>
+                        <span className="text-xs text-cyan-400 font-medium">({c.model_name})</span>
                         {c.is_active && (
-                          <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                          <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
                             ACTIVE PRIMARY
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] font-mono text-slate-500 mt-0.5">
+                      <div className="text-xs font-mono text-slate-400 mt-1">
                         Key: {c.masked_key} {c.base_url ? `• Endpoint: ${c.base_url}` : ''}
                       </div>
                     </div>
@@ -1637,7 +1637,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                       <button
                         type="button"
                         onClick={() => handleActivateCred(c.credential_id)}
-                        className="px-3 py-1 rounded-lg bg-cyan-900/40 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-700/50 text-[11px] font-mono transition"
+                        className="px-3 py-1.5 rounded-lg bg-cyan-900/40 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-700/50 text-xs font-semibold transition"
                       >
                         Set Active
                       </button>
@@ -1645,7 +1645,7 @@ export default function ProfileSettingsPage({ onNavigate }) {
                     <button
                       type="button"
                       onClick={() => handleDeleteCred(c.credential_id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 transition"
+                      className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition"
                       title="Delete credential"
                     >
                       <Trash2 className="w-4 h-4" />

@@ -91,15 +91,15 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
               Welcome back
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
               Sign in to manage your security workspaces, threat analyses, and defense profile.
             </p>
           </div>
 
           {/* Session Expiry or Guard Notice */}
           {redirectMessage && (
-            <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-blue-600 shrink-0 mt-0.5">
+            <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-sm text-blue-900 flex items-start gap-2.5 font-medium">
+              <span className="material-symbols-outlined text-[20px] text-blue-600 shrink-0 mt-0.5">
                 lock
               </span>
               <span className="leading-relaxed">{redirectMessage}</span>
@@ -110,28 +110,28 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
           {formError && (
             <div
               role="alert"
-              className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5"
+              className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 flex items-start gap-2.5 font-medium"
             >
-              <span className="material-symbols-outlined text-[18px] text-red-600 shrink-0 mt-0.5">
+              <span className="material-symbols-outlined text-[20px] text-red-600 shrink-0 mt-0.5">
                 error
               </span>
-              <span className="leading-relaxed font-medium">{formError}</span>
+              <span className="leading-relaxed font-semibold">{formError}</span>
             </div>
           )}
 
           {/* Sign In Form */}
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {/* Email Field */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label
                 htmlFor="login-email"
-                className="block text-xs font-semibold uppercase font-mono text-slate-700"
+                className="block text-xs font-bold uppercase tracking-wider text-slate-700"
               >
                 Email address
               </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">mail</span>
+                  <span className="material-symbols-outlined text-[20px]">mail</span>
                 </span>
                 <input
                   id="login-email"
@@ -146,7 +146,7 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
                   aria-required="true"
                   aria-invalid={!!emailError}
                   aria-describedby={emailError ? 'login-email-error' : undefined}
-                  className={`block w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white border rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                  className={`block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
                     emailError
                       ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                       : 'border-slate-300 focus:ring-blue-600 focus:border-blue-600'
@@ -154,33 +154,33 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
                 />
               </div>
               {emailError && (
-                <p id="login-email-error" className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
-                  <span className="material-symbols-outlined text-[14px]">error</span>
+                <p id="login-email-error" className="text-xs text-red-600 font-semibold flex items-center gap-1 pt-1">
+                  <span className="material-symbols-outlined text-[16px]">error</span>
                   <span>{emailError}</span>
                 </p>
               )}
             </div>
 
             {/* Password Field */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="login-password"
-                  className="block text-xs font-semibold uppercase font-mono text-slate-700"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-700"
                 >
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => onNavigate('forgot-password')}
-                  className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
                 >
                   Forgot password?
                 </button>
               </div>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                  <span className="material-symbols-outlined text-[18px]">lock</span>
+                  <span className="material-symbols-outlined text-[20px]">lock</span>
                 </span>
                 <input
                   id="login-password"
@@ -192,7 +192,7 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
                   placeholder="••••••••••••"
                   required
                   aria-required="true"
-                  className="block w-full pl-9 pr-10 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
+                  className="block w-full pl-10 pr-11 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
                 />
                 <button
                   type="button"
@@ -200,7 +200,7 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
+                  <span className="material-symbols-outlined text-[20px]">
                     {showPassword ? 'visibility_off' : 'visibility'}
                   </span>
                 </button>
@@ -208,7 +208,7 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
             </div>
 
             {/* Remember Me Checkbox */}
-            <div className="flex items-center pt-0.5">
+            <div className="flex items-center pt-1">
               <input
                 id="remember-me"
                 name="remember_me"
@@ -219,7 +219,7 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
               />
               <label
                 htmlFor="remember-me"
-                className="ml-2 block text-xs text-slate-600 select-none cursor-pointer"
+                className="ml-2.5 block text-xs sm:text-sm text-slate-700 select-none cursor-pointer font-medium"
               >
                 Keep me signed in on this device (30 days)
               </label>
@@ -230,7 +230,7 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -238,7 +238,7 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
                     <span>Signing in...</span>
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1.5">
+                  <span className="flex items-center gap-2">
                     <span>Sign In</span>
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </span>
@@ -249,12 +249,12 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
 
           {/* Switch to Sign Up */}
           <div className="text-center pt-4 border-t border-slate-100">
-            <p className="text-xs text-slate-500">
+            <p className="text-sm text-slate-600">
               Don't have an account?{' '}
               <button
                 type="button"
                 onClick={() => onNavigate('signup')}
-                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                className="font-bold text-blue-600 hover:text-blue-700 transition-colors ml-1"
               >
                 Create an account
               </button>
@@ -275,11 +275,11 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
               <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center text-white shadow-xs">
                 <span className="material-symbols-outlined text-[20px]">security</span>
               </div>
-              <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1">
+              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
                 PhishGuard <span className="text-blue-400">AI</span>
               </span>
             </div>
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-navy-800 text-slate-300 border border-slate-700">
+            <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-mono font-semibold bg-navy-800 text-slate-200 border border-slate-700">
               MDP Capstone
             </span>
           </div>
@@ -289,22 +289,22 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
               Personalized Phishing Threat Triage
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-lg">
+            <p className="text-sm text-slate-300 leading-relaxed max-w-lg">
               Sign in to run multi-agent threat analyses, review Bayesian risk assessments, and configure personalized defense profiles.
             </p>
           </div>
 
           {/* Real Architecture Preview Card */}
-          <div className="relative rounded-lg overflow-hidden border border-slate-800 bg-navy-950 shadow-md">
+          <div className="relative rounded-xl overflow-hidden border border-slate-800 bg-navy-950 shadow-md">
             <img
               src={aiVisualization}
               alt="PhishGuard AI multi-agent detection pipeline preview"
               className="w-full h-44 sm:h-52 object-cover object-center opacity-85"
             />
-            <div className="p-3 bg-navy-800/90 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-300">
-              <span className="text-slate-400">DETECTION ENGINES:</span>
-              <span className="text-emerald-400 flex items-center gap-1 font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="p-3.5 bg-navy-800/90 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-200">
+              <span className="text-slate-400 font-semibold">DETECTION ENGINES:</span>
+              <span className="text-emerald-400 flex items-center gap-1.5 font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 4 Active Agents
               </span>
             </div>
@@ -312,19 +312,19 @@ export default function LoginPage({ onNavigate, redirectMessage, targetScreen })
 
           {/* Detection Highlights */}
           <div className="grid grid-cols-2 gap-3 pt-1 font-mono text-xs">
-            <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60">
-              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Detection Agents</span>
-              <span className="text-white font-medium">Text, URL, Sender</span>
+            <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/60">
+              <span className="text-slate-400 block text-xs uppercase font-semibold">Detection Agents</span>
+              <span className="text-white font-medium text-sm">Text, URL, Sender</span>
             </div>
-            <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60">
-              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Trained Models</span>
-              <span className="text-white font-medium">Random Forest + XGBoost</span>
+            <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/60">
+              <span className="text-slate-400 block text-xs uppercase font-semibold">Trained Models</span>
+              <span className="text-white font-medium text-sm">Random Forest + XGBoost</span>
             </div>
           </div>
         </div>
 
         {/* Footer Security Note */}
-        <div className="pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono">
+        <div className="pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono">
           <span>Applied AI Research</span>
           <span>Salted PBKDF2 Encryption</span>
         </div>

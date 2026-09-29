@@ -109,11 +109,11 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
       </PageHeader>
 
       {/* Preset Threat Samples */}
-      <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2">
-        <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold block">
+      <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-2.5">
+        <span className="text-xs font-mono uppercase tracking-wider text-slate-700 font-bold block">
           Load Pre-Configured Test Samples:
         </span>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2.5">
           {samples.map((s, i) => (
             <button
               key={i}
@@ -122,7 +122,7 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
                 setRawInput(s.text);
                 setError('');
               }}
-              className="px-3 py-1.5 rounded-md bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium transition"
+              className="px-3.5 py-2 rounded-md bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-sm font-medium transition"
             >
               {s.label}
             </button>
@@ -132,13 +132,13 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
 
       {/* Unified Input Form */}
       <form onSubmit={handleRunAnalysis} className="space-y-4">
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-3">
+        <div className="p-5 sm:p-6 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-3.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono flex items-center gap-1.5" htmlFor="unified-threat-input">
-              <span className="material-symbols-outlined text-blue-600 text-[18px]">terminal</span>
+            <label className="text-sm font-bold uppercase tracking-wider text-slate-900 font-mono flex items-center gap-2" htmlFor="unified-threat-input">
+              <span className="material-symbols-outlined text-blue-600 text-[20px]">terminal</span>
               <span>Raw Content (Email Headers, SMS, or URL)</span>
             </label>
-            <span className="text-[11px] font-mono text-slate-400">
+            <span className="text-xs font-mono text-slate-500 font-medium">
               {rawInput.length} characters
             </span>
           </div>
@@ -152,12 +152,12 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
               if (error) setError('');
             }}
             placeholder="Paste suspicious raw text here...&#10;&#10;Supported formats:&#10;• Full email including From: and Subject: headers&#10;• Short SMS / chat message with URL&#10;• Solitary web link (e.g. http://bit.ly/...)&#10;• Urgent notification asking for password verification"
-            className="w-full p-3.5 text-xs sm:text-sm font-mono bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition leading-relaxed"
+            className="w-full p-4 text-sm sm:text-base font-mono bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition leading-relaxed"
           />
 
           {error && (
-            <div className="p-3 rounded-md bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">error</span>
+            <div className="p-3.5 rounded-md bg-red-50 border border-red-200 text-sm text-red-700 font-medium flex items-center gap-2.5">
+              <span className="material-symbols-outlined text-[20px]">error</span>
               <span>{error}</span>
             </div>
           )}
@@ -165,60 +165,60 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
 
         {/* Live Auto-Extracted Preview */}
         {preview && (
-          <div className="p-4 rounded-xl bg-navy-900 text-slate-200 border border-navy-border shadow-xs space-y-3">
+          <div className="p-5 rounded-xl bg-navy-900 text-slate-200 border border-navy-border shadow-xs space-y-3.5">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-300">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                <span className="text-sm font-mono font-bold uppercase tracking-wider text-slate-200">
                   Preprocessor Entity Extraction
                 </span>
               </div>
-              <span className="text-[11px] font-mono bg-navy-800 text-blue-300 px-2 py-0.5 rounded border border-slate-700 uppercase">
+              <span className="text-xs font-mono font-semibold bg-navy-800 text-blue-300 px-2.5 py-1 rounded border border-slate-700 uppercase">
                 Channel: {preview.detected_channel}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
-              <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60 space-y-1">
-                <span className="text-[10px] text-slate-400 block uppercase font-semibold">Sender</span>
-                <span className="text-white font-medium truncate block">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-sm font-mono">
+              <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/60 space-y-1.5">
+                <span className="text-xs text-slate-300 block uppercase font-bold">Sender</span>
+                <span className="text-white text-sm font-semibold truncate block">
                   {preview.extracted_sender || 'None detected'}
                 </span>
-                <span className="text-[10px] text-slate-400 block pt-1">Target: Sender Agent</span>
+                <span className="text-xs text-slate-400 block pt-1">Target: Sender Agent</span>
               </div>
 
-              <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60 space-y-1">
-                <span className="text-[10px] text-slate-400 block uppercase font-semibold">
+              <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/60 space-y-1.5">
+                <span className="text-xs text-slate-300 block uppercase font-bold">
                   URLs Found ({preview.extracted_urls.length})
                 </span>
                 {preview.extracted_urls.length > 0 ? (
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     {preview.extracted_urls.map((u, i) => (
-                      <span key={i} className="text-blue-300 truncate block text-[11px]">
+                      <span key={i} className="text-blue-300 truncate block text-xs">
                         {u}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-slate-400">None detected</span>
+                  <span className="text-slate-400 text-xs">None detected</span>
                 )}
-                <span className="text-[10px] text-slate-400 block pt-1">Target: URL Agent</span>
+                <span className="text-xs text-slate-400 block pt-1">Target: URL Agent</span>
               </div>
 
-              <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60 space-y-1">
-                <span className="text-[10px] text-slate-400 block uppercase font-semibold">Lexical Cues</span>
+              <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/60 space-y-1.5">
+                <span className="text-xs text-slate-300 block uppercase font-bold">Lexical Cues</span>
                 {preview.extracted_keywords.length > 0 ? (
-                  <div className="flex flex-wrap gap-1 pt-0.5">
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
                     {preview.extracted_keywords.map((kw, i) => (
-                      <span key={i} className="text-[10px] bg-red-950 text-red-300 px-1.5 py-0.5 rounded border border-red-800">
+                      <span key={i} className="text-xs bg-red-950 text-red-200 px-2 py-0.5 rounded border border-red-800 font-medium">
                         {kw}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-slate-400">Standard syntax</span>
+                  <span className="text-slate-400 text-xs">Standard syntax</span>
                 )}
-                <span className="text-[10px] text-slate-400 block pt-1">Target: Text Agent</span>
+                <span className="text-xs text-slate-400 block pt-1">Target: Text Agent</span>
               </div>
             </div>
           </div>
@@ -226,20 +226,20 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
 
         {/* Multi-Agent Analysis Pipeline Execution Display (Spec §18) */}
         {analyzing && (
-          <div className="p-5 rounded-xl bg-slate-900 text-white border border-slate-700 shadow-md space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-200">
+          <div className="p-5 sm:p-6 rounded-xl bg-slate-900 text-white border border-slate-700 shadow-md space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
+                <span className="text-sm font-mono font-bold uppercase tracking-wider text-slate-200">
                   Autonomous Multi-Agent Pipeline Execution
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-blue-400">
+              <span className="text-xs font-mono font-bold text-blue-400">
                 Step {Math.min(activeStep, 11)} / 11
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
               {PIPELINE_STEPS.map((stepName, idx) => {
                 const stepNum = idx + 1;
                 const isDone = activeStep > stepNum || activeStep === 11;
@@ -248,7 +248,7 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
                 return (
                   <div
                     key={idx}
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-mono transition-all ${
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-mono transition-all ${
                       isDone
                         ? 'bg-slate-800/80 text-emerald-300 border border-emerald-900/40'
                         : isCurrent
@@ -257,11 +257,11 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
                     }`}
                   >
                     <span className="truncate">{stepName}</span>
-                    <span className="text-xs font-bold ml-2">
+                    <span className="text-sm font-bold ml-2">
                       {isDone ? (
                         <span className="text-emerald-400">✓</span>
                       ) : isCurrent ? (
-                        <span className="inline-block w-2.5 h-2.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                        <span className="inline-block w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
                       ) : (
                         <span className="text-slate-600">○</span>
                       )}
@@ -274,7 +274,7 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
         )}
 
         {/* Submit Actions */}
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between pt-2">
           <button
             type="button"
             onClick={() => {
@@ -282,14 +282,14 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
               setPreview(null);
               setError('');
             }}
-            className="px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-800"
+            className="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition"
           >
             Clear Form
           </button>
           <button
             type="submit"
             disabled={analyzing || !rawInput.trim()}
-            className="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-medium shadow-xs transition disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold shadow-xs transition disabled:opacity-50 flex items-center gap-2"
           >
             {analyzing ? (
               <>
@@ -298,7 +298,7 @@ export default function SubmitAnalysisPage({ onNavigate, onAnalysisComplete, ini
               </>
             ) : (
               <>
-                <span className="material-symbols-outlined text-[18px]">shield</span>
+                <span className="material-symbols-outlined text-[20px]">shield</span>
                 <span>Analyze Threat</span>
               </>
             )}

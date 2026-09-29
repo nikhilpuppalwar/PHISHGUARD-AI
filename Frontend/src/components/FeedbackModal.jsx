@@ -72,17 +72,17 @@ export default function FeedbackModal({ submissionId, currentVerdict, isOpen, on
         {success ? (
           <div className="py-6 text-center space-y-2">
             <span className="material-symbols-outlined text-emerald-600 text-[40px]">check_circle</span>
-            <div className="text-sm font-bold text-slate-900">Feedback Saved</div>
-            <p className="text-xs text-slate-500">Your verification label has been saved to the incident memory store.</p>
+            <div className="text-base font-bold text-slate-900">Feedback Saved</div>
+            <p className="text-sm text-slate-600">Your verification label has been saved to the incident memory store.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-sm text-slate-700 leading-relaxed">
               Your feedback is recorded to calibrate future threat detection and validate multi-agent accuracy metrics.
             </p>
 
             <fieldset className="space-y-2">
-              <legend className="text-xs font-semibold text-slate-700 uppercase font-mono block mb-1">
+              <legend className="text-xs font-bold text-slate-800 uppercase font-mono block mb-1.5">
                 Select Observed Reality:
               </legend>
               {options.map((opt) => {
@@ -90,7 +90,7 @@ export default function FeedbackModal({ submissionId, currentVerdict, isOpen, on
                 return (
                   <label
                     key={opt.value}
-                    className={`block p-3 rounded-lg border text-xs cursor-pointer transition ${
+                    className={`block p-3 rounded-lg border text-sm cursor-pointer transition ${
                       selected
                         ? 'border-blue-600 bg-blue-50/50 shadow-2xs'
                         : `border-slate-200 bg-white ${opt.borderClass}`
@@ -106,8 +106,8 @@ export default function FeedbackModal({ submissionId, currentVerdict, isOpen, on
                         className="mt-0.5 text-blue-600 focus:ring-blue-500"
                       />
                       <div>
-                        <div className="font-semibold text-slate-900">{opt.label}</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">{opt.desc}</div>
+                        <div className="font-bold text-slate-900">{opt.label}</div>
+                        <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">{opt.desc}</div>
                       </div>
                     </div>
                   </label>
@@ -115,8 +115,8 @@ export default function FeedbackModal({ submissionId, currentVerdict, isOpen, on
               })}
             </fieldset>
 
-            <div className="space-y-1">
-              <label htmlFor="feedback-notes" className="block text-xs font-semibold text-slate-700">
+            <div className="space-y-1.5">
+              <label htmlFor="feedback-notes" className="block text-sm font-semibold text-slate-800">
                 Additional Forensic Notes (Optional):
               </label>
               <textarea
@@ -125,22 +125,22 @@ export default function FeedbackModal({ submissionId, currentVerdict, isOpen, on
                 value={context}
                 onChange={(e) => setContext(e.target.value)}
                 placeholder="e.g. Sender address was confirmed via phone call with vendor..."
-                className="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 placeholder-slate-400"
+                className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 placeholder-slate-500"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 rounded-md transition"
+                className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-md transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-xs transition disabled:opacity-50"
+                className="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-xs transition disabled:opacity-50"
               >
                 {loading ? 'Saving...' : 'Submit Feedback'}
               </button>

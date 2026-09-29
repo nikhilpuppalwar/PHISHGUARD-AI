@@ -16,7 +16,7 @@ export default function PageHeader({
     <header className="space-y-2 mb-6">
       {/* Subtle Breadcrumb Trail */}
       {trail && trail.length > 0 && (
-        <nav aria-label="Breadcrumbs" className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+        <nav aria-label="Breadcrumbs" className="flex items-center gap-1.5 text-sm text-slate-600 font-medium">
           {trail.map((crumb, idx) => {
             const isLast = idx === trail.length - 1;
             return (
@@ -33,7 +33,7 @@ export default function PageHeader({
                     {crumb.label}
                   </button>
                 ) : (
-                  <span className={isLast ? 'text-slate-800 font-semibold' : 'text-slate-500'}>
+                  <span className={isLast ? 'text-slate-900 font-semibold' : 'text-slate-600'}>
                     {crumb.label}
                   </span>
                 )}
@@ -47,7 +47,7 @@ export default function PageHeader({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           {eyebrow && (
-            <div className="text-[11px] font-mono font-semibold tracking-wider text-blue-700 uppercase">
+            <div className="text-xs font-mono font-bold tracking-wider text-blue-700 uppercase">
               {eyebrow}
             </div>
           )}
@@ -55,7 +55,7 @@ export default function PageHeader({
             {title}
           </h1>
           {description && (
-            <p className="text-xs sm:text-sm text-slate-500 max-w-3xl leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
               {description}
             </p>
           )}

@@ -40,10 +40,10 @@ export default function TermsPrivacyModal({ isOpen, onClose, initialTab = 'terms
               <span className="material-symbols-outlined text-[18px]">verified_user</span>
             </div>
             <div>
-              <h2 id="terms-modal-title" className="text-sm sm:text-base font-bold text-slate-900">
+              <h2 id="terms-modal-title" className="text-base sm:text-lg font-bold text-slate-900">
                 PhishGuard AI — Legal & Privacy Policy
               </h2>
-              <p className="text-[11px] font-mono text-slate-500">
+              <p className="text-xs font-mono text-slate-600 mt-0.5">
                 MDP Academic Capstone Defense Framework
               </p>
             </div>
@@ -64,10 +64,10 @@ export default function TermsPrivacyModal({ isOpen, onClose, initialTab = 'terms
           <button
             type="button"
             onClick={() => setTab('terms')}
-            className={`pb-2.5 px-3 text-xs font-semibold border-b-2 transition ${
+            className={`pb-2.5 px-3.5 text-sm font-semibold border-b-2 transition ${
               tab === 'terms'
                 ? 'border-blue-600 text-blue-700'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
             }`}
           >
             Terms & Conditions
@@ -75,10 +75,10 @@ export default function TermsPrivacyModal({ isOpen, onClose, initialTab = 'terms
           <button
             type="button"
             onClick={() => setTab('privacy')}
-            className={`pb-2.5 px-3 text-xs font-semibold border-b-2 transition ${
+            className={`pb-2.5 px-3.5 text-sm font-semibold border-b-2 transition ${
               tab === 'privacy'
                 ? 'border-blue-600 text-blue-700'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
             }`}
           >
             Privacy Policy
@@ -86,7 +86,7 @@ export default function TermsPrivacyModal({ isOpen, onClose, initialTab = 'terms
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-4 text-xs text-slate-600 leading-relaxed font-sans">
+        <div className="p-6 overflow-y-auto space-y-4 text-sm text-slate-700 leading-relaxed font-sans">
           {tab === 'terms' ? (
             <>
               <div>
@@ -171,7 +171,7 @@ export default function TermsPrivacyModal({ isOpen, onClose, initialTab = 'terms
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition shadow-xs"
+            className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition shadow-xs"
           >
             I Understand
           </button>

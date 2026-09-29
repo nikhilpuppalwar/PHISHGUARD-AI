@@ -125,7 +125,7 @@ export default function PasswordResetPage({ onNavigate }) {
               {step === 2 && 'Create a new password'}
               {step === 3 && 'Password updated'}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
               {step === 1 && "Enter your email address and we'll send reset instructions if an account exists."}
               {step === 2 && 'Enter your verification code and choose a new secure password.'}
               {step === 3 && 'Your password has been updated. You can now sign in with your new credentials.'}
@@ -134,8 +134,8 @@ export default function PasswordResetPage({ onNavigate }) {
 
           {/* Factual Info Message / Account Enumeration Protection */}
           {infoMsg && (
-            <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-blue-600 shrink-0 mt-0.5">
+            <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-sm text-blue-900 flex items-start gap-2.5 font-medium">
+              <span className="material-symbols-outlined text-[20px] text-blue-600 shrink-0 mt-0.5">
                 info
               </span>
               <span className="leading-relaxed">{infoMsg}</span>
@@ -146,28 +146,28 @@ export default function PasswordResetPage({ onNavigate }) {
           {formError && (
             <div
               role="alert"
-              className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5"
+              className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700 flex items-start gap-2.5 font-medium"
             >
-              <span className="material-symbols-outlined text-[18px] text-red-600 shrink-0 mt-0.5">
+              <span className="material-symbols-outlined text-[20px] text-red-600 shrink-0 mt-0.5">
                 error
               </span>
-              <span className="leading-relaxed font-medium">{formError}</span>
+              <span className="leading-relaxed font-semibold">{formError}</span>
             </div>
           )}
 
           {/* STEP 1: Request Code */}
           {step === 1 && (
             <form onSubmit={handleRequest} noValidate className="space-y-4">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label
                   htmlFor="reset-email"
-                  className="block text-xs font-semibold uppercase font-mono text-slate-700"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-700"
                 >
                   Email address
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <span className="material-symbols-outlined text-[18px]">mail</span>
+                    <span className="material-symbols-outlined text-[20px]">mail</span>
                   </span>
                   <input
                     id="reset-email"
@@ -182,7 +182,7 @@ export default function PasswordResetPage({ onNavigate }) {
                     aria-required="true"
                     aria-invalid={!!emailError}
                     aria-describedby={emailError ? 'reset-email-error' : undefined}
-                    className={`block w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white border rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    className={`block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
                       emailError
                         ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                         : 'border-slate-300 focus:ring-blue-600 focus:border-blue-600'
@@ -190,8 +190,8 @@ export default function PasswordResetPage({ onNavigate }) {
                   />
                 </div>
                 {emailError && (
-                  <p id="reset-email-error" className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
-                    <span className="material-symbols-outlined text-[14px]">error</span>
+                  <p id="reset-email-error" className="text-xs text-red-600 font-semibold flex items-center gap-1 pt-1">
+                    <span className="material-symbols-outlined text-[16px]">error</span>
                     <span>{emailError}</span>
                   </p>
                 )}
@@ -201,7 +201,7 @@ export default function PasswordResetPage({ onNavigate }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
@@ -209,7 +209,7 @@ export default function PasswordResetPage({ onNavigate }) {
                       <span>Sending instructions...</span>
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-2">
                       <span>Send Reset Instructions</span>
                       <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                     </span>
@@ -222,10 +222,10 @@ export default function PasswordResetPage({ onNavigate }) {
           {/* STEP 2: Verify Code & Set New Password */}
           {step === 2 && (
             <form onSubmit={handleConfirm} noValidate className="space-y-4">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label
                   htmlFor="reset-code"
-                  className="block text-xs font-semibold uppercase font-mono text-slate-700"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-700"
                 >
                   Recovery Code
                 </label>
@@ -238,15 +238,15 @@ export default function PasswordResetPage({ onNavigate }) {
                   onChange={(e) => setResetCode(e.target.value)}
                   placeholder="482910"
                   required
-                  className="block w-full px-3 py-2 font-mono text-sm bg-white border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
+                  className="block w-full px-3.5 py-2.5 font-mono text-sm bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
                 />
               </div>
 
               {/* New Password */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label
                   htmlFor="new-password"
-                  className="block text-xs font-semibold uppercase font-mono text-slate-700"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-700"
                 >
                   New password
                 </label>
@@ -265,7 +265,7 @@ export default function PasswordResetPage({ onNavigate }) {
                     placeholder="••••••••••••"
                     required
                     aria-required="true"
-                    className="block w-full px-3 pr-10 py-2 text-xs sm:text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
+                    className="block w-full px-3.5 pr-11 py-2.5 text-sm bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition"
                   />
                   <button
                     type="button"
@@ -273,7 +273,7 @@ export default function PasswordResetPage({ onNavigate }) {
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
                   >
-                    <span className="material-symbols-outlined text-[18px]">
+                    <span className="material-symbols-outlined text-[20px]">
                       {showPassword ? 'visibility_off' : 'visibility'}
                     </span>
                   </button>
@@ -281,11 +281,11 @@ export default function PasswordResetPage({ onNavigate }) {
 
                 {/* Password Strength Indicator */}
                 {newPassword && (
-                  <div className="pt-1.5 space-y-1.5">
+                  <div className="pt-2 space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 font-mono text-[11px]">Strength:</span>
+                      <span className="text-slate-600 font-semibold font-mono">Strength:</span>
                       <span
-                        className={`font-semibold text-[11px] font-mono ${
+                        className={`font-bold font-mono ${
                           pwStrength.strength === 'Strong'
                             ? 'text-emerald-700'
                             : pwStrength.strength === 'Good'
@@ -298,7 +298,7 @@ export default function PasswordResetPage({ onNavigate }) {
                         {pwStrength.strength}
                       </span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden flex gap-1">
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden flex gap-1">
                       {[1, 2, 3, 4].map((step) => (
                         <div
                           key={step}
@@ -320,37 +320,37 @@ export default function PasswordResetPage({ onNavigate }) {
                 )}
 
                 {/* Password Rules Checklist */}
-                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 mt-2 space-y-1 text-[11px] font-mono">
-                  <span className="text-slate-600 font-semibold block uppercase text-[10px]">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 mt-2 space-y-1.5 text-xs">
+                  <span className="text-slate-700 font-bold block uppercase text-xs tracking-wider">
                     Password must contain:
                   </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-slate-600">
-                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.length ? 'text-emerald-700 font-medium' : ''}`}>
-                      <span className="material-symbols-outlined text-[14px]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-slate-700 font-medium">
+                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.length ? 'text-emerald-700 font-semibold' : ''}`}>
+                      <span className="material-symbols-outlined text-[16px]">
                         {pwStrength.rules.length ? 'check_circle' : 'radio_button_unchecked'}
                       </span>
                       <span>At least 8 characters</span>
                     </span>
-                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.uppercase ? 'text-emerald-700 font-medium' : ''}`}>
-                      <span className="material-symbols-outlined text-[14px]">
+                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.uppercase ? 'text-emerald-700 font-semibold' : ''}`}>
+                      <span className="material-symbols-outlined text-[16px]">
                         {pwStrength.rules.uppercase ? 'check_circle' : 'radio_button_unchecked'}
                       </span>
                       <span>One uppercase letter</span>
                     </span>
-                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.lowercase ? 'text-emerald-700 font-medium' : ''}`}>
-                      <span className="material-symbols-outlined text-[14px]">
+                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.lowercase ? 'text-emerald-700 font-semibold' : ''}`}>
+                      <span className="material-symbols-outlined text-[16px]">
                         {pwStrength.rules.lowercase ? 'check_circle' : 'radio_button_unchecked'}
                       </span>
                       <span>One lowercase letter</span>
                     </span>
-                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.number ? 'text-emerald-700 font-medium' : ''}`}>
-                      <span className="material-symbols-outlined text-[14px]">
+                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.number ? 'text-emerald-700 font-semibold' : ''}`}>
+                      <span className="material-symbols-outlined text-[16px]">
                         {pwStrength.rules.number ? 'check_circle' : 'radio_button_unchecked'}
                       </span>
                       <span>One number</span>
                     </span>
-                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.special ? 'text-emerald-700 font-medium' : ''} sm:col-span-2`}>
-                      <span className="material-symbols-outlined text-[14px]">
+                    <span className={`flex items-center gap-1.5 ${pwStrength.rules.special ? 'text-emerald-700 font-semibold' : ''} sm:col-span-2`}>
+                      <span className="material-symbols-outlined text-[16px]">
                         {pwStrength.rules.special ? 'check_circle' : 'radio_button_unchecked'}
                       </span>
                       <span>One special character</span>
@@ -360,10 +360,10 @@ export default function PasswordResetPage({ onNavigate }) {
               </div>
 
               {/* Confirm New Password */}
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label
                   htmlFor="confirm-new-password"
-                  className="block text-xs font-semibold uppercase font-mono text-slate-700"
+                  className="block text-xs font-bold uppercase tracking-wider text-slate-700"
                 >
                   Confirm new password
                 </label>
@@ -382,7 +382,7 @@ export default function PasswordResetPage({ onNavigate }) {
                     placeholder="Re-enter new password"
                     required
                     aria-required="true"
-                    className={`block w-full px-3 pr-10 py-2 text-xs sm:text-sm bg-white border rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
+                    className={`block w-full px-3.5 pr-11 py-2.5 text-sm bg-white border rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 transition ${
                       confirmTouched && !passwordsMatch
                         ? 'border-red-300 focus:ring-red-500'
                         : 'border-slate-300 focus:ring-blue-600 focus:border-blue-600'
@@ -394,32 +394,32 @@ export default function PasswordResetPage({ onNavigate }) {
                     aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
                   >
-                    <span className="material-symbols-outlined text-[18px]">
+                    <span className="material-symbols-outlined text-[20px]">
                       {showConfirmPassword ? 'visibility_off' : 'visibility'}
                     </span>
                   </button>
                 </div>
                 {confirmTouched && !passwordsMatch && (
-                  <p className="text-xs text-red-600 font-medium flex items-center gap-1 pt-0.5">
-                    <span className="material-symbols-outlined text-[14px]">error</span>
+                  <p className="text-xs text-red-600 font-semibold flex items-center gap-1 pt-1">
+                    <span className="material-symbols-outlined text-[16px]">error</span>
                     <span>Passwords do not match.</span>
                   </p>
                 )}
               </div>
 
               {/* Form Buttons */}
-              <div className="pt-2 flex items-center gap-2">
+              <div className="pt-2 flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-3.5 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-md transition"
+                  className="px-4 py-2.5 text-sm font-semibold text-slate-700 hover:text-slate-900 border border-slate-300 rounded-lg transition"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 inline-flex items-center justify-center py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 inline-flex items-center justify-center py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-xs transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
@@ -437,19 +437,19 @@ export default function PasswordResetPage({ onNavigate }) {
           {/* STEP 3: Success Screen */}
           {step === 3 && (
             <div className="space-y-4 py-4 text-center">
-              <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200 shadow-2xs">
-                <span className="material-symbols-outlined text-[28px]">check_circle</span>
+              <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200 shadow-2xs">
+                <span className="material-symbols-outlined text-[32px]">check_circle</span>
               </div>
-              <div className="space-y-1">
-                <h2 className="text-base font-bold text-slate-900">Your password has been updated</h2>
-                <p className="text-xs text-slate-500">
+              <div className="space-y-1.5">
+                <h2 className="text-lg font-bold text-slate-900">Your password has been updated</h2>
+                <p className="text-sm text-slate-600 leading-relaxed">
                   Your credentials have been securely updated. You can now sign in with your new password.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => onNavigate('login')}
-                className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm shadow-xs transition"
+                className="w-full inline-flex items-center justify-center py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-xs transition"
               >
                 Sign In
               </button>
@@ -462,7 +462,7 @@ export default function PasswordResetPage({ onNavigate }) {
               <button
                 type="button"
                 onClick={() => onNavigate('login')}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors"
               >
                 Back to Sign In
               </button>
@@ -482,11 +482,11 @@ export default function PasswordResetPage({ onNavigate }) {
               <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center text-white shadow-xs">
                 <span className="material-symbols-outlined text-[20px]">security</span>
               </div>
-              <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1">
+              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1">
                 PhishGuard <span className="text-blue-400">AI</span>
               </span>
             </div>
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-navy-800 text-slate-300 border border-slate-700">
+            <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-mono font-semibold bg-navy-800 text-slate-200 border border-slate-700">
               Account Security
             </span>
           </div>
@@ -495,31 +495,31 @@ export default function PasswordResetPage({ onNavigate }) {
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
               Secure Account Recovery
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-lg">
+            <p className="text-sm text-slate-300 leading-relaxed max-w-lg">
               Reset your credentials securely with automated verification, preventing user enumeration and unauthorized credential tampering.
             </p>
           </div>
 
-          <div className="relative rounded-lg overflow-hidden border border-slate-800 bg-navy-950 shadow-md">
+          <div className="relative rounded-xl overflow-hidden border border-slate-800 bg-navy-950 shadow-md">
             <img
               src={aiVisualization}
               alt="Cybersecurity multi-agent architecture preview"
               className="w-full h-44 sm:h-52 object-cover object-center opacity-85"
             />
-            <div className="p-3 bg-navy-800/90 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-300">
-              <span className="text-slate-400">AUTHENTICATION PROTOCOL:</span>
-              <span className="text-emerald-400 font-semibold">Salted PBKDF2</span>
+            <div className="p-3.5 bg-navy-800/90 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-200">
+              <span className="text-slate-400 font-semibold">AUTHENTICATION PROTOCOL:</span>
+              <span className="text-emerald-400 font-bold">Salted PBKDF2</span>
             </div>
           </div>
 
           <div className="space-y-2 text-xs font-mono text-slate-300">
-            <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60 flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-blue-400 text-[18px] shrink-0 mt-0.5">
+            <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/60 flex items-start gap-3">
+              <span className="material-symbols-outlined text-blue-400 text-[20px] shrink-0 mt-0.5">
                 shield
               </span>
               <div>
-                <span className="font-semibold text-white block">Account Enumeration Protection</span>
-                <span className="text-slate-400 text-[11px]">
+                <span className="font-bold text-white text-sm block">Account Enumeration Protection</span>
+                <span className="text-slate-300 text-xs mt-0.5 block leading-relaxed">
                   Generic responses ensure email registration status is never exposed to untrusted entities.
                 </span>
               </div>
@@ -527,7 +527,7 @@ export default function PasswordResetPage({ onNavigate }) {
           </div>
         </div>
 
-        <div className="pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono">
+        <div className="pt-6 mt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono">
           <span>Security Protocol FR-17</span>
           <span>PhishGuard AI</span>
         </div>

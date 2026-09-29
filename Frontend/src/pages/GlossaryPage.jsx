@@ -178,45 +178,45 @@ export default function GlossaryPage({ onNavigate }) {
       />
 
       {/* Forensic Reference Banner */}
-      <div className="rounded-xl bg-navy-900 p-6 text-white border border-navy-border shadow-xs">
+      <div className="rounded-xl bg-navy-900 p-6 sm:p-7 text-white border border-navy-border shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-xs font-mono bg-navy-800 text-slate-300 border border-slate-700">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded text-xs font-mono font-bold bg-navy-800 text-slate-200 border border-slate-700">
               <span>Threat Taxonomy & Forensic Reference (FR-18)</span>
             </div>
-            <div className="text-lg font-bold tracking-tight text-white">
+            <div className="text-xl sm:text-2xl font-bold tracking-tight text-white">
               Vector Intelligence Catalog
             </div>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
               Explore attack vector signatures, real-world lures, and personalized defense advice calibrated to your role.
             </p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60 text-center min-w-[100px]">
-              <span className="text-[10px] font-mono uppercase text-slate-400 block">Signatures</span>
-              <span className="text-base font-bold text-white">{attackTypes.length || 6} Vectors</span>
+            <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/60 text-center min-w-[110px]">
+              <span className="text-xs font-mono uppercase text-slate-300 font-bold block">Signatures</span>
+              <span className="text-lg font-bold text-white mt-0.5 block">{attackTypes.length || 6} Vectors</span>
             </div>
-            <div className="p-3 rounded-lg bg-navy-800 border border-slate-700/60 text-center min-w-[100px]">
-              <span className="text-[10px] font-mono uppercase text-slate-400 block">Coverage</span>
-              <span className="text-base font-bold text-emerald-400">Multi-Agent</span>
+            <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/60 text-center min-w-[110px]">
+              <span className="text-xs font-mono uppercase text-slate-300 font-bold block">Coverage</span>
+              <span className="text-lg font-bold text-emerald-400 mt-0.5 block">Multi-Agent</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         {/* Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+              className={`px-3.5 py-2 rounded-md text-sm font-semibold transition-colors whitespace-nowrap ${
                 selectedCategory === cat
-                  ? 'bg-blue-600 text-white font-semibold'
-                  : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               {cat}
@@ -225,10 +225,10 @@ export default function GlossaryPage({ onNavigate }) {
         </div>
 
         {/* Search Input */}
-        <div className="relative w-full sm:w-72">
+        <div className="relative w-full sm:w-80">
           <label htmlFor="glossary-search" className="sr-only">Search vectors</label>
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <span className="material-symbols-outlined text-[18px]">search</span>
+          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+            <span className="material-symbols-outlined text-[20px]">search</span>
           </span>
           <input
             id="glossary-search"
@@ -236,15 +236,15 @@ export default function GlossaryPage({ onNavigate }) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search vectors or keywords..."
-            className="w-full pl-9 pr-7 py-1.5 text-xs bg-white border border-slate-200 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400"
+            className="w-full pl-10 pr-8 py-2 text-sm bg-white border border-slate-200 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 placeholder:text-slate-400"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
               aria-label="Clear search"
             >
-              <span className="material-symbols-outlined text-[16px]">close</span>
+              <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
           )}
         </div>
@@ -253,19 +253,19 @@ export default function GlossaryPage({ onNavigate }) {
       {/* Master-Detail Split Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Attack Vector Catalog */}
-        <div className="lg:col-span-5 space-y-2.5">
-          <div className="flex items-center justify-between px-1 text-xs font-mono text-slate-500">
+        <div className="lg:col-span-5 space-y-3">
+          <div className="flex items-center justify-between px-1 text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">
             <span>DOCUMENTED VECTORS ({filtered.length})</span>
             <span>SELECT TO VIEW</span>
           </div>
 
           {filtered.length === 0 ? (
-            <div className="p-8 text-center rounded-xl bg-white border border-slate-200 text-slate-500 space-y-2">
-              <span className="material-symbols-outlined text-[32px] text-slate-400">search_off</span>
-              <p className="text-xs">No attack vectors match your search criteria.</p>
+            <div className="p-8 text-center rounded-xl bg-white border border-slate-200 text-slate-600 space-y-2">
+              <span className="material-symbols-outlined text-[36px] text-slate-400">search_off</span>
+              <p className="text-sm">No attack vectors match your search criteria.</p>
               <button
                 onClick={() => { setSearch(''); setSelectedCategory('All'); }}
-                className="text-xs text-blue-600 font-semibold underline"
+                className="text-sm text-blue-600 font-semibold underline"
               >
                 Reset filters
               </button>
@@ -279,32 +279,32 @@ export default function GlossaryPage({ onNavigate }) {
                 <div
                   key={at.attack_type_id}
                   onClick={() => setSelectedAttack(at)}
-                  className={`p-3.5 rounded-lg border transition-colors cursor-pointer select-none ${
+                  className={`p-4 rounded-xl border transition-colors cursor-pointer select-none ${
                     isSelected
-                      ? 'bg-blue-50/60 border-blue-600'
+                      ? 'bg-blue-50/70 border-blue-600 shadow-xs'
                       : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-9 h-9 rounded-md flex items-center justify-center shrink-0 ${meta.iconBg} border border-slate-200/60`}>
-                      <span className="material-symbols-outlined text-[18px]">{meta.icon}</span>
+                  <div className="flex items-start gap-3.5">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${meta.iconBg} border border-slate-200/60`}>
+                      <span className="material-symbols-outlined text-[20px]">{meta.icon}</span>
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">
+                        <span className="text-xs font-mono font-bold text-slate-600 uppercase tracking-wider">
                           {meta.code} • {meta.category}
                         </span>
-                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold border ${meta.severityClass}`}>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${meta.severityClass}`}>
                           {meta.severity}
                         </span>
                       </div>
 
-                      <h3 className={`text-sm font-semibold truncate mt-0.5 ${isSelected ? 'text-blue-900 font-bold' : 'text-slate-900'}`}>
+                      <h3 className={`text-base font-bold truncate mt-1 ${isSelected ? 'text-blue-900' : 'text-slate-900'}`}>
                         {at.name}
                       </h3>
 
-                      <p className="text-xs text-slate-500 mt-0.5 line-clamp-2 leading-relaxed">
+                      <p className="text-sm text-slate-600 mt-1 line-clamp-2 leading-relaxed">
                         {at.description}
                       </p>
                     </div>
@@ -318,123 +318,123 @@ export default function GlossaryPage({ onNavigate }) {
         {/* Right Column: In-Depth Threat Profile */}
         <div className="lg:col-span-7">
           {selectedAttack ? (
-            <div className="rounded-xl bg-white border border-slate-200 shadow-2xs p-6 space-y-5">
+            <div className="rounded-xl bg-white border border-slate-200 shadow-2xs p-6 sm:p-7 space-y-5">
               {/* Header Profile */}
               <div className="space-y-3 pb-4 border-b border-slate-100">
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-mono font-bold bg-slate-100 text-slate-800 border border-slate-200">
                     <span>VECTOR ID: {selectedMeta.code}</span>
                   </div>
-                  <div className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold border ${selectedMeta.severityClass}`}>
+                  <div className={`inline-flex items-center gap-1 px-3 py-1 rounded text-xs font-bold border ${selectedMeta.severityClass}`}>
                     <span>{selectedMeta.severity}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${selectedMeta.iconBg} border border-slate-200/60`}>
-                    <span className="material-symbols-outlined text-[22px]">{selectedMeta.icon}</span>
+                <div className="flex items-center gap-3.5">
+                  <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${selectedMeta.iconBg} border border-slate-200/60`}>
+                    <span className="material-symbols-outlined text-[24px]">{selectedMeta.icon}</span>
                   </div>
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                       {selectedAttack.name}
                     </h2>
-                    <span className="text-xs text-slate-500">
+                    <span className="text-sm text-slate-600 font-medium">
                       Category: {selectedMeta.category} • Channel: {selectedMeta.vectorChannel}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1">
+                <p className="text-sm sm:text-base text-slate-700 leading-relaxed pt-1">
                   {selectedAttack.description}
                 </p>
               </div>
 
               {/* Target & Vulnerability Box */}
-              <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
-                <div className="text-xs font-mono font-semibold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-amber-600 text-[16px]">psychology</span>
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                <div className="text-sm font-mono font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-amber-600 text-[18px]">psychology</span>
                   Target Demographics & Trigger Mechanics:
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-0.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm pt-0.5">
                   <div>
-                    <span className="text-slate-400 block font-mono text-[10px] uppercase">Exploited Trigger:</span>
-                    <span className="font-medium text-slate-800">{selectedMeta.psychologicalTrigger}</span>
+                    <span className="text-slate-500 block font-mono text-xs uppercase font-bold">Exploited Trigger:</span>
+                    <span className="font-semibold text-slate-900 leading-relaxed">{selectedMeta.psychologicalTrigger}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block font-mono text-[10px] uppercase">Targeted Group:</span>
-                    <span className="font-medium text-slate-800">{selectedMeta.targetAudience}</span>
+                    <span className="text-slate-500 block font-mono text-xs uppercase font-bold">Targeted Group:</span>
+                    <span className="font-semibold text-slate-900 leading-relaxed">{selectedMeta.targetAudience}</span>
                   </div>
                 </div>
               </div>
 
               {/* Forensic Red Flags */}
-              <div className="p-3.5 rounded-lg bg-red-50/60 border border-red-200 space-y-2">
+              <div className="p-4 rounded-xl bg-red-50/70 border border-red-200 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-mono font-semibold text-red-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-red-600 text-[16px]">find_in_page</span>
+                  <div className="text-sm font-mono font-bold text-red-950 uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-red-600 text-[18px]">find_in_page</span>
                     Forensic Indicators & Signatures:
                   </div>
                   <button
                     onClick={() => copyToClipboard(selectedAttack.sample_indicators.join('\n'), 'Indicators')}
-                    className="text-[11px] font-medium text-red-700 hover:text-red-900 flex items-center gap-1"
+                    className="text-xs font-semibold text-red-700 hover:text-red-900 flex items-center gap-1 font-mono"
                   >
-                    <span className="material-symbols-outlined text-[14px]">content_copy</span>
+                    <span className="material-symbols-outlined text-[16px]">content_copy</span>
                     <span>Copy</span>
                   </button>
                 </div>
-                <ul className="space-y-1.5 pl-4 list-disc text-xs text-slate-700 leading-relaxed">
+                <ul className="space-y-1.5 pl-5 list-disc text-sm text-slate-800 leading-relaxed">
                   {(selectedAttack.sample_indicators || []).map((ind, i) => (
                     <li key={i}>
-                      <span className="font-medium text-slate-900">{ind}</span>
+                      <span className="font-semibold text-slate-900">{ind}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Defense and Verification Protocol */}
-              <div className="p-3.5 rounded-lg bg-emerald-50/60 border border-emerald-200 space-y-2">
-                <div className="text-xs font-mono font-semibold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-emerald-600 text-[16px]">shield</span>
+              <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2.5">
+                <div className="text-sm font-mono font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-emerald-600 text-[18px]">shield</span>
                   Defense & Verification Protocol:
                 </div>
-                <ul className="space-y-1.5 pl-4 list-disc text-xs text-emerald-950 leading-relaxed">
+                <ul className="space-y-1.5 pl-5 list-disc text-sm text-emerald-950 leading-relaxed">
                   {(selectedAttack.mitigation_tips || []).map((tip, i) => (
                     <li key={i}>
-                      <span>{tip}</span>
+                      <span className="font-medium">{tip}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Realistic Payload Preview Box */}
-              <div className="rounded-lg border border-slate-200 overflow-hidden bg-navy-900 text-slate-200 text-xs">
-                <div className="px-3.5 py-2 bg-navy-950 border-b border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-mono text-[11px] text-slate-400">
+              <div className="rounded-xl border border-slate-200 overflow-hidden bg-navy-900 text-slate-200 text-sm">
+                <div className="px-4 py-2.5 bg-navy-950 border-b border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-mono text-xs text-slate-300 font-bold uppercase tracking-wider">
                     <span>Sample Vector Payload</span>
                   </div>
                   <button
                     onClick={() => copyToClipboard(selectedMeta.samplePayload, 'Payload')}
-                    className="text-[11px] text-slate-300 hover:text-white flex items-center gap-1 font-mono"
+                    className="text-xs text-slate-200 hover:text-white flex items-center gap-1 font-mono font-semibold"
                   >
-                    <span className="material-symbols-outlined text-[14px]">content_copy</span>
+                    <span className="material-symbols-outlined text-[16px]">content_copy</span>
                     <span>Copy</span>
                   </button>
                 </div>
-                <pre className="p-3.5 font-mono text-[11px] leading-relaxed text-slate-300 overflow-x-auto whitespace-pre-wrap">
+                <pre className="p-4 font-mono text-xs leading-relaxed text-slate-200 overflow-x-auto whitespace-pre-wrap">
                   {selectedMeta.samplePayload}
                 </pre>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
-                <span className="text-xs text-slate-500 font-mono">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3.5 border-t border-slate-100">
+                <span className="text-xs text-slate-600 font-mono font-semibold">
                   Referenced by FR-12 classification engine
                 </span>
                 <button
                   onClick={() => onNavigate('submit', { initialText: selectedMeta.samplePayload })}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium shadow-xs transition"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-xs transition"
                 >
-                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   <span>Test in Threat Studio</span>
                 </button>
               </div>

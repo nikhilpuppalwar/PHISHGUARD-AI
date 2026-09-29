@@ -131,10 +131,10 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => handleNavClick('landing')}
-                className={`hidden sm:inline-block px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                className={`hidden sm:inline-block px-3 py-1.5 text-sm font-medium rounded-md transition ${
                   currentScreen === 'landing'
                     ? 'bg-slate-100 text-blue-700 font-semibold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
                 Overview
@@ -142,10 +142,10 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => handleNavClick('glossary')}
-                className={`hidden sm:inline-block px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                className={`hidden sm:inline-block px-3 py-1.5 text-sm font-medium rounded-md transition ${
                   currentScreen === 'glossary'
                     ? 'bg-slate-100 text-blue-700 font-semibold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
                 Attack Glossary
@@ -153,21 +153,21 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => handleNavClick('login')}
-                className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md transition"
+                className="px-3 py-1.5 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-md transition"
               >
                 Sign In
               </button>
               <button
                 type="button"
                 onClick={() => handleNavClick('signup')}
-                className="px-3.5 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-xs transition"
+                className="px-4 py-1.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-xs transition"
               >
                 Create Account
               </button>
             </div>
           ) : (
             /* Authenticated Global Controls */
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* Global Quick Search Dialog Trigger */}
               <div className="relative" ref={searchRef}>
                 <button
@@ -175,49 +175,49 @@ export default function Navbar({
                   onClick={() => setSearchOpen(!searchOpen)}
                   title="Search workspaces and navigation (Ctrl+K)"
                   aria-label="Quick search navigation"
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition"
                 >
-                  <span className="material-symbols-outlined text-[17px] text-slate-400">search</span>
-                  <span className="hidden sm:inline text-slate-500">Quick jump...</span>
-                  <kbd className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-white border border-slate-200">
+                  <span className="material-symbols-outlined text-[18px] text-slate-500">search</span>
+                  <span className="hidden sm:inline text-slate-600 font-medium">Quick jump...</span>
+                  <kbd className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono font-medium text-slate-600 bg-white border border-slate-200">
                     ⌘K
                   </kbd>
                 </button>
 
                 {searchOpen && (
-                  <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-lg border border-slate-200 shadow-xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 mb-2">
-                      <span className="material-symbols-outlined text-[18px] text-slate-400">search</span>
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg border border-slate-200 shadow-xl p-2.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-slate-50 border border-slate-200 mb-2">
+                      <span className="material-symbols-outlined text-[20px] text-slate-500">search</span>
                       <input
                         type="text"
                         autoFocus
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search workspace or tools..."
-                        className="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none"
+                        className="w-full bg-transparent text-sm text-slate-900 placeholder-slate-500 focus:outline-none"
                       />
                     </div>
-                    <div className="max-h-56 overflow-y-auto space-y-0.5">
+                    <div className="max-h-60 overflow-y-auto space-y-1">
                       {filteredNavItems.map((item) => (
                         <button
                           key={item.id}
                           type="button"
                           onClick={() => handleNavClick(item.id)}
-                          className="w-full flex items-center justify-between px-3 py-2 text-xs rounded-md text-left hover:bg-slate-100 transition"
+                          className="w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-md text-left hover:bg-slate-100 transition"
                         >
-                          <div className="flex items-center gap-2">
-                            <span className="material-symbols-outlined text-[17px] text-slate-500">
+                          <div className="flex items-center gap-2.5">
+                            <span className="material-symbols-outlined text-[18px] text-slate-600">
                               {item.icon}
                             </span>
-                            <span className="font-medium text-slate-800">{item.label}</span>
+                            <span className="font-semibold text-slate-900">{item.label}</span>
                           </div>
-                          <span className="text-[10px] font-mono text-slate-400 uppercase">
+                          <span className="text-xs font-mono font-semibold text-slate-500 uppercase">
                             {item.section}
                           </span>
                         </button>
                       ))}
                       {filteredNavItems.length === 0 && (
-                        <div className="py-4 text-center text-xs text-slate-400 font-mono">
+                        <div className="py-4 text-center text-sm text-slate-500 font-mono">
                           No matching navigation views
                         </div>
                       )}
@@ -233,42 +233,42 @@ export default function Navbar({
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
                   title="System Telemetry & Notifications"
                   aria-label="View notifications"
-                  className="relative p-2 rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition"
+                  className="relative p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
                 >
-                  <span className="material-symbols-outlined text-[20px]">notifications</span>
+                  <span className="material-symbols-outlined text-[22px]">notifications</span>
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />
                 </button>
 
                 {notificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg border border-slate-200 shadow-xl p-3 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
-                      <span className="text-xs font-bold text-slate-900 font-mono uppercase">
+                  <div className="absolute right-0 mt-2 w-84 bg-white rounded-lg border border-slate-200 shadow-xl p-3.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 mb-2.5">
+                      <span className="text-xs font-bold text-slate-900 font-mono uppercase tracking-wide">
                         System Telemetry
                       </span>
-                      <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                      <span className="text-xs font-mono font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                         All Engines Active
                       </span>
                     </div>
-                    <div className="space-y-2 text-xs">
-                      <div className="p-2 rounded bg-slate-50 border border-slate-100 flex items-start gap-2">
-                        <span className="material-symbols-outlined text-emerald-600 text-[16px] shrink-0 mt-0.5">
+                    <div className="space-y-2 text-sm">
+                      <div className="p-2.5 rounded bg-slate-50 border border-slate-100 flex items-start gap-2.5">
+                        <span className="material-symbols-outlined text-emerald-600 text-[18px] shrink-0 mt-0.5">
                           check_circle
                         </span>
                         <div>
-                          <div className="font-semibold text-slate-800">4 Detection Agents Synchronized</div>
-                          <div className="text-[11px] text-slate-500">
+                          <div className="font-bold text-slate-900">4 Detection Agents Synchronized</div>
+                          <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">
                             TF-IDF, XGBoost URL, Sender RF, and Vector RAG operational.
                           </div>
                         </div>
                       </div>
-                      <div className="p-2 rounded bg-slate-50 border border-slate-100 flex items-start gap-2">
-                        <span className="material-symbols-outlined text-blue-600 text-[16px] shrink-0 mt-0.5">
+                      <div className="p-2.5 rounded bg-slate-50 border border-slate-100 flex items-start gap-2.5">
+                        <span className="material-symbols-outlined text-blue-600 text-[18px] shrink-0 mt-0.5">
                           psychology
                         </span>
                         <div>
-                          <div className="font-semibold text-slate-800">Defense Profile Calibrated</div>
-                          <div className="text-[11px] text-slate-500">
-                            Awareness tier: <span className="font-medium text-slate-700">{awareness}</span>
+                          <div className="font-bold text-slate-900">Defense Profile Calibrated</div>
+                          <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                            Awareness tier: <span className="font-semibold text-slate-800">{awareness}</span>
                           </div>
                         </div>
                       </div>
@@ -282,39 +282,39 @@ export default function Navbar({
                 <button
                   type="button"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-md hover:bg-slate-100 border border-slate-200 bg-white transition group"
+                  className="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-md hover:bg-slate-100 border border-slate-200 bg-white transition group"
                   aria-expanded={userDropdownOpen}
                   aria-label="User Account Menu"
                 >
-                  <div className="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+                  <div className="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
                     {avatarLetter}
                   </div>
                   <div className="hidden sm:flex flex-col text-left">
-                    <span className="text-xs font-semibold text-slate-800 leading-tight max-w-[110px] truncate">
+                    <span className="text-sm font-semibold text-slate-900 leading-tight max-w-[120px] truncate">
                       {username}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono leading-none">
+                    <span className="text-xs text-slate-600 font-mono leading-none mt-0.5">
                       {role}
                     </span>
                   </div>
-                  <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-slate-600 hidden sm:inline">
+                  <span className="material-symbols-outlined text-[18px] text-slate-500 group-hover:text-slate-700 hidden sm:inline">
                     expand_more
                   </span>
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg border border-slate-200 shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg border border-slate-200 shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                     {/* User Summary Header */}
                     <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/60">
-                      <div className="text-xs font-bold text-slate-900 truncate">
+                      <div className="text-sm font-bold text-slate-900 truncate">
                         {username}
                       </div>
-                      <div className="text-[11px] text-slate-500 truncate">
+                      <div className="text-xs text-slate-600 truncate mt-0.5">
                         {user.email}
                       </div>
-                      <div className="mt-2 flex items-center justify-between text-[10px] font-mono">
-                        <span className="text-slate-400">AWARENESS:</span>
-                        <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 font-medium">
+                      <div className="mt-2.5 flex items-center justify-between text-xs font-mono">
+                        <span className="text-slate-500 font-semibold">AWARENESS:</span>
+                        <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-bold">
                           {awareness}
                         </span>
                       </div>
@@ -325,9 +325,9 @@ export default function Navbar({
                       <button
                         type="button"
                         onClick={() => handleNavClick('profile')}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 text-left transition"
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 text-left transition font-medium"
                       >
-                        <span className="material-symbols-outlined text-[18px] text-slate-500">
+                        <span className="material-symbols-outlined text-[20px] text-slate-500">
                           manage_accounts
                         </span>
                         <span>Profile & Settings</span>
@@ -336,9 +336,9 @@ export default function Navbar({
                       <button
                         type="button"
                         onClick={() => handleNavClick('onboarding')}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 text-left transition"
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-100 text-left transition font-medium"
                       >
-                        <span className="material-symbols-outlined text-[18px] text-slate-500">
+                        <span className="material-symbols-outlined text-[20px] text-slate-500">
                           quiz
                         </span>
                         <span>Retake Security Wizard</span>
@@ -352,9 +352,9 @@ export default function Navbar({
                           setUserDropdownOpen(false);
                           logout();
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-red-600 hover:bg-red-50 text-left transition font-medium"
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left transition font-semibold"
                       >
-                        <span className="material-symbols-outlined text-[18px]">logout</span>
+                        <span className="material-symbols-outlined text-[20px]">logout</span>
                         <span>Sign Out</span>
                       </button>
                     </div>

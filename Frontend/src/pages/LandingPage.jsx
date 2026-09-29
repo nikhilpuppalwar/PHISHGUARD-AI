@@ -55,42 +55,42 @@ export default function LandingPage({ onNavigate }) {
 
           {/* Key Capabilities Grid */}
           <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full max-w-4xl text-left">
-            <div className="p-4 rounded-lg bg-white border border-slate-200 shadow-2xs">
-              <div className="text-xs font-bold text-slate-900 font-mono flex items-center gap-2">
-                <span className="material-symbols-outlined text-blue-600 text-[18px]">hub</span>
+            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
+              <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-600 text-[20px]">hub</span>
                 <span>3 Specialized ML Agents</span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
                 TF-IDF + Logistic Regression, XGBoost (54 URL features), and Random Forest sender checks.
               </p>
             </div>
 
-            <div className="p-4 rounded-lg bg-white border border-slate-200 shadow-2xs">
-              <div className="text-xs font-bold text-slate-900 font-mono flex items-center gap-2">
-                <span className="material-symbols-outlined text-blue-600 text-[18px]">account_circle</span>
+            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
+              <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-600 text-[20px]">account_circle</span>
                 <span>Contextual User Profiling</span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
                 Adapts risk assessments and advice based on user role, active services, and security tier.
               </p>
             </div>
 
-            <div className="p-4 rounded-lg bg-white border border-slate-200 shadow-2xs">
-              <div className="text-xs font-bold text-slate-900 font-mono flex items-center gap-2">
-                <span className="material-symbols-outlined text-blue-600 text-[18px]">psychology</span>
+            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
+              <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-600 text-[20px]">psychology</span>
                 <span>Explainable AI (XAI)</span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
                 Transparent SHAP attribution deltas showing exactly what factors triggered the score.
               </p>
             </div>
 
-            <div className="p-4 rounded-lg bg-white border border-slate-200 shadow-2xs">
-              <div className="text-xs font-bold text-slate-900 font-mono flex items-center gap-2">
-                <span className="material-symbols-outlined text-blue-600 text-[18px]">history</span>
+            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
+              <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-600 text-[20px]">history</span>
                 <span>Incident Memory (RAG)</span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
                 Vector similarity matching against confirmed historical incidents to detect variations.
               </p>
             </div>
@@ -102,15 +102,15 @@ export default function LandingPage({ onNavigate }) {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="threat-inspector">
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           {/* Header */}
-          <div className="bg-navy-900 px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-slate-200">
+          <div className="bg-navy-900 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-slate-200">
             <div className="flex items-center gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-blue-400">shield</span>
-              <span className="text-xs font-mono font-semibold tracking-wide text-white">
+              <span className="material-symbols-outlined text-[20px] text-blue-400">shield</span>
+              <span className="text-sm font-mono font-semibold tracking-wide text-white">
                 Interactive Analysis Walkthrough
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="px-2 py-0.5 rounded bg-navy-800 text-slate-300 border border-slate-700">
+              <span className="px-2.5 py-1 rounded bg-navy-800 text-slate-200 border border-slate-700 font-medium">
                 Sample: Internship Advance-Fee Scam
               </span>
             </div>
@@ -121,49 +121,49 @@ export default function LandingPage({ onNavigate }) {
             {/* Left Column: Sample Payload */}
             <div className="lg:col-span-5 p-6 bg-slate-50/60 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                   Inbound Suspicious Communication
                 </span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">
+                <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold">
                   Email Channel
                 </span>
               </div>
 
               {/* Sample Email Box */}
-              <div className="p-4 rounded-lg bg-white border border-slate-200 space-y-3 text-xs">
-                <div className="space-y-1.5 font-mono text-[11px]">
+              <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-3 text-xs sm:text-sm">
+                <div className="space-y-2 font-mono text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 w-16">Sender:</span>
-                    <span className="text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200 truncate">
+                    <span className="text-slate-400 w-16 font-semibold">Sender:</span>
+                    <span className="text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200 truncate font-medium">
                       hr-verify@quick-career.org
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 w-16">Subject:</span>
+                    <span className="text-slate-400 w-16 font-semibold">Subject:</span>
                     <span className="text-slate-800 font-medium truncate">
                       Summer Analyst Internship Offer — Confirmation Fee Required
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 w-16">Link:</span>
-                    <span className="text-blue-600 underline truncate">http://bit.ly/internship-fee-2024</span>
+                    <span className="text-slate-400 w-16 font-semibold">Link:</span>
+                    <span className="text-blue-600 underline truncate font-medium">http://bit.ly/internship-fee-2024</span>
                   </div>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100">
-                  <p className="text-slate-700 leading-relaxed font-mono text-[11px] bg-slate-50 p-2.5 rounded border border-slate-100">
-                    "Congratulations! You have been selected for the Summer Analyst internship program. Pay <span className="bg-red-50 text-red-700 font-semibold px-1 rounded">₹2,000 within 2 hours</span> using the link below to reserve your candidate pass: <span className="text-blue-600">bit.ly/internship-fee-2024</span>. Failure to process will release your seat to waiting candidates."
+                  <p className="text-slate-800 leading-relaxed font-mono text-xs bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    "Congratulations! You have been selected for the Summer Analyst internship program. Pay <span className="bg-red-50 text-red-700 font-semibold px-1 rounded">₹2,000 within 2 hours</span> using the link below to reserve your candidate pass: <span className="text-blue-600 font-medium">bit.ly/internship-fee-2024</span>. Failure to process will release your seat to waiting candidates."
                   </p>
                 </div>
               </div>
 
               {/* Context analysis */}
-              <div className="p-3.5 rounded-lg bg-amber-50 border border-amber-200 space-y-1 text-xs">
-                <div className="font-semibold text-amber-900 flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px]">info</span>
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5 text-xs sm:text-sm">
+                <div className="font-bold text-amber-900 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[18px]">info</span>
                   <span>Target Profile Context:</span>
                 </div>
-                <p className="text-amber-800 text-[11px] leading-relaxed">
+                <p className="text-amber-800 leading-relaxed">
                   Students actively seeking internships often fall victim to fake campus recruitment emails that fabricate artificial urgency and demand upfront registration or laptop security fees.
                 </p>
               </div>
@@ -172,104 +172,104 @@ export default function LandingPage({ onNavigate }) {
             {/* Right Column: Multi-Agent Analysis Output */}
             <div className="lg:col-span-7 p-6 space-y-5">
               {/* Verdict Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-red-50 border border-red-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-red-50 border border-red-200">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-red-600 text-white uppercase tracking-wider">
+                    <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-red-600 text-white uppercase tracking-wider">
                       High Risk Threat
                     </span>
-                    <span className="text-xs font-mono text-slate-500">Confidence: 97.4%</span>
+                    <span className="text-xs font-mono text-slate-600 font-semibold">Confidence: 97.4%</span>
                   </div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                     Internship Advance-Fee Scam
                   </h2>
                 </div>
 
-                <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-red-200 shrink-0">
+                <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-red-200 shrink-0 shadow-2xs">
                   <div className="text-right">
-                    <div className="text-[10px] font-mono text-slate-500 uppercase">Calculated Risk</div>
-                    <div className="text-2xl font-bold text-red-600">
-                      91<span className="text-xs font-normal text-slate-400">/100</span>
+                    <div className="text-xs font-mono text-slate-500 uppercase font-semibold">Calculated Risk</div>
+                    <div className="text-3xl font-bold text-red-600">
+                      91<span className="text-sm font-normal text-slate-400">/100</span>
                     </div>
                   </div>
-                  <div className="w-8 h-8 rounded-md bg-red-100 flex items-center justify-center text-red-600">
-                    <span className="material-symbols-outlined text-[20px]">warning</span>
+                  <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-red-600">
+                    <span className="material-symbols-outlined text-[24px]">warning</span>
                   </div>
                 </div>
               </div>
 
               {/* Multi-Agent Contribution Bar */}
-              <div className="space-y-2 p-3.5 rounded-lg bg-slate-50 border border-slate-200">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-800">Multi-Agent Signal Contribution</span>
-                  <span className="font-mono text-slate-500 text-[11px]">Bayesian Fusion</span>
+              <div className="space-y-2.5 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex items-center justify-between text-xs sm:text-sm">
+                  <span className="font-bold text-slate-800">Multi-Agent Signal Contribution</span>
+                  <span className="font-mono text-slate-600 font-semibold text-xs">Bayesian Fusion</span>
                 </div>
-                <div className="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden flex">
+                <div className="w-full h-3 rounded-full bg-slate-200 overflow-hidden flex">
                   <div className="bg-[#0284C7] h-full" style={{ width: '40%' }} title="URL Agent: 40%" />
                   <div className="bg-[#2563EB] h-full" style={{ width: '35%' }} title="Text Agent: 35%" />
                   <div className="bg-[#4F46E5] h-full" style={{ width: '15%' }} title="Sender Agent: 15%" />
                   <div className="bg-[#7C3AED] h-full" style={{ width: '10%' }} title="RAG Retrieval: 10%" />
                 </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono text-slate-600">
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#0284C7]" />URL Agent: 40%</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#2563EB]" />Text Agent: 35%</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#4F46E5]" />Sender Agent: 15%</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#7C3AED]" />Incident RAG: 10%</span>
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs font-mono text-slate-700 font-medium">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#0284C7]" />URL Agent: 40%</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />Text Agent: 35%</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#4F46E5]" />Sender Agent: 15%</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />Incident RAG: 10%</span>
                 </div>
               </div>
 
               {/* Diagnostic breakdown cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div className="font-semibold text-slate-900 flex items-center justify-between">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs sm:text-sm">
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
+                  <div className="font-bold text-slate-900 flex items-center justify-between">
                     <span>URL Agent (XGBoost)</span>
                     <span className="font-mono text-red-600 font-bold">+0.40 Delta</span>
                   </div>
-                  <p className="text-[11px] text-slate-600">
+                  <p className="text-xs text-slate-700 leading-relaxed">
                     Shortened URL (bit.ly) masking destination domain with payment intent keywords.
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div className="font-semibold text-slate-900 flex items-center justify-between">
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
+                  <div className="font-bold text-slate-900 flex items-center justify-between">
                     <span>Text Agent (TF-IDF + LR)</span>
                     <span className="font-mono text-red-600 font-bold">+0.35 Delta</span>
                   </div>
-                  <p className="text-[11px] text-slate-600">
+                  <p className="text-xs text-slate-700 leading-relaxed">
                     High linguistic urgency (2-hour limit), upfront fee demand (₹2,000), and forfeiture threat.
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div className="font-semibold text-slate-900 flex items-center justify-between">
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
+                  <div className="font-bold text-slate-900 flex items-center justify-between">
                     <span>Sender Agent (Random Forest)</span>
                     <span className="font-mono text-red-600 font-bold">+0.15 Delta</span>
                   </div>
-                  <p className="text-[11px] text-slate-600">
+                  <p className="text-xs text-slate-700 leading-relaxed">
                     Domain registered under 5 days ago, missing DMARC record, and SPF softfail alert.
                   </p>
                 </div>
 
-                <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1">
-                  <div className="font-semibold text-slate-900 flex items-center justify-between">
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
+                  <div className="font-bold text-slate-900 flex items-center justify-between">
                     <span>Incident RAG Retrieval</span>
                     <span className="font-mono text-blue-600 font-bold">91% Match</span>
                   </div>
-                  <p className="text-[11px] text-slate-600">
+                  <p className="text-xs text-slate-700 leading-relaxed">
                     Correlated with confirmed historical case: "Campus Recruitment Advance-Fee Scheme".
                   </p>
                 </div>
               </div>
 
               {/* Action plan */}
-              <div className="p-3.5 rounded-lg bg-blue-50 border border-blue-200 space-y-2">
+              <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-blue-900 flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-blue-600 text-[16px]">task_alt</span>
+                  <span className="text-sm font-bold text-blue-950 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-blue-600 text-[18px]">task_alt</span>
                     Personalized Guidance (Student Profile)
                   </span>
                 </div>
-                <ul className="text-xs text-slate-700 space-y-1 pl-4 list-disc leading-relaxed">
+                <ul className="text-xs sm:text-sm text-slate-800 space-y-1.5 pl-4 list-disc leading-relaxed font-medium">
                   <li><strong>Never pay upfront fees:</strong> Legitimate recruiters never charge candidate fees or seat reservations.</li>
                   <li><strong>Verify with Placement Office:</strong> Confirm with your university placement cell if this recruiter is authorized.</li>
                   <li><strong>Report to IT Support:</strong> Notify your campus network administrator to block the sender domain.</li>
@@ -282,20 +282,20 @@ export default function LandingPage({ onNavigate }) {
 
       {/* 3. PIPELINE ARCHITECTURE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16" id="pipeline-architecture">
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-blue-600">
+        <div className="text-center max-w-3xl mx-auto mb-10 space-y-2.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
             System Design & Pipeline
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Multi-Stage Detection Architecture
           </h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
             Inbound content passes through automated extraction, parallel specialized ML classifiers, RAG vector retrieval, Bayesian risk fusion, and explainable guidance generation.
           </p>
         </div>
 
         {/* 8-Stage Sequential Flow Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {[
             { num: 1, name: 'User Profile', desc: 'Role & accounts context' },
             { num: 2, name: 'Preprocessor', desc: 'Entity extraction' },
@@ -306,63 +306,63 @@ export default function LandingPage({ onNavigate }) {
             { num: 7, name: 'Explainability', desc: 'SHAP factor deltas' },
             { num: 8, name: 'Action Plan', desc: 'Tailored guidance' },
           ].map((stage) => (
-            <div key={stage.num} className="p-3 rounded-lg bg-white border border-slate-200 text-center space-y-1 shadow-2xs">
-              <span className="w-6 h-6 mx-auto rounded-full bg-blue-600 text-white text-xs font-mono font-bold flex items-center justify-center">
+            <div key={stage.num} className="p-3.5 rounded-xl bg-white border border-slate-200 text-center space-y-1.5 shadow-2xs">
+              <span className="w-7 h-7 mx-auto rounded-full bg-blue-600 text-white text-xs font-mono font-bold flex items-center justify-center">
                 {stage.num}
               </span>
-              <div className="text-xs font-semibold text-slate-900">{stage.name}</div>
-              <div className="text-[10px] text-slate-500 font-mono">{stage.desc}</div>
+              <div className="text-xs sm:text-sm font-bold text-slate-900">{stage.name}</div>
+              <div className="text-xs text-slate-500 font-mono leading-tight">{stage.desc}</div>
             </div>
           ))}
         </div>
 
         {/* Technical stack summary */}
-        <div className="mt-10 p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-          <h3 className="text-xs font-mono font-semibold uppercase text-slate-500 mb-3 text-center">
+        <div className="mt-10 p-6 rounded-xl bg-white border border-slate-200 shadow-2xs">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 text-center">
             Implementation Technology Stack
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-center text-xs">
-            <div className="p-2.5 rounded-md bg-slate-50 border border-slate-100">
-              <div className="font-semibold text-slate-900">React + Vite</div>
-              <div className="text-[10px] text-slate-500">Frontend Client</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3.5 text-center text-xs sm:text-sm">
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="font-bold text-slate-900">React + Vite</div>
+              <div className="text-xs text-slate-500 mt-0.5">Frontend Client</div>
             </div>
-            <div className="p-2.5 rounded-md bg-slate-50 border border-slate-100">
-              <div className="font-semibold text-slate-900">FastAPI</div>
-              <div className="text-[10px] text-slate-500">Python Backend</div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="font-bold text-slate-900">FastAPI</div>
+              <div className="text-xs text-slate-500 mt-0.5">Python Backend</div>
             </div>
-            <div className="p-2.5 rounded-md bg-slate-50 border border-slate-100">
-              <div className="font-semibold text-slate-900">XGBoost</div>
-              <div className="text-[10px] text-slate-500">URL Feature Classifier</div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="font-bold text-slate-900">XGBoost</div>
+              <div className="text-xs text-slate-500 mt-0.5">URL Feature Classifier</div>
             </div>
-            <div className="p-2.5 rounded-md bg-slate-50 border border-slate-100">
-              <div className="font-semibold text-slate-900">Scikit-Learn</div>
-              <div className="text-[10px] text-slate-500">Text & Sender Models</div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="font-bold text-slate-900">Scikit-Learn</div>
+              <div className="text-xs text-slate-500 mt-0.5">Text & Sender Models</div>
             </div>
-            <div className="p-2.5 rounded-md bg-slate-50 border border-slate-100">
-              <div className="font-semibold text-slate-900">SQLite + RAG</div>
-              <div className="text-[10px] text-slate-500">Incident Memory</div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="font-bold text-slate-900">SQLite + RAG</div>
+              <div className="text-xs text-slate-500 mt-0.5">Incident Memory</div>
             </div>
-            <div className="p-2.5 rounded-md bg-slate-50 border border-slate-100">
-              <div className="font-semibold text-slate-900">Multi-LLM Gateway</div>
-              <div className="text-[10px] text-slate-500">Gemini, Groq, Ollama</div>
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div className="font-bold text-slate-900">Multi-LLM Gateway</div>
+              <div className="text-xs text-slate-500 mt-0.5">Gemini, Groq, Ollama</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* 4. FOOTER */}
-      <footer className="bg-navy-900 text-slate-400 py-8 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+      <footer className="bg-navy-900 text-slate-400 py-10 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-white">
-              <span className="material-symbols-outlined text-[16px]">security</span>
+            <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center text-white">
+              <span className="material-symbols-outlined text-[18px]">security</span>
             </div>
-            <span className="font-semibold text-white">PhishGuard AI</span>
-            <span className="text-slate-500 font-mono">| MDM - Generative AI Capstone</span>
+            <span className="font-bold text-white text-base">PhishGuard AI</span>
+            <span className="text-slate-400 font-mono text-xs">| MDM - Generative AI Capstone</span>
           </div>
-          <div className="text-slate-400 font-mono text-center sm:text-right space-y-0.5">
-            <div>Personalized Multi-Agent Phishing Detection & Explainable Risk Analysis</div>
-            <div className="text-slate-500 text-[11px]">Academic Research Deliverable • Evaluated on Public Phishing Corpora</div>
+          <div className="text-slate-300 font-mono text-center sm:text-right space-y-1">
+            <div className="font-medium">Personalized Multi-Agent Phishing Detection & Explainable Risk Analysis</div>
+            <div className="text-slate-400 text-xs">Academic Research Deliverable • Evaluated on Public Phishing Corpora</div>
           </div>
         </div>
       </footer>
