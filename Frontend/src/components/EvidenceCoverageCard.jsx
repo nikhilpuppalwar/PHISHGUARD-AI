@@ -66,19 +66,19 @@ export default function EvidenceCoverageCard({ evidenceCoverage = null }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200/60 flex items-center justify-center text-teal-600">
-            <span className="material-symbols-outlined text-[17px]">dataset</span>
+      <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200/60 flex items-center justify-center text-teal-600">
+            <span className="material-symbols-outlined text-[19px]">dataset</span>
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-slate-900 tracking-tight">Evidence Coverage Matrix</h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-teal-50 text-teal-700 border border-teal-200">
+            <div className="flex items-center gap-2.5">
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">Evidence Coverage Matrix</h3>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-teal-50 text-teal-700 border border-teal-200">
                 6 Dimensions Verified
               </span>
             </div>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-xs text-slate-500">
               Multi-vector verification ensuring no single point of failure or fabricated safe assertions.
             </p>
           </div>
@@ -86,21 +86,21 @@ export default function EvidenceCoverageCard({ evidenceCoverage = null }) {
       </div>
 
       {/* Grid */}
-      <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-3.5">
+      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((item, idx) => (
           <div
             key={idx}
-            className="p-3 rounded-lg border border-slate-200/70 bg-slate-50/40 hover:bg-slate-50 transition flex flex-col justify-between gap-2"
+            className="p-3.5 rounded-lg border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition flex flex-col justify-between gap-2.5"
           >
-            <div className="flex items-start justify-between gap-2">
-              <span className="text-xs font-semibold text-slate-800 leading-snug">
+            <div className="flex items-start justify-between gap-2.5">
+              <span className="text-sm font-semibold text-slate-900 leading-snug">
                 {item.dimension}
               </span>
-              <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold border whitespace-nowrap ${getStatusBadge(item.status)}`}>
+              <span className={`px-2.5 py-0.5 rounded-md text-xs font-mono font-semibold border whitespace-nowrap ${getStatusBadge(item.status)}`}>
                 {item.status}
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed font-normal">
+            <p className="text-xs text-slate-600 leading-relaxed font-normal">
               {item.detail}
             </p>
           </div>

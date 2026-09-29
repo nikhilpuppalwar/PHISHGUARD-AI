@@ -92,36 +92,36 @@ export default function RiskFactorsBreakdown({ riskFactors = [], majorIndicators
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-200/60 flex items-center justify-center text-rose-600">
-            <span className="material-symbols-outlined text-[17px]">warning</span>
+      <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200/60 flex items-center justify-center text-rose-600">
+            <span className="material-symbols-outlined text-[19px]">warning</span>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 tracking-tight">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">
               Risk Factor Breakdown
             </h3>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-xs text-slate-500">
               Contributory risk factors and weighted signals isolated across the detection pipeline.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200">
+          <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
             {items.length} Factors Identified
           </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5">
+      <div className="p-6">
         {items.length === 0 ? (
-          <div className="p-4 rounded-lg bg-emerald-50/60 border border-emerald-200/60 flex items-center gap-3 text-xs text-emerald-800">
-            <span className="material-symbols-outlined text-emerald-600 text-[18px]">verified</span>
+          <div className="p-4 rounded-lg bg-emerald-50/70 border border-emerald-200 flex items-center gap-3 text-sm text-emerald-900">
+            <span className="material-symbols-outlined text-emerald-600 text-[20px]">verified</span>
             <span>No critical risk factors were triggered across the analytical layers. The message exhibits nominal baseline patterns.</span>
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {items.map((item) => {
               const badge = getAgentBadge(item.agent);
               const impact = getWeightImpact(item.weight);
@@ -130,33 +130,33 @@ export default function RiskFactorsBreakdown({ riskFactors = [], majorIndicators
               return (
                 <div
                   key={item.id}
-                  className="p-3 rounded-lg border border-slate-200/80 bg-slate-50/40 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  className="p-3.5 rounded-lg border border-slate-200/90 bg-slate-50/40 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-[18px] text-rose-500 mt-0.5 shrink-0">
+                    <span className="material-symbols-outlined text-[20px] text-rose-500 mt-0.5 shrink-0">
                       report_problem
                     </span>
-                    <div className="space-y-1">
-                      <div className="text-xs font-semibold text-slate-900">
+                    <div className="space-y-1.5">
+                      <div className="text-sm font-semibold text-slate-900 leading-snug">
                         {item.factor}
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap text-[11px]">
-                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-medium border ${badge.color}`}>
-                          <span className="material-symbols-outlined text-[11px]">{badge.icon}</span>
+                      <div className="flex items-center gap-2.5 flex-wrap text-xs">
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-medium border ${badge.color}`}>
+                          <span className="material-symbols-outlined text-[13px]">{badge.icon}</span>
                           <span>{badge.label}</span>
                         </span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-slate-500">Weight factor: <strong className="font-mono text-slate-700">{item.weight.toFixed(2)}</strong></span>
+                        <span className="text-slate-300">•</span>
+                        <span className="text-slate-600 font-medium">Weight: <strong className="font-mono text-slate-800">{item.weight.toFixed(2)}</strong></span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                  <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
                     <div className="text-right hidden sm:block">
-                      <div className="text-[10px] font-mono text-slate-500">Signal Contribution</div>
-                      <div className="text-xs font-mono font-bold text-slate-800">{weightPct}%</div>
+                      <div className="text-xs font-mono text-slate-500">Signal Contribution</div>
+                      <div className="text-sm font-mono font-bold text-slate-900">{weightPct}%</div>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${impact.badge}`}>
+                    <span className={`px-2.5 py-1 rounded text-xs font-mono font-semibold border ${impact.badge}`}>
                       {impact.label}
                     </span>
                   </div>

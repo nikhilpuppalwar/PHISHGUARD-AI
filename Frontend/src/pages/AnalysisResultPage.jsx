@@ -110,26 +110,26 @@ export default function AnalysisResultPage({ result, onNavigate }) {
       {/* 1. Header & Breadcrumbs & Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
-            <button onClick={() => onNavigate('dashboard')} className="hover:text-blue-600 transition">
+          <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
+            <button onClick={() => onNavigate('dashboard')} className="hover:text-blue-600 font-medium transition">
               Workspace
             </button>
-            <span>/</span>
-            <button onClick={() => onNavigate('incidents')} className="hover:text-blue-600 transition">
+            <span className="text-slate-400">/</span>
+            <button onClick={() => onNavigate('incidents')} className="hover:text-blue-600 font-medium transition">
               Incidents
             </button>
-            <span>/</span>
-            <span className="text-slate-800 font-semibold font-mono">#{submission_id?.slice(0, 8)}</span>
+            <span className="text-slate-400">/</span>
+            <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded font-bold font-mono">#{submission_id?.slice(0, 8)}</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Threat Analysis Report
           </h1>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-mono text-slate-500">
-            <span>Channel: <strong className="uppercase text-slate-700">{channel}</strong></span>
-            <span>•</span>
-            <span>Sender: <strong className="text-slate-700">{sender || 'None specified'}</strong></span>
-            <span>•</span>
-            <span>Scanned: {new Date(submitted_at).toLocaleString()}</span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600">
+            <span>Channel: <strong className="uppercase text-slate-800 font-semibold">{channel}</strong></span>
+            <span className="text-slate-300">•</span>
+            <span>Sender: <strong className="text-slate-800 font-semibold">{sender || 'None specified'}</strong></span>
+            <span className="text-slate-300">•</span>
+            <span>Scanned: <span className="font-medium text-slate-700">{new Date(submitted_at).toLocaleString()}</span></span>
           </div>
         </div>
 
@@ -187,28 +187,28 @@ export default function AnalysisResultPage({ result, onNavigate }) {
       />
 
       {/* 4. ATTACK TYPE CATEGORY BANNER (Spec §6, §18) */}
-      <div className={`p-5 rounded-xl border shadow-2xs space-y-2 transition-all ${
+      <div className={`p-6 rounded-xl border shadow-2xs space-y-3 transition-all ${
         isLowRisk
-          ? 'bg-emerald-50/50 border-emerald-200/80 text-emerald-950'
+          ? 'bg-emerald-50/60 border-emerald-200 text-emerald-950'
           : (isMediumRisk
-              ? 'bg-amber-50/40 border-amber-200 text-amber-950'
+              ? 'bg-amber-50/50 border-amber-200 text-amber-950'
               : 'bg-white border-slate-200 text-slate-900')
       }`}>
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
-            <span className={`material-symbols-outlined text-[20px] ${
-              isLowRisk ? 'text-emerald-600' : (isMediumRisk ? 'text-amber-600' : 'text-slate-700')
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className={`material-symbols-outlined text-[22px] ${
+              isLowRisk ? 'text-emerald-600' : (isMediumRisk ? 'text-amber-600' : 'text-slate-800')
             }`}>
               category
             </span>
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-600">
               Attack Classification
             </span>
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold border ${
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold border ${
               isLowRisk
-                ? 'bg-emerald-100/70 text-emerald-800 border-emerald-200'
+                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
                 : (isMediumRisk
-                    ? 'bg-amber-100/70 text-amber-800 border-amber-200'
+                    ? 'bg-amber-100 text-amber-800 border-amber-300'
                     : 'bg-rose-50 text-rose-700 border-rose-200')
             }`}>
               {attack_classification?.category || (isLowRisk ? 'Benign' : (isMediumRisk ? 'Suspicious' : 'Malicious'))}
@@ -217,32 +217,39 @@ export default function AnalysisResultPage({ result, onNavigate }) {
 
           <button
             onClick={() => onNavigate('glossary')}
-            className="text-xs font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1.5 transition"
           >
             <span>Threat Taxonomy</span>
-            <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
           </button>
         </div>
 
-        <h3 className="text-base font-bold tracking-tight">
+        <h3 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
           {displayAttackTitle}
         </h3>
-        <p className="text-xs text-slate-600 leading-relaxed font-normal">
+        <p className="text-sm text-slate-700 leading-relaxed font-normal max-w-3xl">
           {displayAttackDescription}
         </p>
       </div>
 
       {/* 5. AGENTS: MULTI-AGENT SIGNAL CONTRIBUTION & DELTA ANALYSIS */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px] text-slate-700">hub</span>
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-              Agent Analysis
-            </h3>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600">
+              <span className="material-symbols-outlined text-[19px]">hub</span>
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                Agent Analysis
+              </h3>
+              <p className="text-xs text-slate-500">
+                Isolated Bayesian machine learning models and structural heuristics
+              </p>
+            </div>
           </div>
-          <span className="text-[11px] font-mono text-slate-500">
-            Isolated ML & Agent Probabilities
+          <span className="text-xs font-mono font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+            Multi-Agent Evidence Fusion
           </span>
         </div>
 
@@ -287,49 +294,49 @@ export default function AnalysisResultPage({ result, onNavigate }) {
 
       {/* 9. GENERATIVE SECURITY ASSESSMENT — WHY THIS MESSAGE IS RISKY (Task Section 1 & 6) */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div className="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600">
-              <span className="material-symbols-outlined text-[17px]">psychology</span>
+        <div className="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600">
+              <span className="material-symbols-outlined text-[19px]">psychology</span>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 tracking-tight">
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">
                 Generative Security Assessment
               </h3>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Detailed evidence-grounded AI forensic explanation of why this input was flagged.
               </p>
             </div>
           </div>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-blue-50 text-blue-700 border border-blue-200">
+          <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-blue-50 text-blue-700 border border-blue-200">
             Why This Message Is Risky
           </span>
         </div>
 
-        <div className="p-5 space-y-4">
+        <div className="p-6 space-y-5">
           {/* Overall finding */}
-          <div className="space-y-1">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div className="space-y-1.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
               Overall Finding
             </h4>
-            <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal">
+            <p className="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
               {explainability_details?.overall_finding || explanation}
             </p>
           </div>
 
           {/* Numbered Why Flagged List */}
           {explainability_details?.why_flagged && explainability_details.why_flagged.length > 0 && (
-            <div className="pt-3 border-t border-slate-100 space-y-2">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <div className="pt-4 border-t border-slate-100 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 font-mono">
                 Why It Was Flagged (Key Indicators)
               </h4>
-              <ol className="space-y-2 list-none">
+              <ol className="space-y-2.5 list-none">
                 {explainability_details.why_flagged.map((point, idx) => (
-                  <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-700 leading-relaxed">
-                    <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-mono text-[11px] font-bold flex-shrink-0 mt-0.5">
+                  <li key={idx} className="flex items-start gap-3 text-sm text-slate-800 leading-relaxed">
+                    <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-mono text-xs font-bold flex-shrink-0 mt-0.5 border border-slate-200">
                       {idx + 1}
                     </span>
-                    <span>{point}</span>
+                    <span className="pt-0.5">{point}</span>
                   </li>
                 ))}
               </ol>
@@ -338,17 +345,17 @@ export default function AnalysisResultPage({ result, onNavigate }) {
 
           {/* Evidence by Agent */}
           {explainability_details?.evidence_by_agent && (
-            <div className="pt-3 border-t border-slate-100 space-y-2">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <div className="pt-4 border-t border-slate-100 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 font-mono">
                 Evidence by Agent
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs">
                 {Object.entries(explainability_details.evidence_by_agent).map(([agentKey, points]) => (
-                  <div key={agentKey} className="p-3 rounded-lg bg-slate-50/70 border border-slate-200/60 space-y-1.5">
-                    <span className="font-mono text-[11px] font-bold uppercase text-slate-700 block">
+                  <div key={agentKey} className="p-3.5 rounded-lg bg-slate-50/80 border border-slate-200 space-y-2">
+                    <span className="font-mono text-xs font-bold uppercase text-slate-800 block">
                       {agentKey.toUpperCase()} AGENT
                     </span>
-                    <ul className="space-y-1 list-disc list-inside text-slate-600 text-[11px]">
+                    <ul className="space-y-1.5 list-disc list-inside text-slate-700 text-xs leading-relaxed">
                       {Array.isArray(points) ? points.map((pt, i) => (
                         <li key={i}>{pt}</li>
                       )) : <li>{String(points)}</li>}
@@ -361,11 +368,11 @@ export default function AnalysisResultPage({ result, onNavigate }) {
 
           {/* Incident Memory Context if available */}
           {explainability_details?.incident_context && (
-            <div className="pt-3 border-t border-slate-100 space-y-1">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <div className="pt-4 border-t border-slate-100 space-y-1.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 font-mono">
                 Incident Memory Context
               </h4>
-              <p className="text-xs text-slate-700 leading-relaxed font-normal">
+              <p className="text-sm text-slate-800 leading-relaxed font-normal">
                 {explainability_details.incident_context}
               </p>
             </div>
@@ -373,11 +380,11 @@ export default function AnalysisResultPage({ result, onNavigate }) {
 
           {/* Risk Interpretation */}
           {explainability_details?.risk_interpretation && (
-            <div className="pt-3 border-t border-slate-100 space-y-1">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <div className="pt-4 border-t border-slate-100 space-y-1.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 font-mono">
                 Risk Interpretation
               </h4>
-              <p className="text-xs text-slate-700 leading-relaxed font-normal">
+              <p className="text-sm text-slate-800 leading-relaxed font-normal">
                 {explainability_details.risk_interpretation}
               </p>
             </div>

@@ -7,18 +7,18 @@ export default function SignalBar({ contributions = {} }) {
   const ragPct = contributions.rag !== undefined ? contributions.rag : 10;
 
   return (
-    <div className="space-y-3 p-4 rounded-xl bg-white border border-slate-200 shadow-2xs">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono">
+    <div className="space-y-3.5 p-5 rounded-xl bg-white border border-slate-200 shadow-2xs">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-900 font-mono">
           Agent Signal Contribution Breakdown
         </span>
-        <span className="text-[11px] font-mono text-slate-500">
+        <span className="text-xs font-mono text-slate-500">
           Formula: Calibrated Bayesian Weights
         </span>
       </div>
 
       {/* Stacked Proportional Bar */}
-      <div className="w-full h-3 rounded-full bg-slate-100 overflow-hidden flex">
+      <div className="w-full h-3.5 rounded-full bg-slate-100 overflow-hidden flex shadow-inner">
         <div 
           className="bg-[#0284C7] h-full transition-all duration-300" 
           style={{ width: `${urlPct}%` }} 
@@ -42,22 +42,22 @@ export default function SignalBar({ contributions = {} }) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-y-1.5 gap-x-5 text-xs font-mono text-slate-600">
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#0284C7]" />
-          <span>URL Agent: <strong className="text-slate-800">{urlPct}%</strong></span>
+      <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-xs sm:text-sm font-mono text-slate-700">
+        <span className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-[#0284C7]" />
+          <span>URL Agent: <strong className="text-slate-900 font-bold">{urlPct}%</strong></span>
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />
-          <span>Text Agent: <strong className="text-slate-800">{textPct}%</strong></span>
+        <span className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-[#2563EB]" />
+          <span>Text Agent: <strong className="text-slate-900 font-bold">{textPct}%</strong></span>
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#4F46E5]" />
-          <span>Sender Agent: <strong className="text-slate-800">{senderPct}%</strong></span>
+        <span className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-[#4F46E5]" />
+          <span>Sender Agent: <strong className="text-slate-900 font-bold">{senderPct}%</strong></span>
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED]" />
-          <span>Incident Memory: <strong className="text-slate-800">{ragPct}%</strong></span>
+        <span className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-[#7C3AED]" />
+          <span>Incident Memory: <strong className="text-slate-900 font-bold">{ragPct}%</strong></span>
         </span>
       </div>
     </div>
