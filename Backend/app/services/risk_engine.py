@@ -146,33 +146,70 @@ class RiskEngine:
 
         # Spec §4 & §10: Profile relevance assessment
         profile_relevance = "GENERAL"
+        indicators_combined = " ".join([rf["factor"].lower() for rf in risk_factors]) + " " + text_res.get("summary", "").lower()
         if user_profile:
             role_str = str(user_profile.get("role", "")).lower()
             services = [s.lower() for s in user_profile.get("common_services", [])]
             activities = [a.lower() for a in user_profile.get("online_activities", [])]
             
             # Check if threat touches user's active domain or services
-            indicators_combined = " ".join([rf["factor"].lower() for rf in risk_factors])
             matched_profile = False
-            if "student" in role_str and ("internship" in indicators_combined or "campus" in indicators_combined):
+            if "student" in role_str and any(k in indicators_combined for k in ["internship", "campus", "student", "placement", "academic"]):
                 matched_profile = True
             elif any(s in indicators_combined for s in services if len(s) > 2):
                 matched_profile = True
             elif any(a in indicators_combined for a in activities if len(a) > 2):
                 matched_profile = True
+            elif user_profile.get("matched_services"):
+                matched_profile = True
 
-            if matched_profile and composite_score >= 40.0:
+            if matched_profile and composite_score >= 35.0:
                 profile_relevance = "HIGH"
-            elif composite_score >= 40.0:
+            elif composite_score >= 35.0:
                 profile_relevance = "MODERATE"
             else:
                 profile_relevance = "LOW (Benign content)"
 
+        # Spec §4, §10, §18: Calibrated Personalized Risk Score
+        base_score = composite_score
+        personalized_score = base_score
+        if user_profile and base_score >= 20.0:
+            awareness_str = str(user_profile.get("security_awareness", "")).lower()
+            
+            # 1. Profile Demographic & Service Targeting Delta
+            if profile_relevance == "HIGH":
+                personalized_score += 10.0
+            elif profile_relevance == "MODERATE":
+                personalized_score += 0.0
+            elif "low" in profile_relevance.lower():
+                personalized_score -= 3.0
+
+            # 2. Security Awareness & Technical Experience Calibration
+            if any(term in awareness_str for term in ["beginner", "1", "2"]):
+                personalized_score += 4.0
+            elif any(term in awareness_str for term in ["intermediate", "3"]):
+                personalized_score += 2.0
+            elif any(term in awareness_str for term in ["advanced", "expert", "4", "5"]):
+                personalized_score -= 4.0
+
+            personalized_score = round(max(5.0, min(99.0, personalized_score)), 1)
+
+        # Set overall_score to personalized_score if profile exists, else base_score
+        overall_score = personalized_score if user_profile else base_score
+
+        # Recalibrate severity for overall score
+        if overall_score >= 75.0:
+            final_severity = "High Risk"
+        elif overall_score >= 40.0:
+            final_severity = "Medium Risk"
+        else:
+            final_severity = "Low Risk"
+
         return {
-            "overall_score": composite_score,
-            "base_score": composite_score,
-            "personalized_score": composite_score,
-            "severity": severity,
+            "overall_score": overall_score,
+            "base_score": base_score,
+            "personalized_score": personalized_score,
+            "severity": final_severity,
             "confidence": confidence,
             "profile_relevance": profile_relevance,
             "risk_factors": risk_factors,

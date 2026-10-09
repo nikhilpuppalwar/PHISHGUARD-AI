@@ -24,19 +24,17 @@ export default function AnalyticsPage({ onNavigate }) {
     loadData();
   }, []);
 
-  const channelData = [
-    { name: 'Email Ingestion', value: analytics?.channel_breakdown?.email || 4, color: '#2563EB' },
-    { name: 'SMS Messages', value: analytics?.channel_breakdown?.sms || 1, color: '#0284C7' },
-    { name: 'Direct URLs', value: analytics?.channel_breakdown?.url || 2, color: '#7C3AED' },
+  const totalSubmissions = analytics?.total_submissions ?? 0;
+
+  const channelData = totalSubmissions > 0 ? [
+    { name: 'Email Ingestion', value: analytics?.channel_breakdown?.email || 0, color: '#2563EB' },
+    { name: 'SMS Messages', value: analytics?.channel_breakdown?.sms || 0, color: '#0284C7' },
+    { name: 'Direct URLs', value: analytics?.channel_breakdown?.url || 0, color: '#7C3AED' },
+  ] : [
+    { name: 'No Inbound Threats Scanned', value: 1, color: '#E2E8F0' },
   ];
 
-  const timelineData = analytics?.timeline || [
-    { date: 'Day 1', avg_risk: 42, threats_detected: 1 },
-    { date: 'Day 2', avg_risk: 78, threats_detected: 2 },
-    { date: 'Day 3', avg_risk: 91, threats_detected: 3 },
-    { date: 'Day 4', avg_risk: 64, threats_detected: 1 },
-    { date: 'Today', avg_risk: 88, threats_detected: 2 },
-  ];
+  const timelineData = (analytics?.timeline && analytics.timeline.length > 0) ? analytics.timeline : [];
 
   return (
     <div className="space-y-6">
@@ -56,8 +54,14 @@ export default function AnalyticsPage({ onNavigate }) {
             Aggregate Risk Score
           </span>
           <div className="text-2xl sm:text-3xl font-bold text-slate-900">
-            {analytics?.average_risk_score || 78.4}
-            <span className="text-base font-semibold text-slate-500">/100</span>
+            {totalSubmissions > 0 ? (
+              <>
+                {analytics?.average_risk_score}
+                <span className="text-base font-semibold text-slate-500">/100</span>
+              </>
+            ) : (
+              <span className="text-slate-400">—</span>
+            )}
           </div>
           <p className="text-xs text-slate-600 mt-1.5">Weighted Bayesian multi-signal mean</p>
         </div>
@@ -68,13 +72,13 @@ export default function AnalyticsPage({ onNavigate }) {
           </span>
           <div className="flex items-center gap-2 text-xs font-bold mt-2.5">
             <span className="text-red-700 bg-red-50 px-2.5 py-1 rounded border border-red-200">
-              High: {analytics?.high_risk_count || 3}
+              High: {analytics?.high_risk_count ?? 0}
             </span>
             <span className="text-amber-700 bg-amber-50 px-2.5 py-1 rounded border border-amber-200">
-              Med: {analytics?.medium_risk_count || 1}
+              Med: {analytics?.medium_risk_count ?? 0}
             </span>
             <span className="text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
-              Low: {analytics?.low_risk_count || 1}
+              Low: {analytics?.low_risk_count ?? 0}
             </span>
           </div>
         </div>
@@ -84,7 +88,7 @@ export default function AnalyticsPage({ onNavigate }) {
             Total Ingestion
           </span>
           <div className="text-2xl sm:text-3xl font-bold text-slate-900">
-            {analytics?.total_submissions || 5} Scans
+            {totalSubmissions} Scans
           </div>
           <p className="text-xs text-slate-600 mt-1.5">Safe offline parsing • Zero live execution</p>
         </div>

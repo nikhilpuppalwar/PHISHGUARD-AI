@@ -80,6 +80,7 @@ export default function AnalysisResultPage({ result, onNavigate }) {
     what_changed,
     explanation,
     action_plan = [],
+    personalized_recommendations = [],
     personalization_context,
     why_this_matters,
     user_role_context = 'Student',
@@ -212,6 +213,7 @@ export default function AnalysisResultPage({ result, onNavigate }) {
         baseScore={base_score ?? overall_score}
         personalizedScore={personalized_score ?? overall_score}
         profileRelevance={profile_relevance}
+        personalizedRecommendations={personalized_recommendations || result?.personalized_recommendations || []}
       />
 
       {/* 6. HOW DID WE CHECK IT? — EVIDENCE COVERAGE MATRIX (Spec §11) */}

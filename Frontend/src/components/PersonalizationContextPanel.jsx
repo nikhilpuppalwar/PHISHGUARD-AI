@@ -15,15 +15,19 @@ export default function PersonalizationContextPanel({
   whyThisMatters = null,
   baseScore = null,
   personalizedScore = null,
-  profileRelevance = 'MODERATE'
+  profileRelevance = 'MODERATE',
+  personalizedRecommendations = []
 }) {
   const role = personalizationContext?.role || userRole;
   const activity = personalizationContext?.relevant_activity;
   const awareness = personalizationContext?.security_awareness;
   const explanation = whyThisMatters || personalizationContext?.why_this_matters;
+  const recommendations = (Array.isArray(personalizedRecommendations) && personalizedRecommendations.length > 0)
+    ? personalizedRecommendations
+    : (Array.isArray(personalizationContext?.personalized_recommendations) ? personalizationContext.personalized_recommendations : []);
 
   // If no meaningful personalization context or role is present, do not render a generic filler box
-  if (!role && !activity && !explanation) {
+  if (!role && !activity && !explanation && recommendations.length === 0) {
     return null;
   }
 
@@ -71,7 +75,7 @@ export default function PersonalizationContextPanel({
         )}
       </div>
 
-      {/* Body: Profile Attributes & Personalized Reason */}
+      {/* Body: Profile Attributes, Personalized Reason & Tailored Recommendations */}
       <div className="p-6 space-y-4">
         {/* Profile Attributes Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -115,6 +119,41 @@ export default function PersonalizationContextPanel({
             {displayExplanation}
           </p>
         </div>
+
+        {/* Tailored Personalized Recommendations */}
+        {recommendations.length > 0 && (
+          <div className="pt-2 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[16px]">psychology</span>
+                </div>
+                <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
+                  Personalized Recommendations for {role}
+                </h4>
+              </div>
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold">
+                {recommendations.length} Tailored Actions
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2.5">
+              {recommendations.map((rec, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:bg-indigo-50/30 hover:border-indigo-200 transition"
+                >
+                  <div className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200 flex items-center justify-center text-[11px] font-mono font-bold shrink-0 mt-0.5">
+                    {idx + 1}
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal">
+                    {rec}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

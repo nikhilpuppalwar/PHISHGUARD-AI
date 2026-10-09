@@ -135,7 +135,7 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
             <span className="material-symbols-outlined text-[20px] text-slate-400">manage_search</span>
           </div>
           <div className="text-3xl font-extrabold text-slate-900">
-            {analytics?.total_submissions || recentIncidents.length || 0}
+            {analytics?.total_submissions !== undefined ? analytics.total_submissions : (recentIncidents.length || 0)}
           </div>
           <div className="text-xs text-slate-500">Inbound submissions analyzed</div>
         </div>
@@ -146,7 +146,7 @@ export default function DashboardPage({ onNavigate, onSelectSubmission }) {
             <span className="material-symbols-outlined text-[20px] text-red-500">dangerous</span>
           </div>
           <div className="text-3xl font-extrabold text-red-600">
-            {analytics?.high_risk_count || 0}
+            {analytics?.high_risk_count ?? 0}
           </div>
           <div className="text-xs text-slate-500 font-mono">Score ≥ 75/100</div>
         </div>

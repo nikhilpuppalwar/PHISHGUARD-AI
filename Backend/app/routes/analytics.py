@@ -62,15 +62,14 @@ def get_analytics(
             "threats_detected": val["count"]
         })
 
-    # If user has no or few submissions, populate realistic baseline demonstration points for capstone review
-    if len(timeline) < 3:
+    # For a brand new user with 0 submissions, keep timeline empty
+    if total == 0:
+        timeline = []
+    elif len(timeline) < 3:
         now = datetime.utcnow()
         timeline = [
-            {"date": (now - timedelta(days=6)).strftime("%b %d"), "avg_risk": 42.0, "threats_detected": 1},
-            {"date": (now - timedelta(days=4)).strftime("%b %d"), "avg_risk": 78.5, "threats_detected": 2},
-            {"date": (now - timedelta(days=2)).strftime("%b %d"), "avg_risk": 91.0, "threats_detected": 3},
-            {"date": (now - timedelta(days=1)).strftime("%b %d"), "avg_risk": 64.0, "threats_detected": 1},
-            {"date": now.strftime("%b %d"), "avg_risk": round(total_score / max(1, total), 1) if total > 0 else 84.0, "threats_detected": total or 1}
+            {"date": (now - timedelta(days=2)).strftime("%b %d"), "avg_risk": round(total_score / max(1, total), 1), "threats_detected": total},
+            {"date": now.strftime("%b %d"), "avg_risk": round(total_score / max(1, total), 1), "threats_detected": total}
         ]
 
     avg_score = round(total_score / total, 1) if total > 0 else 0.0

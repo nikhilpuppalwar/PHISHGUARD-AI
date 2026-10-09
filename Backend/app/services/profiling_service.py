@@ -249,6 +249,16 @@ class ConversationalProfilingService:
             db.commit()
             db.refresh(profile)
 
+        # Sanitize any accidental skip words from previous runs
+        skip_keywords = {"next", "skip", "pass", "continue", "none", "n/a"}
+        for lf in ["common_services", "online_activities", "common_communication_types"]:
+            val = getattr(profile, lf, None)
+            if val and isinstance(val, list):
+                cleaned = [x for x in val if str(x).strip().lower() not in skip_keywords]
+                if len(cleaned) != len(val):
+                    setattr(profile, lf, cleaned)
+                    db.commit()
+
         # Create or fetch active onboarding conversation
         conv = db.query(ProfileConversation).filter(
             ProfileConversation.user_id == user_id,
@@ -323,6 +333,7 @@ class ConversationalProfilingService:
         """
         Spec §8, §9, §26: Process conversational answer (either structured or natural language),
         converts via LLM/schema into validated DB updates, syncs User Profile RAG, and generates next question.
+        Guarantees that questions never repeat and skip commands are handled safely.
         """
         profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
         if not profile:
@@ -333,8 +344,26 @@ class ConversationalProfilingService:
 
         conv = db.query(ProfileConversation).filter(ProfileConversation.conversation_id == conversation_id).first()
 
+        skip_keywords = {"next", "skip", "pass", "skip this", "none", "n/a", "prefer not to say", "continue"}
+        is_skip = False
+        if isinstance(answer, str) and answer.strip().lower() in skip_keywords:
+            is_skip = True
+        elif isinstance(answer, list) and len(answer) == 1 and str(answer[0]).strip().lower() in skip_keywords:
+            is_skip = True
+        elif message and not answer and message.strip().lower() in skip_keywords:
+            is_skip = True
+
+        # Sanitize any accidental skip words from previous runs
+        for lf in ["common_services", "online_activities", "common_communication_types"]:
+            val = getattr(profile, lf, None)
+            if val and isinstance(val, list):
+                cleaned = [x for x in val if str(x).strip().lower() not in skip_keywords]
+                if len(cleaned) != len(val):
+                    setattr(profile, lf, cleaned)
+                    db.commit()
+
         # Handle natural language freeform response if field/answer not explicitly given
-        if message and (not field or not answer):
+        if message and (not field or not answer) and not is_skip:
             extracted = self._extract_profile_from_freeform_text(message, profile, db)
             if extracted:
                 changes = []
@@ -344,7 +373,7 @@ class ConversationalProfilingService:
                 field = list(extracted.keys())[0] if extracted else "custom_information"
                 answer = message
 
-        elif field and field in ALLOWED_PROFILE_FIELDS:
+        elif field and field in ALLOWED_PROFILE_FIELDS and not is_skip:
             norm_val = answer
             if answer == "Other" and custom_answer:
                 norm_val = custom_answer.strip()
@@ -354,14 +383,18 @@ class ConversationalProfilingService:
 
             changes = []
             if field in ["common_services", "online_activities", "common_communication_types"]:
-                items = norm_val if isinstance(norm_val, list) else [norm_val]
+                raw_items = norm_val if isinstance(norm_val, list) else [norm_val]
+                items = [str(x).strip() for x in raw_items if str(x).strip().lower() not in skip_keywords]
                 if "Other" in items and custom_answer:
                     items = [x for x in items if x != "Other"] + [custom_answer.strip()]
-                changes.append({"field": field, "operation": "set", "value": items})
+                if items:
+                    changes.append({"field": field, "operation": "set", "value": items})
             else:
-                changes.append({"field": field, "operation": "set", "value": norm_val})
+                if str(norm_val).strip().lower() not in skip_keywords:
+                    changes.append({"field": field, "operation": "set", "value": norm_val})
 
-            self.apply_validated_changes(profile, changes, db, source="onboarding")
+            if changes:
+                self.apply_validated_changes(profile, changes, db, source="onboarding")
 
         # Sync RAG memory
         user_profile_rag.sync_user_profile_memory(user_id, profile, db)
@@ -376,14 +409,15 @@ class ConversationalProfilingService:
         user_msg = {
             "role": "user",
             "field": field,
-            "answer": answer,
+            "answer": "Skipped" if is_skip else answer,
             "custom_answer": custom_answer,
-            "message": message
+            "message": message,
+            "is_skip": is_skip
         }
         curr_msgs = list(conv.messages or []) if conv else []
         curr_msgs.append(user_msg)
 
-        # Determine next question dynamically
+        # Determine next question dynamically (Strict anti-repetition)
         next_q, ack_message, is_complete = self._generate_next_question(profile, curr_msgs, db)
 
         if next_q:
@@ -405,6 +439,8 @@ class ConversationalProfilingService:
             conv.messages = curr_msgs
             db.commit()
 
+        feedback_text = "Skipped question." if is_skip else (f"Saved {field} successfully." if field else "Profile updated successfully.")
+
         return {
             "conversation_id": conversation_id,
             "assistant_message": ack_message,
@@ -412,7 +448,7 @@ class ConversationalProfilingService:
             "next_question": next_q,
             "extracted_profile": self._profile_to_dict(profile),
             "profile_completion": comp["completion_percentage"],
-            "feedback_note": f"Saved {field} successfully." if field else "Profile updated successfully."
+            "feedback_note": feedback_text
         }
 
     def _extract_profile_from_freeform_text(self, text: str, profile: UserProfile, db: Session) -> Dict[str, Any]:
@@ -477,57 +513,38 @@ class ConversationalProfilingService:
         Spec §5, §7, §8, §27: Dynamic question planner.
         Chooses the next useful question based on role and missing dimensions.
         Supports question types: single_choice, multiple_choice, yes_no, scale, free_text.
-        Stops when sufficient context exists (Rule 3).
+        Strict anti-repetition: guarantees that no field or question is ever repeated.
         """
         answered_fields = set()
+        already_asked_fields = set()
+
         for m in history:
             if m.get("role") == "user" and m.get("field"):
                 answered_fields.add(m["field"])
+            if m.get("role") == "assistant" and isinstance(m.get("question"), dict):
+                q_field = m["question"].get("profile_field")
+                if q_field:
+                    already_asked_fields.add(q_field)
+
+        # Any field that has been answered or previously presented in this conversation is handled
+        handled_fields = answered_fields.union(already_asked_fields)
 
         role = profile.role or "Student"
-        step_num = len(answered_fields) + 1
+        total_steps = 5
 
-        # Check completeness details
-        comp = self.get_completeness_details(profile)
-        # If we have role, services/activities, and awareness, or completion >= 75%, we can finish
-        if comp["completion_percentage"] >= 75 and step_num >= 4:
-            final_message = (
-                f"🎉 **Your personalized security profile is ready!**\n\n"
-                f"• **Role:** {profile.role}\n"
-                f"• **Awareness Tier:** {profile.security_awareness}\n"
-                f"• **Monitored Ecosystems:** {', '.join(profile.common_services[:4]) if profile.common_services else 'General Web'}\n"
-                f"• **Explanation Style:** {profile.preferred_explanation_style}\n\n"
-                f"PhishGuard AI will now personalize threat explanations, highlight ecosystem lookalikes, "
-                f"and tailor action plans to your specific operational context."
-            )
-            return None, final_message, True
+        # Calculate step count from questions asked so far
+        questions_asked = sum(1 for m in history if m.get("role") == "assistant" and m.get("question"))
+        step_num = min(questions_asked + 1, total_steps)
 
-        # --- Dynamic Question Tree Tailored by Role ---
+        candidate_question = None
+        candidate_ack = ""
 
-        # 1. Activities & Communications
-        if "online_activities" not in answered_fields and "common_communication_types" not in answered_fields:
-            if role == "Student":
-                return {
-                    "question": "What kind of messages and campus communications do you receive most often?",
-                    "question_type": "multiple_choice",
-                    "options": [
-                        "Internship & Job Offers",
-                        "University Coursework & Notices",
-                        "Campus Club / Societies",
-                        "Student Loan & Financial Aid",
-                        "Social Media Direct Messages",
-                        "Other"
-                    ],
-                    "allow_custom_input": True,
-                    "profile_field": "common_communication_types",
-                    "next_action": "await_answer",
-                    "current_step": step_num,
-                    "total_steps": 5,
-                    "profile_completion": 40
-                }, "Great! Understanding your primary message types helps detect fake internship lures and scholarship scams. What do you receive most often?", False
+        # --- Dynamic Question Selection Tree (Guaranteed Non-Repeating) ---
 
-            elif role in ["Developer", "Software Developer"]:
-                return {
+        # Step 2 & 3: Role-specific contextual questions
+        if role in ["Developer", "Software Developer"]:
+            if "common_services" not in handled_fields:
+                candidate_question = {
                     "question": "Which developer platforms, cloud providers, and repositories do you interact with?",
                     "question_type": "multiple_choice",
                     "options": [
@@ -543,12 +560,79 @@ class ConversationalProfilingService:
                     "profile_field": "common_services",
                     "next_action": "await_answer",
                     "current_step": step_num,
-                    "total_steps": 5,
-                    "profile_completion": 45
-                }, "Understood! Developer credentials and access tokens are prime targets for supply chain attacks. Which platforms do you rely on?", False
+                    "total_steps": total_steps,
+                    "profile_completion": 40
+                }
+                candidate_ack = "Understood! Developer credentials and access tokens are prime targets for supply chain attacks. Which platforms do you rely on?"
 
-            elif role in ["Employee", "Business Owner", "IT Professional"]:
-                return {
+            elif "common_communication_types" not in handled_fields:
+                candidate_question = {
+                    "question": "Which developer notifications, alerts, and workflow channels do you encounter most often?",
+                    "question_type": "multiple_choice",
+                    "options": [
+                        "Repository PRs, Code Reviews & Issues",
+                        "CI/CD & Cloud Pipeline Notifications",
+                        "Slack / Discord Developer Channels",
+                        "Package Registry Advisories (npm, PyPI)",
+                        "Work / Corporate Email",
+                        "Other"
+                    ],
+                    "allow_custom_input": True,
+                    "profile_field": "common_communication_types",
+                    "next_action": "await_answer",
+                    "current_step": step_num,
+                    "total_steps": total_steps,
+                    "profile_completion": 60
+                }
+                candidate_ack = "Got it! Threat actors frequently spoof repository invitations, CI/CD pipeline alerts, or malicious package dependencies. What communications do you see most?"
+
+        elif role == "Student":
+            if "common_communication_types" not in handled_fields:
+                candidate_question = {
+                    "question": "What kind of messages and campus communications do you receive most often?",
+                    "question_type": "multiple_choice",
+                    "options": [
+                        "Internship & Job Offers",
+                        "University Coursework & Notices",
+                        "Campus Club / Societies",
+                        "Student Loan & Financial Aid",
+                        "Social Media Direct Messages",
+                        "Other"
+                    ],
+                    "allow_custom_input": True,
+                    "profile_field": "common_communication_types",
+                    "next_action": "await_answer",
+                    "current_step": step_num,
+                    "total_steps": total_steps,
+                    "profile_completion": 40
+                }
+                candidate_ack = "Great! Understanding your primary message types helps detect fake internship lures and scholarship scams. What do you receive most often?"
+
+            elif "common_services" not in handled_fields:
+                candidate_question = {
+                    "question": "Which account ecosystems and online services do you commonly use and monitor?",
+                    "question_type": "multiple_choice",
+                    "options": [
+                        "Google (Gmail, Drive, Docs)",
+                        "Microsoft (Outlook, Office 365, Teams)",
+                        "University / Student Portals",
+                        "LinkedIn & Career Portals",
+                        "Online Banking & UPI / PayPal",
+                        "Social Media (Instagram, Discord)",
+                        "Other"
+                    ],
+                    "allow_custom_input": True,
+                    "profile_field": "common_services",
+                    "next_action": "await_answer",
+                    "current_step": step_num,
+                    "total_steps": total_steps,
+                    "profile_completion": 60
+                }
+                candidate_ack = "Thanks! Monitoring these platforms helps PhishGuard AI flag credential harvesting lookalikes."
+
+        elif role in ["Employee", "Business Owner", "IT Professional"]:
+            if "banking_usage" not in handled_fields:
+                candidate_question = {
                     "question": "Do you handle vendor invoices, payroll, or business wire communications?",
                     "question_type": "yes_no",
                     "options": ["Yes", "No"],
@@ -556,12 +640,36 @@ class ConversationalProfilingService:
                     "profile_field": "banking_usage",
                     "next_action": "await_answer",
                     "current_step": step_num,
-                    "total_steps": 5,
-                    "profile_completion": 45
-                }, "Understood. Work environments face targeted Business Email Compromise (BEC) and fake invoices. Do you handle financial or vendor communications?", False
+                    "total_steps": total_steps,
+                    "profile_completion": 40
+                }
+                candidate_ack = "Understood. Work environments face targeted Business Email Compromise (BEC) and fake invoices. Do you handle financial or vendor communications?"
 
-            else:
-                return {
+            elif "common_services" not in handled_fields:
+                candidate_question = {
+                    "question": "Which workplace platforms, enterprise ecosystems, and identity providers do you use?",
+                    "question_type": "multiple_choice",
+                    "options": [
+                        "Microsoft 365 (Outlook, Teams, SharePoint)",
+                        "Google Workspace",
+                        "Salesforce / CRM & ERP Systems",
+                        "Slack / Zoom",
+                        "Cloud / VPN & SSO Portals (Okta, AWS, Azure)",
+                        "Corporate Banking & Payroll Portals",
+                        "Other"
+                    ],
+                    "allow_custom_input": True,
+                    "profile_field": "common_services",
+                    "next_action": "await_answer",
+                    "current_step": step_num,
+                    "total_steps": total_steps,
+                    "profile_completion": 60
+                }
+                candidate_ack = "Got it! Enterprise SSO portals and SaaS lookalikes are primary vectors for targeted corporate phishing. Which platforms do you use?"
+
+        else: # Other roles
+            if "online_activities" not in handled_fields:
+                candidate_question = {
                     "question": "What are your primary digital activities day-to-day?",
                     "question_type": "multiple_choice",
                     "options": [
@@ -576,13 +684,37 @@ class ConversationalProfilingService:
                     "profile_field": "online_activities",
                     "next_action": "await_answer",
                     "current_step": step_num,
-                    "total_steps": 5,
+                    "total_steps": total_steps,
                     "profile_completion": 40
-                }, "Got it! Let's see what online services you interact with most. What are your primary daily activities?", False
+                }
+                candidate_ack = "Got it! Let's see what online services you interact with most. What are your primary daily activities?"
 
-        # 2. Services Ecosystem (if not answered)
-        if "common_services" not in answered_fields:
-            return {
+            elif "common_services" not in handled_fields:
+                candidate_question = {
+                    "question": "Which account ecosystems and services do you commonly use and monitor?",
+                    "question_type": "multiple_choice",
+                    "options": [
+                        "Google (Gmail, Drive, Docs)",
+                        "Microsoft (Outlook, Office 365, Teams)",
+                        "GitHub / GitLab",
+                        "LinkedIn & Career Portals",
+                        "Online Banking & UPI / PayPal",
+                        "Amazon & Shopping Portals",
+                        "Social Media (Instagram, X, Facebook)",
+                        "Other"
+                    ],
+                    "allow_custom_input": True,
+                    "profile_field": "common_services",
+                    "next_action": "await_answer",
+                    "current_step": step_num,
+                    "total_steps": total_steps,
+                    "profile_completion": 60
+                }
+                candidate_ack = "Thanks! Identifying your commonly used accounts enables PhishGuard AI to flag lookalike domains and credential harvesters."
+
+        # If role-specific branches didn't assign a question, check general common_services
+        if not candidate_question and "common_services" not in handled_fields:
+            candidate_question = {
                 "question": "Which account ecosystems and services do you commonly use and monitor?",
                 "question_type": "multiple_choice",
                 "options": [
@@ -599,13 +731,14 @@ class ConversationalProfilingService:
                 "profile_field": "common_services",
                 "next_action": "await_answer",
                 "current_step": step_num,
-                "total_steps": 5,
+                "total_steps": total_steps,
                 "profile_completion": 60
-            }, "Thanks! Identifying your commonly used accounts enables PhishGuard AI to flag lookalike domains and credential harvesters.", False
+            }
+            candidate_ack = "Thanks! Identifying your commonly used accounts enables PhishGuard AI to flag lookalike domains."
 
-        # 3. Security Awareness / Confidence (Scale 1-5 or tier)
-        if "security_awareness" not in answered_fields:
-            return {
+        # Step 4: Security Awareness & Confidence
+        if not candidate_question and "security_awareness" not in handled_fields:
+            candidate_question = {
                 "question": "How confident are you at identifying subtle phishing indicators, spoofed headers, and lookalike domains?",
                 "question_type": "scale",
                 "options": [
@@ -619,13 +752,14 @@ class ConversationalProfilingService:
                 "profile_field": "security_awareness",
                 "next_action": "await_answer",
                 "current_step": step_num,
-                "total_steps": 5,
+                "total_steps": total_steps,
                 "profile_completion": 75
-            }, "Let's calibrate your security awareness to match your experience level.", False
+            }
+            candidate_ack = "Let's calibrate your security awareness to match your experience level."
 
-        # 4. Explanation Preference
-        if "preferred_explanation_style" not in answered_fields:
-            return {
+        # Step 5: Preferred Explanation Style
+        if not candidate_question and "preferred_explanation_style" not in handled_fields:
+            candidate_question = {
                 "question": "How would you like security explanations and action plans to be presented?",
                 "question_type": "single_choice",
                 "options": [
@@ -637,11 +771,15 @@ class ConversationalProfilingService:
                 "profile_field": "preferred_explanation_style",
                 "next_action": "await_answer",
                 "current_step": step_num,
-                "total_steps": 5,
+                "total_steps": total_steps,
                 "profile_completion": 90
-            }, "Almost finished! How would you prefer threat explanations and action recommendations to look?", False
+            }
+            candidate_ack = "Almost finished! How would you prefer threat explanations and action recommendations to look?"
 
-        # 5. Finished!
+        if candidate_question:
+            return candidate_question, candidate_ack, False
+
+        # All steps completed!
         final_message = (
             f"🎉 **Your personalized security profile is ready!**\n\n"
             f"• **Role:** {profile.role}\n"

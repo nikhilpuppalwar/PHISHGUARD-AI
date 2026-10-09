@@ -147,9 +147,13 @@ export default function OnboardingPage({ onNavigate }) {
     }
 
     // Display user message in feed
-    const displayUserText = Array.isArray(finalAnswer)
+    let displayUserText = Array.isArray(finalAnswer)
       ? finalAnswer.map((a) => (a === 'Other' && customAns ? `Other (${customAns})` : a)).join(', ')
       : (finalAnswer === 'Other' && customAns ? `Other: ${customAns}` : String(finalAnswer));
+
+    if (typeof finalAnswer === 'string' && ['skip', 'next', 'pass'].includes(finalAnswer.trim().toLowerCase())) {
+      displayUserText = 'Skipped';
+    }
 
     setMessages((prev) => [
       ...prev,
@@ -205,8 +209,9 @@ export default function OnboardingPage({ onNavigate }) {
     }
   };
 
-  const stepDots = [1, 2, 3, 4];
-  const activeStep = currentQuestion ? (currentQuestion.current_step || 1) : 4;
+  const totalSteps = currentQuestion?.total_steps || 5;
+  const activeStep = currentQuestion ? (currentQuestion.current_step || 1) : totalSteps;
+  const stepDots = Array.from({ length: totalSteps }, (_, i) => i + 1);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col pt-16 pb-12">
@@ -340,7 +345,7 @@ export default function OnboardingPage({ onNavigate }) {
                     </span>
                   </div>
                   <span className="text-xs text-slate-500 font-semibold font-mono">
-                    Step {activeStep} of 4
+                    Step {activeStep} of {totalSteps}
                   </span>
                 </div>
 
@@ -466,15 +471,24 @@ export default function OnboardingPage({ onNavigate }) {
                     <span className="text-xs text-slate-600 font-medium font-mono">
                       {selectedOptions.length} option(s) selected
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => submitAnswer()}
-                      disabled={selectedOptions.length === 0 && !customText.trim()}
-                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-xs transition disabled:opacity-50 flex items-center gap-2"
-                    >
-                      <span>Confirm & Next</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => submitAnswer('skip')}
+                        className="px-3.5 py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+                      >
+                        Skip
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => submitAnswer()}
+                        disabled={selectedOptions.length === 0 && !customText.trim()}
+                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-xs transition disabled:opacity-50 flex items-center gap-2"
+                      >
+                        <span>Confirm & Next</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -484,7 +498,7 @@ export default function OnboardingPage({ onNavigate }) {
                     type="text"
                     value={freeText}
                     onChange={(e) => setFreeText(e.target.value)}
-                    placeholder="Or type naturally in your own words (e.g. 'I am a final-year student...')"
+                    placeholder="Or type naturally in your own words (e.g. 'I am a software developer...')"
                     className="flex-1 px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && freeText.trim()) {
@@ -534,7 +548,9 @@ export default function OnboardingPage({ onNavigate }) {
               <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/80 space-y-1">
                 <span className="text-xs text-slate-400 block uppercase font-semibold">Online Activities</span>
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {(extractedProfile.online_activities?.length > 0 ? extractedProfile.online_activities : ['Standard Web']).map((a, i) => (
+                  {((extractedProfile.online_activities || []).filter((a) => !['next', 'skip', 'pass'].includes(String(a).toLowerCase())).length > 0
+                    ? extractedProfile.online_activities.filter((a) => !['next', 'skip', 'pass'].includes(String(a).toLowerCase()))
+                    : ['Standard Web']).map((a, i) => (
                     <span key={i} className="text-xs bg-navy-950 text-slate-200 px-2 py-0.5 rounded border border-slate-700 font-medium">
                       {a}
                     </span>
@@ -545,7 +561,9 @@ export default function OnboardingPage({ onNavigate }) {
               <div className="p-3.5 rounded-lg bg-navy-800 border border-slate-700/80 space-y-1">
                 <span className="text-xs text-slate-400 block uppercase font-semibold">Services & Platforms</span>
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {(extractedProfile.common_services?.length > 0 ? extractedProfile.common_services : ['Google / Webmail']).map((s, i) => (
+                  {((extractedProfile.common_services || []).filter((s) => !['next', 'skip', 'pass'].includes(String(s).toLowerCase())).length > 0
+                    ? extractedProfile.common_services.filter((s) => !['next', 'skip', 'pass'].includes(String(s).toLowerCase()))
+                    : ['None Specified']).map((s, i) => (
                     <span key={i} className="text-xs bg-navy-950 text-slate-200 px-2 py-0.5 rounded border border-slate-700 font-medium">
                       {s}
                     </span>
